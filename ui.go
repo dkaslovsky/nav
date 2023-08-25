@@ -31,7 +31,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *model) View() string {
 	output := []string{}
 	for _, file := range m.files {
-		output = append(output, file.Name())
+		output = append(output, file.NameWithColor())
 	}
 	return strings.Join(output, "\n")
 }
