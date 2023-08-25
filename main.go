@@ -22,7 +22,8 @@ func main() {
 	}
 
 	m := &model{
-		path: startPath,
+		path:   startPath,
+		hidden: false, // TODO: expose as a cli flag
 	}
 
 	err = m.list()
