@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -11,19 +13,15 @@ import (
 func main() {
 	var err error
 
-	var startPath string
-	if len(os.Args) == 2 {
-		startPath, err = filepath.Abs(os.Args[1])
-	} else {
-		startPath, err = os.Getwd()
-	}
+	opts := newOptions()
+	err = parseArgs(os.Args[1:], &opts)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	m := &model{
-		path:   startPath,
-		hidden: false, // TODO: expose as a cli flag
+		path:   opts.startPath,
+		hidden: opts.hidden,
 	}
 
 	err = m.list()
@@ -36,5 +34,60 @@ func main() {
 		log.Fatal(err)
 	}
 
+	os.Exit(0)
+}
+
+// options are configuration options set from the command line.
+type options struct {
+	startPath string
+	hidden    bool
+}
+
+// newOptions return options with default values.
+func newOptions() options {
+	return options{
+		hidden: false,
+	}
+}
+
+func parseArgs(args []string, opts *options) error {
+	var err error
+
+	for _, arg := range args {
+		switch arg {
+		case "--help", "-h":
+			usage()
+		case "--version", "-v":
+			version()
+		case "--hidden":
+			opts.hidden = true
+		default:
+			if strings.HasPrefix(arg, "-") {
+				return fmt.Errorf("unknown flag: %s", arg)
+			}
+			opts.startPath, err = filepath.Abs(arg)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if opts.startPath == "" {
+		opts.startPath, err = os.Getwd()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func usage() {
+	_, _ = fmt.Fprintf(os.Stderr, "usage todo...")
+	os.Exit(0)
+}
+
+func version() {
+	_, _ = fmt.Fprintf(os.Stderr, "version todo...")
 	os.Exit(0)
 }
