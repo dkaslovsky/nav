@@ -1,13 +1,8 @@
 package main
 
 import (
-	"io/fs"
 	"os"
 )
-
-type entry struct {
-	fs.DirEntry
-}
 
 type model struct {
 	path  string
@@ -20,10 +15,11 @@ func (m *model) list() error {
 		return err
 	}
 
-	m.files = nil
+	m.files = []*entry{}
 	for _, file := range files {
 		m.files = append(m.files, &entry{file})
 	}
+	sortEntriesByType(m.files)
 
 	return nil
 }
