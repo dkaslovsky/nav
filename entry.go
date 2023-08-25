@@ -34,18 +34,16 @@ const (
 	colorReset   color = "\033[0m"
 )
 
-func (e *entry) NameWithColor() string {
+func (e *entry) displayName() string {
+	color := colorGray
 	if e.IsSymlink() {
-		return fmt.Sprintf("%s%s%s", colorMagenta, e.Name(), colorReset)
+		color = colorMagenta
+	} else if e.IsHidden() {
+		color = colorGreen
+	} else if e.IsDir() {
+		color = colorCyan
 	}
-	if e.IsHidden() {
-		return fmt.Sprintf("%s%s%s", colorGreen, e.Name(), colorReset)
-	}
-	if e.IsDir() {
-		return fmt.Sprintf("%s%s%s", colorCyan, e.Name(), colorReset)
-	}
-	// Regular file.
-	return fmt.Sprintf("%s%s%s", colorGray, e.Name(), colorReset)
+	return fmt.Sprintf("%s%s%s", color, e.Name(), colorReset)
 }
 
 // sortEntriesByType performs an in-place sort of a slice of entries by type and alphabetically within
