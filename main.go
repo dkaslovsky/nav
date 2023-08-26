@@ -20,8 +20,9 @@ func main() {
 	}
 
 	m := &model{
-		path:   opts.startPath,
-		hidden: opts.hidden,
+		path:              opts.startPath,
+		modeHidden:        opts.modeHidden,
+		modeFollowSymlink: opts.modeFollowSymlink,
 	}
 
 	err = m.list()
@@ -39,14 +40,16 @@ func main() {
 
 // options are configuration options set from the command line.
 type options struct {
-	startPath string
-	hidden    bool
+	startPath         string
+	modeHidden        bool
+	modeFollowSymlink bool
 }
 
 // newOptions return options with default values.
 func newOptions() options {
 	return options{
-		hidden: false,
+		modeHidden:        false,
+		modeFollowSymlink: false,
 	}
 }
 
@@ -60,7 +63,9 @@ func parseArgs(args []string, opts *options) error {
 		case "--version", "-v":
 			version()
 		case "--hidden":
-			opts.hidden = true
+			opts.modeHidden = true
+		case "--follow-symlinks":
+			opts.modeHidden = true
 		default:
 			if strings.HasPrefix(arg, "-") {
 				return fmt.Errorf("unknown flag: %s", arg)

@@ -6,9 +6,11 @@ import (
 )
 
 type model struct {
-	path   string
-	files  []*entry
-	hidden bool
+	path  string
+	files []*entry
+
+	modeHidden        bool
+	modeFollowSymlink bool
 }
 
 func (m *model) list() error {
@@ -27,13 +29,20 @@ func (m *model) list() error {
 }
 
 func (m *model) view() string {
+	displayNameOpts := []displayNameOption{
+		displayNameWithColor(),
+	}
+	if m.modeFollowSymlink {
+		displayNameOpts = append(displayNameOpts, displayNameWithFollowSymlink(m.path))
+	}
+
 	output := []string{}
 	for _, file := range m.files {
 		// Optionally do not show hidden files.
-		if !m.hidden && file.IsHidden() {
+		if !m.modeHidden && file.IsHidden() {
 			continue
 		}
-		output = append(output, file.displayName())
+		output = append(output, file.displayName(displayNameOpts...))
 	}
 	return strings.Join(output, "\n")
 }

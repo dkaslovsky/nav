@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -34,16 +35,55 @@ const (
 	colorReset   color = "\033[0m"
 )
 
-func (e *entry) displayName() string {
-	color := colorGray
-	if e.IsSymlink() {
-		color = colorMagenta
-	} else if e.IsHidden() {
-		color = colorGreen
-	} else if e.IsDir() {
-		color = colorCyan
+// displayNameConfig contains configuration values for constructing an entry's display name.
+type displayNameConfig struct {
+	color color
+	name  string
+}
+
+// displayNameOption is a functional option for setting displayNameConfig values.
+type displayNameOption func(*displayNameConfig, *entry)
+
+func displayNameWithColor() displayNameOption {
+	return func(c *displayNameConfig, e *entry) {
+		if e.IsSymlink() {
+			c.color = colorMagenta
+			return
+		}
+		if e.IsHidden() {
+			c.color = colorGreen
+			return
+		}
+		if e.IsDir() {
+			c.color = colorCyan
+			return
+		}
 	}
-	return fmt.Sprintf("%s%s%s", color, e.Name(), colorReset)
+}
+
+func displayNameWithFollowSymlink(path string) displayNameOption {
+	return func(c *displayNameConfig, e *entry) {
+		if !e.IsSymlink() {
+			return
+		}
+		if followedName, err := filepath.EvalSymlinks(filepath.Join(path, e.Name())); err == nil {
+			c.name = fmt.Sprintf("%s%s -> %s", e.Name(), colorReset, followedName)
+		}
+	}
+}
+
+// displayName returns a formatted name for display in the terminal.
+func (e *entry) displayName(opts ...displayNameOption) string {
+	c := &displayNameConfig{
+		name:  e.Name(),
+		color: colorGray,
+	}
+
+	for _, opt := range opts {
+		opt(c, e)
+	}
+
+	return fmt.Sprintf("%s%s%s", c.color, c.name, colorReset)
 }
 
 // sortEntriesByType performs an in-place sort of a slice of entries by type and alphabetically within
