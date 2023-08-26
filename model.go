@@ -9,6 +9,9 @@ type model struct {
 	path  string
 	files []*entry
 
+	width  int // Terminal width.
+	height int // Terminal height.
+
 	modeColor         bool
 	modeHidden        bool
 	modeFollowSymlink bool

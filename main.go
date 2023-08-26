@@ -15,6 +15,9 @@ func main() {
 
 	// Initialize model with defaults.
 	m := &model{
+		width:  80,
+		height: 60,
+
 		modeColor:         true,
 		modeHidden:        false,
 		modeFollowSymlink: false,
