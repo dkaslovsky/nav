@@ -51,7 +51,7 @@ func (m *model) view() string {
 		if !m.modeHidden && file.IsHidden() {
 			continue
 		}
-		output = append(output, file.displayName(displayNameOpts...))
+		output = append(output, newDisplayName(file, displayNameOpts...).String())
 	}
 	return strings.Join(output, "\n")
 }

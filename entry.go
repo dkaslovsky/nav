@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -23,84 +21,6 @@ func (e *entry) IsSymlink() bool {
 		return false
 	}
 	return fi.Mode()&os.ModeSymlink == os.ModeSymlink
-}
-
-type color string
-
-const (
-	colorCyan    color = "\033[36m"
-	colorGreen   color = "\033[32m"
-	colorGray    color = "\033[37m"
-	colorMagenta color = "\033[35m"
-	colorReset   color = "\033[0m"
-)
-
-// displayNameConfig contains configuration values for constructing an entry's display name.
-type displayNameConfig struct {
-	color     color
-	name      string
-	nameExtra string
-	trailing  string
-}
-
-// displayNameOption is a functional option for setting displayNameConfig values.
-type displayNameOption func(*displayNameConfig, *entry)
-
-func displayNameWithColor() displayNameOption {
-	return func(c *displayNameConfig, e *entry) {
-		if e.IsSymlink() {
-			c.color = colorMagenta
-			return
-		}
-		if e.IsHidden() {
-			c.color = colorGreen
-			return
-		}
-		if e.IsDir() {
-			c.color = colorCyan
-			return
-		}
-	}
-}
-
-func displayNameWithFollowSymlink(path string) displayNameOption {
-	return func(c *displayNameConfig, e *entry) {
-		if !e.IsSymlink() {
-			return
-		}
-		if followedName, err := filepath.EvalSymlinks(filepath.Join(path, e.Name())); err == nil {
-			c.nameExtra = fmt.Sprintf(" -> %s", followedName)
-		}
-	}
-}
-
-func displayNameWithTrailing() displayNameOption {
-	return func(c *displayNameConfig, e *entry) {
-		if e.IsSymlink() {
-			c.trailing = "@"
-			return
-		}
-		if e.IsDir() {
-			c.trailing = "/"
-			return
-		}
-	}
-}
-
-// displayName returns a formatted name for display in the terminal.
-func (e *entry) displayName(opts ...displayNameOption) string {
-	c := &displayNameConfig{
-		name:      e.Name(),
-		nameExtra: "",
-		trailing:  "",
-		color:     colorGray,
-	}
-
-	for _, opt := range opts {
-		opt(c, e)
-	}
-
-	return fmt.Sprintf("%s%s%s%s%s", c.color, c.name, colorReset, c.trailing, c.nameExtra)
 }
 
 // sortEntriesByType performs an in-place sort of a slice of entries by type and alphabetically within
