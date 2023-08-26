@@ -45,13 +45,23 @@ func (m *model) view() string {
 		displayNameOpts = append(displayNameOpts, displayNameWithTrailing())
 	}
 
-	output := []string{}
+	displayNames := []*displayName{}
 	for _, file := range m.files {
 		// Optionally do not show hidden files.
 		if !m.modeHidden && file.IsHidden() {
 			continue
 		}
-		output = append(output, newDisplayName(file, displayNameOpts...).String())
+		displayNames = append(displayNames, newDisplayName(file, displayNameOpts...))
 	}
+
+	gridNames, layout := grid(displayNames, m.width, m.height)
+
+	output := make([]string, layout.rows)
+	for row := 0; row < layout.rows; row++ {
+		for col := 0; col < layout.columns; col++ {
+			output[row] += gridNames[col][row] + separator
+		}
+	}
+
 	return strings.Join(output, "\n")
 }
