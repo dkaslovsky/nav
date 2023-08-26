@@ -14,21 +14,15 @@ func main() {
 	var err error
 
 	// Initialize model with defaults.
-	m := &model{
-		width:  80,
-		height: 60,
+	m := newModel()
 
-		modeColor:         true,
-		modeHidden:        false,
-		modeFollowSymlink: false,
-		modeTrailing:      true,
-	}
-
+	// Set model options from args.
 	err = parseArgs(os.Args[1:], m)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Populate the model.
 	err = m.list()
 	if err != nil {
 		log.Fatal(err)

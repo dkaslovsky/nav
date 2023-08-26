@@ -18,6 +18,18 @@ type model struct {
 	modeTrailing      bool
 }
 
+func newModel() *model {
+	return &model{
+		width:  80,
+		height: 60,
+
+		modeColor:         true,
+		modeHidden:        false,
+		modeFollowSymlink: false,
+		modeTrailing:      true,
+	}
+}
+
 func (m *model) list() error {
 	files, err := os.ReadDir(m.path)
 	if err != nil {
