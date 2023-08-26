@@ -9,6 +9,7 @@ type model struct {
 	path  string
 	files []*entry
 
+	modeColor         bool
 	modeHidden        bool
 	modeFollowSymlink bool
 }
@@ -29,8 +30,9 @@ func (m *model) list() error {
 }
 
 func (m *model) view() string {
-	displayNameOpts := []displayNameOption{
-		displayNameWithColor(),
+	displayNameOpts := []displayNameOption{}
+	if m.modeColor {
+		displayNameOpts = append(displayNameOpts, displayNameWithColor())
 	}
 	if m.modeFollowSymlink {
 		displayNameOpts = append(displayNameOpts, displayNameWithFollowSymlink(m.path))

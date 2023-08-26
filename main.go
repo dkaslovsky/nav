@@ -21,6 +21,7 @@ func main() {
 
 	m := &model{
 		path:              opts.startPath,
+		modeColor:         opts.modeColor,
 		modeHidden:        opts.modeHidden,
 		modeFollowSymlink: opts.modeFollowSymlink,
 	}
@@ -41,6 +42,7 @@ func main() {
 // options are configuration options set from the command line.
 type options struct {
 	startPath         string
+	modeColor         bool
 	modeHidden        bool
 	modeFollowSymlink bool
 }
@@ -48,6 +50,7 @@ type options struct {
 // newOptions return options with default values.
 func newOptions() options {
 	return options{
+		modeColor:         true,
 		modeHidden:        false,
 		modeFollowSymlink: false,
 	}
@@ -62,6 +65,8 @@ func parseArgs(args []string, opts *options) error {
 			usage()
 		case "--version", "-v":
 			version()
+		case "--no-color":
+			opts.modeColor = false
 		case "--hidden":
 			opts.modeHidden = true
 		case "--follow-symlinks":
