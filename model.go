@@ -12,6 +12,7 @@ type model struct {
 	modeColor         bool
 	modeHidden        bool
 	modeFollowSymlink bool
+	modeTrailing      bool
 }
 
 func (m *model) list() error {
@@ -36,6 +37,9 @@ func (m *model) view() string {
 	}
 	if m.modeFollowSymlink {
 		displayNameOpts = append(displayNameOpts, displayNameWithFollowSymlink(m.path))
+	}
+	if m.modeTrailing {
+		displayNameOpts = append(displayNameOpts, displayNameWithTrailing())
 	}
 
 	output := []string{}

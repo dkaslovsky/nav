@@ -24,6 +24,7 @@ func main() {
 		modeColor:         opts.modeColor,
 		modeHidden:        opts.modeHidden,
 		modeFollowSymlink: opts.modeFollowSymlink,
+		modeTrailing:      opts.modeTrailing,
 	}
 
 	err = m.list()
@@ -45,6 +46,7 @@ type options struct {
 	modeColor         bool
 	modeHidden        bool
 	modeFollowSymlink bool
+	modeTrailing      bool
 }
 
 // newOptions return options with default values.
@@ -53,6 +55,7 @@ func newOptions() options {
 		modeColor:         true,
 		modeHidden:        false,
 		modeFollowSymlink: false,
+		modeTrailing:      true,
 	}
 }
 
@@ -71,6 +74,8 @@ func parseArgs(args []string, opts *options) error {
 			opts.modeHidden = true
 		case "--follow-symlinks":
 			opts.modeFollowSymlink = true
+		case "--no-trailing":
+			opts.modeTrailing = false
 		default:
 			if strings.HasPrefix(arg, "-") {
 				return fmt.Errorf("unknown flag: %s", arg)

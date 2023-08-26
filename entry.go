@@ -37,8 +37,10 @@ const (
 
 // displayNameConfig contains configuration values for constructing an entry's display name.
 type displayNameConfig struct {
-	color color
-	name  string
+	color     color
+	name      string
+	nameExtra string
+	trailing  string
 }
 
 // displayNameOption is a functional option for setting displayNameConfig values.
@@ -67,7 +69,20 @@ func displayNameWithFollowSymlink(path string) displayNameOption {
 			return
 		}
 		if followedName, err := filepath.EvalSymlinks(filepath.Join(path, e.Name())); err == nil {
-			c.name = fmt.Sprintf("%s%s -> %s", e.Name(), colorReset, followedName)
+			c.nameExtra = fmt.Sprintf(" -> %s", followedName)
+		}
+	}
+}
+
+func displayNameWithTrailing() displayNameOption {
+	return func(c *displayNameConfig, e *entry) {
+		if e.IsSymlink() {
+			c.trailing = "@"
+			return
+		}
+		if e.IsDir() {
+			c.trailing = "/"
+			return
 		}
 	}
 }
@@ -75,15 +90,17 @@ func displayNameWithFollowSymlink(path string) displayNameOption {
 // displayName returns a formatted name for display in the terminal.
 func (e *entry) displayName(opts ...displayNameOption) string {
 	c := &displayNameConfig{
-		name:  e.Name(),
-		color: colorGray,
+		name:      e.Name(),
+		nameExtra: "",
+		trailing:  "",
+		color:     colorGray,
 	}
 
 	for _, opt := range opts {
 		opt(c, e)
 	}
 
-	return fmt.Sprintf("%s%s%s", c.color, c.name, colorReset)
+	return fmt.Sprintf("%s%s%s%s%s", c.color, c.name, colorReset, c.trailing, c.nameExtra)
 }
 
 // sortEntriesByType performs an in-place sort of a slice of entries by type and alphabetically within
