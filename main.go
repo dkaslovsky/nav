@@ -13,18 +13,17 @@ import (
 func main() {
 	var err error
 
-	opts := newOptions()
-	err = parseArgs(os.Args[1:], &opts)
-	if err != nil {
-		log.Fatal(err)
+	// Initialize model with defaults.
+	m := &model{
+		modeColor:         true,
+		modeHidden:        false,
+		modeFollowSymlink: false,
+		modeTrailing:      true,
 	}
 
-	m := &model{
-		path:              opts.startPath,
-		modeColor:         opts.modeColor,
-		modeHidden:        opts.modeHidden,
-		modeFollowSymlink: opts.modeFollowSymlink,
-		modeTrailing:      opts.modeTrailing,
+	err = parseArgs(os.Args[1:], m)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	err = m.list()
@@ -40,26 +39,7 @@ func main() {
 	os.Exit(0)
 }
 
-// options are configuration options set from the command line.
-type options struct {
-	startPath         string
-	modeColor         bool
-	modeHidden        bool
-	modeFollowSymlink bool
-	modeTrailing      bool
-}
-
-// newOptions return options with default values.
-func newOptions() options {
-	return options{
-		modeColor:         true,
-		modeHidden:        false,
-		modeFollowSymlink: false,
-		modeTrailing:      true,
-	}
-}
-
-func parseArgs(args []string, opts *options) error {
+func parseArgs(args []string, m *model) error {
 	var err error
 
 	for _, arg := range args {
@@ -69,26 +49,26 @@ func parseArgs(args []string, opts *options) error {
 		case "--version", "-v":
 			version()
 		case "--no-color":
-			opts.modeColor = false
+			m.modeColor = false
 		case "--hidden":
-			opts.modeHidden = true
+			m.modeHidden = true
 		case "--follow-symlinks":
-			opts.modeFollowSymlink = true
+			m.modeFollowSymlink = true
 		case "--no-trailing":
-			opts.modeTrailing = false
+			m.modeTrailing = false
 		default:
 			if strings.HasPrefix(arg, "-") {
 				return fmt.Errorf("unknown flag: %s", arg)
 			}
-			opts.startPath, err = filepath.Abs(arg)
+			m.path, err = filepath.Abs(arg)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	if opts.startPath == "" {
-		opts.startPath, err = os.Getwd()
+	if m.path == "" {
+		m.path, err = os.Getwd()
 		if err != nil {
 			return err
 		}
