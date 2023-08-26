@@ -70,7 +70,7 @@ func parseArgs(args []string, opts *options) error {
 		case "--hidden":
 			opts.modeHidden = true
 		case "--follow-symlinks":
-			opts.modeHidden = true
+			opts.modeFollowSymlink = true
 		default:
 			if strings.HasPrefix(arg, "-") {
 				return fmt.Errorf("unknown flag: %s", arg)
