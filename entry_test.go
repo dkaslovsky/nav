@@ -3,7 +3,25 @@ package main
 import (
 	"io/fs"
 	"testing"
+	"time"
 )
+
+// Equality is asserted by a name check so all entries must have unique names
+func testEntrySliceEqual(entries1, entries2 []*entry) bool {
+	testEntryEqual := func(entry1, entry2 *entry) bool {
+		return entry1.Name() == entry2.Name()
+	}
+
+	if len(entries1) != len(entries2) {
+		return false
+	}
+	for i, ent := range entries1 {
+		if !testEntryEqual(ent, entries2[i]) {
+			return false
+		}
+	}
+	return true
+}
 
 func TestSortEntriesByType(t *testing.T) {
 	tests := map[string]struct {
@@ -16,20 +34,20 @@ func TestSortEntriesByType(t *testing.T) {
 		},
 		"entries": {
 			entries: []*entry{
-				{&testDirEntry{name: ".hidden1", isDir: false}},
-				{&testDirEntry{name: ".hidden2", isDir: true}},
-				{&testDirEntry{name: "file2", isDir: false}},
-				{&testDirEntry{name: "dir2", isDir: true}},
-				{&testDirEntry{name: "file1", isDir: false}},
-				{&testDirEntry{name: "dir1", isDir: true}},
+				newEntry(&mockDirEntry{name: ".hidden1", mode: fs.ModeSymlink}),
+				newEntry(&mockDirEntry{name: ".hidden2", mode: fs.ModeDir}),
+				newEntry(&mockDirEntry{name: "file2", mode: fs.ModeSymlink}),
+				newEntry(&mockDirEntry{name: "dir2", mode: fs.ModeDir}),
+				newEntry(&mockDirEntry{name: "file1", mode: fs.ModeIrregular}),
+				newEntry(&mockDirEntry{name: "dir1", mode: fs.ModeDir}),
 			},
 			want: []*entry{
-				{&testDirEntry{name: "dir1", isDir: true}},
-				{&testDirEntry{name: "dir2", isDir: true}},
-				{&testDirEntry{name: "file1", isDir: false}},
-				{&testDirEntry{name: "file2", isDir: false}},
-				{&testDirEntry{name: ".hidden2", isDir: true}},
-				{&testDirEntry{name: ".hidden1", isDir: false}},
+				newEntry(&mockDirEntry{name: "dir1", mode: fs.ModeDir}),
+				newEntry(&mockDirEntry{name: "dir2", mode: fs.ModeDir}),
+				newEntry(&mockDirEntry{name: "file1", mode: fs.ModeIrregular}),
+				newEntry(&mockDirEntry{name: "file2", mode: fs.ModeSymlink}),
+				newEntry(&mockDirEntry{name: ".hidden2", mode: fs.ModeDir}),
+				newEntry(&mockDirEntry{name: ".hidden1", mode: fs.ModeSymlink}),
 			},
 		},
 	}
@@ -52,40 +70,26 @@ func TestSortEntriesByType(t *testing.T) {
 	}
 }
 
-// testDirEntry mocks the fs.DirEntry interface for testing.
-type testDirEntry struct {
-	name  string
-	isDir bool
+// mockDirEntry provides a mock implementation of the fs.DirEntry interface for testing.
+type mockDirEntry struct {
+	name string
+	mode fs.FileMode
 }
 
-func (tde *testDirEntry) Name() string {
-	return tde.name
+func (de *mockDirEntry) Name() string               { return de.name }
+func (de *mockDirEntry) IsDir() bool                { return de.mode&fs.ModeDir == fs.ModeDir }
+func (de *mockDirEntry) Info() (fs.FileInfo, error) { return &mockFileInfo{mode: de.mode}, nil }
+func (de *mockDirEntry) Type() fs.FileMode          { return fs.FileMode(0) } // Unused.
+
+// mockFileInfo provides a mock implementation of the fs.FileInfo interface for testing.
+// The Mode() method is the only relevant implementation for the tests.
+type mockFileInfo struct {
+	mode fs.FileMode
 }
 
-func (tde *testDirEntry) IsDir() bool {
-	return tde.isDir
-}
-
-func (tde *testDirEntry) Type() fs.FileMode {
-	return fs.FileMode(0) // Unused.
-}
-
-func (tde *testDirEntry) Info() (fs.FileInfo, error) {
-	return nil, nil // Unused.
-}
-
-func testEntrySliceEqual(entries1, entries2 []*entry) bool {
-	testEntryEqual := func(entry1, entry2 *entry) bool {
-		return entry1.Name() == entry2.Name()
-	}
-
-	if len(entries1) != len(entries2) {
-		return false
-	}
-	for i, ent := range entries1 {
-		if !testEntryEqual(ent, entries2[i]) {
-			return false
-		}
-	}
-	return true
-}
+func (fi *mockFileInfo) Mode() fs.FileMode  { return fi.mode }
+func (fi *mockFileInfo) Name() string       { return "" }          // Unused.
+func (fi *mockFileInfo) Size() int64        { return 0 }           // Unused.
+func (fi *mockFileInfo) ModTime() time.Time { return time.Time{} } // Unused.
+func (fi *mockFileInfo) IsDir() bool        { return false }       // Unused.
+func (fi *mockFileInfo) Sys() any           { return nil }         // Unused.

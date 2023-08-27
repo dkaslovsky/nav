@@ -19,7 +19,7 @@ func (d *displayName) Len() int {
 	return d.len
 }
 
-// toDisplayName builds a displayName from an entry.
+// newDisplayName constructs a displayName from an entry and provided functional options.
 func newDisplayName(e *entry, opts ...displayNameOption) *displayName {
 	c := &displayNameConfig{
 		name:      e.Name(),
@@ -29,7 +29,7 @@ func newDisplayName(e *entry, opts ...displayNameOption) *displayName {
 	}
 
 	for _, opt := range opts {
-		opt(c, e)
+		opt(c, e.mode)
 	}
 
 	return &displayName{
@@ -57,45 +57,39 @@ type displayNameConfig struct {
 }
 
 // displayNameOption is a functional option for setting displayNameConfig values.
-type displayNameOption func(*displayNameConfig, *entry)
+type displayNameOption func(*displayNameConfig, entryMode)
 
 func displayNameWithColor() displayNameOption {
-	return func(c *displayNameConfig, e *entry) {
-		if e.IsSymlink() {
+	return func(c *displayNameConfig, mode entryMode) {
+		switch {
+		case mode.has(entryModeSymlink):
 			c.color = colorMagenta
-			return
-		}
-		if e.IsHidden() {
+		case mode.has(entryModeHidden):
 			c.color = colorGreen
-			return
-		}
-		if e.IsDir() {
+		case mode.has(entryModeDir):
 			c.color = colorCyan
-			return
 		}
 	}
 }
 
 func displayNameWithFollowSymlink(path string) displayNameOption {
-	return func(c *displayNameConfig, e *entry) {
-		if !e.IsSymlink() {
+	return func(c *displayNameConfig, mode entryMode) {
+		if !mode.has(entryModeSymlink) {
 			return
 		}
-		if followedName, err := filepath.EvalSymlinks(filepath.Join(path, e.Name())); err == nil {
+		if followedName, err := filepath.EvalSymlinks(filepath.Join(path, c.name)); err == nil {
 			c.nameExtra = fmt.Sprintf(" -> %s", followedName)
 		}
 	}
 }
 
 func displayNameWithTrailing() displayNameOption {
-	return func(c *displayNameConfig, e *entry) {
-		if e.IsSymlink() {
+	return func(c *displayNameConfig, mode entryMode) {
+		switch {
+		case mode.has(entryModeSymlink):
 			c.trailing = "@"
-			return
-		}
-		if e.IsDir() {
+		case mode.has(entryModeDir):
 			c.trailing = "/"
-			return
 		}
 	}
 }

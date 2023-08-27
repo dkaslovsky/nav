@@ -38,7 +38,7 @@ func (m *model) list() error {
 
 	m.files = []*entry{}
 	for _, file := range files {
-		m.files = append(m.files, &entry{file})
+		m.files = append(m.files, newEntry(file))
 	}
 	sortEntriesByType(m.files)
 
@@ -60,7 +60,7 @@ func (m *model) view() string {
 	displayNames := []*displayName{}
 	for _, file := range m.files {
 		// Optionally do not show hidden files.
-		if !m.modeHidden && file.IsHidden() {
+		if !m.modeHidden && file.hasMode(entryModeHidden) {
 			continue
 		}
 		displayNames = append(displayNames, newDisplayName(file, displayNameOpts...))

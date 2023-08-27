@@ -9,18 +9,55 @@ import (
 
 type entry struct {
 	fs.DirEntry
+	mode entryMode
 }
 
-func (e *entry) IsHidden() bool {
-	return strings.HasPrefix(e.Name(), ".")
-}
-
-func (e *entry) IsSymlink() bool {
-	fi, err := e.Info()
-	if err != nil {
-		return false
+func newEntry(dirEntry fs.DirEntry) *entry {
+	e := &entry{
+		DirEntry: dirEntry,
+		mode:     entryModeNone,
 	}
-	return fi.Mode()&os.ModeSymlink == os.ModeSymlink
+
+	// Determine if e represents a hidden file.
+	// This check might not be applicable cross-platform.
+	if strings.HasPrefix(e.Name(), ".") {
+		e.mode = e.mode | entryModeHidden
+	}
+
+	// Set e to be a symlink even if it is also a directory or file.
+	if fi, err := e.Info(); err == nil {
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			e.mode = e.mode | entryModeSymlink
+			return e
+		}
+	}
+
+	if e.IsDir() {
+		e.mode = e.mode | entryModeDir
+		return e
+	}
+
+	// Set e to be a file since it is not a symlink or a directory.
+	e.mode = e.mode | entryModeFile
+	return e
+}
+
+func (e *entry) hasMode(mode entryMode) bool {
+	return e.mode.has(mode)
+}
+
+type entryMode uint32
+
+const (
+	entryModeNone entryMode = 1 << iota
+	entryModeDir
+	entryModeFile
+	entryModeSymlink
+	entryModeHidden
+)
+
+func (mode entryMode) has(tgt entryMode) bool {
+	return mode&tgt == tgt
 }
 
 // sortEntriesByType performs an in-place sort of a slice of entries by type and alphabetically within
@@ -33,32 +70,32 @@ func sortEntriesByType(entries []*entry) {
 		iEntry := entries[i]
 		jEntry := entries[j]
 
-		if iEntry.IsHidden() {
-			if jEntry.IsHidden() {
-				if iEntry.IsDir() {
-					if jEntry.IsDir() {
+		if iEntry.hasMode(entryModeHidden) {
+			if jEntry.hasMode(entryModeHidden) {
+				if iEntry.hasMode(entryModeDir) {
+					if jEntry.hasMode(entryModeDir) {
 						return iEntry.Name() < jEntry.Name()
 					}
 					return true
 				}
-				if jEntry.IsDir() {
+				if jEntry.hasMode(entryModeDir) {
 					return false
 				}
 				return iEntry.Name() < jEntry.Name()
 			}
 			return false
 		}
-		if jEntry.IsHidden() {
+		if jEntry.hasMode(entryModeHidden) {
 			return true
 		}
 
-		if iEntry.IsDir() {
-			if jEntry.IsDir() {
+		if iEntry.hasMode(entryModeDir) {
+			if jEntry.hasMode(entryModeDir) {
 				return iEntry.Name() < jEntry.Name()
 			}
 			return true
 		}
-		if jEntry.IsDir() {
+		if jEntry.hasMode(entryModeDir) {
 			return false
 		}
 
