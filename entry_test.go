@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Equality is asserted by a name check so all entries must have unique names
+// Equality is asserted by a name check so all test entries must have unique names.
 func testEntrySliceEqual(entries1, entries2 []*entry) bool {
 	testEntryEqual := func(entry1, entry2 *entry) bool {
 		return entry1.Name() == entry2.Name()
@@ -58,11 +58,11 @@ func TestSortEntriesByType(t *testing.T) {
 			// Make a copy because the function operates in-place.
 			entries := []*entry{}
 			for _, ent := range test.entries {
-				ent := ent // Avoid aliasing.
+				ent := ent
 				entries = append(entries, ent)
 			}
 
-			sortEntriesByType(entries)
+			sortEntries(entries)
 			if !testEntrySliceEqual(entries, test.want) {
 				tt.Fatal("incorrect sort order for entries")
 			}

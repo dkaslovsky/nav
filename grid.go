@@ -49,7 +49,7 @@ tgtLoop:
 	// continue to decrease the target columns until a fit is found.
 	for tgt := tgtColumns; tgt >= 1; tgt-- {
 		layout.columns = tgt
-		layout.rows = int(math.Ceil(float64(len(dispNames)) / float64(layout.columns)))
+		layout.rows = int(math.Ceil(float64(len(dispNames)) / float64(tgt)))
 		layout.maxColumnLen = make([]int, tgt)
 
 		for row := 0; row < layout.rows; row++ {

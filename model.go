@@ -40,7 +40,7 @@ func (m *model) list() error {
 	for _, file := range files {
 		m.files = append(m.files, newEntry(file))
 	}
-	sortEntriesByType(m.files)
+	sortEntries(m.files)
 
 	return nil
 }

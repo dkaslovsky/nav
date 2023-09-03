@@ -60,12 +60,12 @@ func (mode entryMode) has(tgt entryMode) bool {
 	return mode&tgt == tgt
 }
 
-// sortEntriesByType performs an in-place sort of a slice of entries by type and alphabetically within
-// each type. The ordering of types is:
+// sortEntries performs an in-place sort of a slice of entries by type (mode) and alphabetically
+// within each type (mode). The ordering of types (modes) is:
 // - directories
 // - files
 // - hidden files
-func sortEntriesByType(entries []*entry) {
+func sortEntries(entries []*entry) {
 	sort.Slice(entries, func(i, j int) bool {
 		iEntry := entries[i]
 		jEntry := entries[j]
