@@ -10,8 +10,9 @@ import (
 
 var (
 	keyQuit          = key.NewBinding(key.WithKeys("q"))
-	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
+	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
+	keyList          = key.NewBinding(key.WithKeys("l")) // Toggles showing file info in list mode.
 )
 
 func (m *model) Init() tea.Cmd {
@@ -37,12 +38,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
 			return m, tea.Quit
 
+		case key.Matches(msg, keyFollowSymlink):
+			m.modeFollowSymlink = !m.modeFollowSymlink
+			return m, nil
+
 		case key.Matches(msg, keyHidden):
 			m.modeHidden = !m.modeHidden
 			return m, nil
 
-		case key.Matches(msg, keyFollowSymlink):
-			m.modeFollowSymlink = !m.modeFollowSymlink
+		case key.Matches(msg, keyList):
+			m.modeList = !m.modeList
 			return m, nil
 		}
 	}

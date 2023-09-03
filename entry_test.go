@@ -34,20 +34,20 @@ func TestSortEntriesByType(t *testing.T) {
 		},
 		"entries": {
 			entries: []*entry{
-				newEntry(&mockDirEntry{name: ".hidden1", mode: fs.ModeSymlink}),
-				newEntry(&mockDirEntry{name: ".hidden2", mode: fs.ModeDir}),
-				newEntry(&mockDirEntry{name: "file2", mode: fs.ModeSymlink}),
-				newEntry(&mockDirEntry{name: "dir2", mode: fs.ModeDir}),
-				newEntry(&mockDirEntry{name: "file1", mode: fs.ModeIrregular}),
-				newEntry(&mockDirEntry{name: "dir1", mode: fs.ModeDir}),
+				newEntryMust(newEntry(&mockDirEntry{name: ".hidden1", mode: fs.ModeSymlink})),
+				newEntryMust(newEntry(&mockDirEntry{name: ".hidden2", mode: fs.ModeDir})),
+				newEntryMust(newEntry(&mockDirEntry{name: "file2", mode: fs.ModeSymlink})),
+				newEntryMust(newEntry(&mockDirEntry{name: "dir2", mode: fs.ModeDir})),
+				newEntryMust(newEntry(&mockDirEntry{name: "file1", mode: fs.ModeIrregular})),
+				newEntryMust(newEntry(&mockDirEntry{name: "dir1", mode: fs.ModeDir})),
 			},
 			want: []*entry{
-				newEntry(&mockDirEntry{name: "dir1", mode: fs.ModeDir}),
-				newEntry(&mockDirEntry{name: "dir2", mode: fs.ModeDir}),
-				newEntry(&mockDirEntry{name: "file1", mode: fs.ModeIrregular}),
-				newEntry(&mockDirEntry{name: "file2", mode: fs.ModeSymlink}),
-				newEntry(&mockDirEntry{name: ".hidden2", mode: fs.ModeDir}),
-				newEntry(&mockDirEntry{name: ".hidden1", mode: fs.ModeSymlink}),
+				newEntryMust(newEntry(&mockDirEntry{name: "dir1", mode: fs.ModeDir})),
+				newEntryMust(newEntry(&mockDirEntry{name: "dir2", mode: fs.ModeDir})),
+				newEntryMust(newEntry(&mockDirEntry{name: "file1", mode: fs.ModeIrregular})),
+				newEntryMust(newEntry(&mockDirEntry{name: "file2", mode: fs.ModeSymlink})),
+				newEntryMust(newEntry(&mockDirEntry{name: ".hidden2", mode: fs.ModeDir})),
+				newEntryMust(newEntry(&mockDirEntry{name: ".hidden1", mode: fs.ModeSymlink})),
 			},
 		},
 	}
@@ -93,3 +93,10 @@ func (fi *mockFileInfo) Size() int64        { return 0 }           // Unused.
 func (fi *mockFileInfo) ModTime() time.Time { return time.Time{} } // Unused.
 func (fi *mockFileInfo) IsDir() bool        { return false }       // Unused.
 func (fi *mockFileInfo) Sys() any           { return nil }         // Unused.
+
+func newEntryMust(e *entry, err error) *entry {
+	if err != nil {
+		panic(err)
+	}
+	return e
+}

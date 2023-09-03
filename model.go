@@ -13,8 +13,9 @@ type model struct {
 	height int // Terminal height.
 
 	modeColor         bool
-	modeHidden        bool
 	modeFollowSymlink bool
+	modeHidden        bool
+	modeList          bool
 	modeTrailing      bool
 }
 
@@ -24,8 +25,9 @@ func newModel() *model {
 		height: 60,
 
 		modeColor:         true,
-		modeHidden:        false,
 		modeFollowSymlink: false,
+		modeHidden:        false,
+		modeList:          false,
 		modeTrailing:      true,
 	}
 }
@@ -38,7 +40,11 @@ func (m *model) list() error {
 
 	m.files = []*entry{}
 	for _, file := range files {
-		m.files = append(m.files, newEntry(file))
+		ent, err := newEntry(file)
+		if err != nil {
+			return err
+		}
+		m.files = append(m.files, ent)
 	}
 	sortEntries(m.files)
 
@@ -46,27 +52,23 @@ func (m *model) list() error {
 }
 
 func (m *model) view() string {
-	displayNameOpts := []displayNameOption{}
-	if m.modeColor {
-		displayNameOpts = append(displayNameOpts, displayNameWithColor())
-	}
-	if m.modeFollowSymlink {
-		displayNameOpts = append(displayNameOpts, displayNameWithFollowSymlink(m.path))
-	}
-	if m.modeTrailing {
-		displayNameOpts = append(displayNameOpts, displayNameWithTrailing())
-	}
-
 	displayNames := []*displayName{}
 	for _, file := range m.files {
 		// Optionally do not show hidden files.
 		if !m.modeHidden && file.hasMode(entryModeHidden) {
 			continue
 		}
-		displayNames = append(displayNames, newDisplayName(file, displayNameOpts...))
+		displayNames = append(displayNames, newDisplayName(file, m.displayNameOpts()...))
 	}
 
-	gridNames, layout := grid(displayNames, m.width, m.height)
+	var gridNames [][]string
+	var layout gridLayout
+
+	if m.modeList {
+		gridNames, layout = gridSingleColumn(displayNames, m.width, m.height)
+	} else {
+		gridNames, layout = gridMultiColumn(displayNames, m.width, m.height)
+	}
 
 	output := make([]string, layout.rows)
 	for row := 0; row < layout.rows; row++ {
@@ -76,4 +78,21 @@ func (m *model) view() string {
 	}
 
 	return strings.Join(output, "\n")
+}
+
+func (m *model) displayNameOpts() []displayNameOption {
+	opts := []displayNameOption{}
+	if m.modeColor {
+		opts = append(opts, displayNameWithColor())
+	}
+	if m.modeFollowSymlink {
+		opts = append(opts, displayNameWithFollowSymlink(m.path))
+	}
+	if m.modeList {
+		opts = append(opts, displayNameWithList())
+	}
+	if m.modeTrailing {
+		opts = append(opts, displayNameWithTrailing())
+	}
+	return opts
 }

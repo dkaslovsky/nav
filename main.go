@@ -47,10 +47,12 @@ func parseArgs(args []string, m *model) error {
 			version()
 		case "--no-color":
 			m.modeColor = false
-		case "--hidden":
-			m.modeHidden = true
 		case "--follow-symlinks":
 			m.modeFollowSymlink = true
+		case "--hidden":
+			m.modeHidden = true
+		case "--list":
+			m.modeList = true
 		case "--no-trailing":
 			m.modeTrailing = false
 		default:

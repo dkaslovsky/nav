@@ -9,7 +9,15 @@ const separator = "    " // Separator between columns.
 
 var separatorLen = len(separator)
 
-func grid(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
+func gridSingleColumn(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
+	tgtColumns := 1
+
+	layout := newGridLayout(dispNames, tgtColumns, width, height)
+	names := grid(dispNames, layout)
+	return names, layout
+}
+
+func gridMultiColumn(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
 	// Target number of columns to use 1/3 of the available height.
 	tgtColumns := len(dispNames) / (height / 3)
 	if tgtColumns < 1 {
@@ -17,6 +25,11 @@ func grid(dispNames []*displayName, width int, height int) ([][]string, gridLayo
 	}
 
 	layout := newGridLayout(dispNames, tgtColumns, width, height)
+	names := grid(dispNames, layout)
+	return names, layout
+}
+
+func grid(dispNames []*displayName, layout gridLayout) [][]string {
 	names := make([][]string, layout.columns)
 
 	for col := 0; col < layout.columns; col++ {
@@ -30,7 +43,7 @@ func grid(dispNames []*displayName, width int, height int) ([][]string, gridLayo
 		}
 		names[col] = colNames
 	}
-	return names, layout
+	return names
 }
 
 // gridLayout defines the shape and constraints of the display grid.
