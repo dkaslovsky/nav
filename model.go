@@ -12,6 +12,12 @@ type model struct {
 	width  int // Terminal width.
 	height int // Terminal height.
 
+	c int // Cursor column position.
+	r int // Cursor row position.
+
+	columns int // Displayed columns.
+	rows    int // Displayed columns.
+
 	modeColor         bool
 	modeFollowSymlink bool
 	modeHidden        bool
@@ -70,10 +76,24 @@ func (m *model) view() string {
 		gridNames, layout = gridMultiColumn(displayNames, m.width, m.height)
 	}
 
+	m.columns = layout.columns
+	m.rows = layout.rows
+
+	if m.c >= m.columns {
+		m.c = 0
+	}
+	if m.r >= m.rows {
+		m.r = 0
+	}
+
 	output := make([]string, layout.rows)
 	for row := 0; row < layout.rows; row++ {
 		for col := 0; col < layout.columns; col++ {
-			output[row] += gridNames[col][row] + separator
+			if col == m.c && row == m.r {
+				output[row] += cursor.Render(gridNames[col][row]) + separator[:len(separator)-len(cursorStr)-1]
+			} else {
+				output[row] += gridNames[col][row] + separator
+			}
 		}
 	}
 

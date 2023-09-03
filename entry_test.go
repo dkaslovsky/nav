@@ -23,6 +23,13 @@ func testEntrySliceEqual(entries1, entries2 []*entry) bool {
 	return true
 }
 
+func newEntryMust(e *entry, err error) *entry {
+	if err != nil {
+		panic(err)
+	}
+	return e
+}
+
 func TestSortEntriesByType(t *testing.T) {
 	tests := map[string]struct {
 		entries []*entry
@@ -93,10 +100,3 @@ func (fi *mockFileInfo) Size() int64        { return 0 }           // Unused.
 func (fi *mockFileInfo) ModTime() time.Time { return time.Time{} } // Unused.
 func (fi *mockFileInfo) IsDir() bool        { return false }       // Unused.
 func (fi *mockFileInfo) Sys() any           { return nil }         // Unused.
-
-func newEntryMust(e *entry, err error) *entry {
-	if err != nil {
-		panic(err)
-	}
-	return e
-}
