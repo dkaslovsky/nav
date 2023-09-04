@@ -1,18 +1,32 @@
 package main
 
-import "github.com/charmbracelet/lipgloss"
-
-const (
-	cursorStr = ">"
-	emptyStr  = " "
+import (
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
-	cursorStyle = lipgloss.NewStyle().Bold(true).SetString(cursorStr)
-	normalStyle = lipgloss.NewStyle().SetString(emptyStr)
+	rendererCursor = newRenderer(lipgloss.NewStyle().Bold(true).SetString(">"))
+	rendererNormal = newRenderer(lipgloss.NewStyle().SetString(" "))
 )
 
-func render(style lipgloss.Style, name string) string {
-	// return nonCursor.Render(gridNames[col][row]) + separator[:len(separator)-len(emptyStr)-1]
-	return style.Render(name) + separator[:separatorLen-2]
+type renderer struct {
+	style lipgloss.Style
+	pad   string
+}
+
+func newRenderer(style lipgloss.Style) *renderer {
+	pad := ""
+	padLen := columnSeparatorLen - len(style.Value()) - 1
+	if padLen > 0 {
+		pad = columnSeparator[:padLen]
+	}
+
+	return &renderer{
+		style: style,
+		pad:   pad,
+	}
+}
+
+func (r *renderer) render(name string) string {
+	return r.style.Render(name) + r.pad
 }

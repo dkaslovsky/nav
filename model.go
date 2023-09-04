@@ -96,9 +96,9 @@ func (m *model) view() string {
 	for row := 0; row < layout.rows; row++ {
 		for col := 0; col < layout.columns; col++ {
 			if col == m.c && row == m.r {
-				output[row] += render(cursorStyle, gridNames[col][row])
+				output[row] += rendererCursor.render(gridNames[col][row])
 			} else {
-				output[row] += render(normalStyle, gridNames[col][row])
+				output[row] += rendererNormal.render(gridNames[col][row])
 			}
 		}
 	}

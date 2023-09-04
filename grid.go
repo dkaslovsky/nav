@@ -5,9 +5,11 @@ import (
 	"strings"
 )
 
-const separator = "    " // Separator between columns.
+const columnSeparatorLen = 4
 
-var separatorLen = len(separator)
+var columnSeparator = strings.Repeat(" ", columnSeparatorLen)
+
+// const columnSeparator = "    "
 
 func gridSingleColumn(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
 	tgtColumns := 1
@@ -70,7 +72,7 @@ tgtLoop:
 				idx := row + (col * layout.rows)
 				if idx < len(dispNames) {
 					curLen := dispNames[idx].Len()
-					rowLen += (curLen + separatorLen)
+					rowLen += (curLen + columnSeparatorLen)
 					// Reject the tgt if it results in any row length greater than the width.
 					if rowLen > width && tgt > 1 {
 						continue tgtLoop
