@@ -16,7 +16,6 @@ type entry struct {
 func newEntry(dirEntry fs.DirEntry) (*entry, error) {
 	e := &entry{
 		DirEntry: dirEntry,
-		mode:     entryModeNone,
 	}
 
 	var err error
@@ -24,6 +23,13 @@ func newEntry(dirEntry fs.DirEntry) (*entry, error) {
 	if err != nil {
 		return e, err
 	}
+
+	e.setMode()
+	return e, nil
+}
+
+func (e *entry) setMode() {
+	e.mode = entryModeNone
 
 	// Determine if e represents a hidden file.
 	// This check might not be applicable cross-platform.
@@ -35,18 +41,17 @@ func newEntry(dirEntry fs.DirEntry) (*entry, error) {
 	if fi, err := e.Info(); err == nil {
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			e.mode = e.mode | entryModeSymlink
-			return e, nil
+			return
 		}
 	}
 
 	if e.IsDir() {
 		e.mode = e.mode | entryModeDir
-		return e, nil
+		return
 	}
 
 	// Set e to be a file since it is not a symlink or a directory.
 	e.mode = e.mode | entryModeFile
-	return e, nil
 }
 
 func (e *entry) hasMode(mode entryMode) bool {
