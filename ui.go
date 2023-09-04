@@ -73,7 +73,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			if current.hasMode(entryModeDir) {
 				m.path = filepath.Join(m.path, current.Name())
+
 				m.resetCursor()
+				if pos, ok := m.cursorCache[m.path]; ok {
+					m.setCursor(pos)
+				}
+
 				err := m.list()
 				if err != nil {
 					// TODO: Improve error handling rather than quitting the application.
@@ -84,14 +89,17 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyBack):
 			m.path = filepath.Join(m.path, "..")
+
+			m.resetCursor()
+			if pos, ok := m.cursorCache[m.path]; ok {
+				m.setCursor(pos)
+			}
+
 			err := m.list()
 			if err != nil {
 				// TODO: Improve error handling rather than quitting the application.
 				return m, tea.Quit
 			}
-
-		case key.Matches(msg, keyBack):
-			return m, nil
 
 		// Toggles
 
@@ -109,5 +117,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	m.saveCursor()
 	return m, nil
 }

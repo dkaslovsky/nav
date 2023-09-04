@@ -18,6 +18,8 @@ type model struct {
 	columns int // Displayed columns.
 	rows    int // Displayed columns.
 
+	cursorCache map[string]*position
+
 	modeColor         bool
 	modeFollowSymlink bool
 	modeHidden        bool
@@ -29,6 +31,8 @@ func newModel() *model {
 	return &model{
 		width:  80,
 		height: 60,
+
+		cursorCache: make(map[string]*position),
 
 		modeColor:         true,
 		modeFollowSymlink: false,

@@ -6,6 +6,11 @@ const cursorStr = ">"
 
 var cursor = lipgloss.NewStyle().Bold(true).SetString(cursorStr)
 
+type position struct {
+	c int
+	r int
+}
+
 func (m *model) moveUp() {
 	m.r--
 	if m.r < 0 {
@@ -58,6 +63,15 @@ func (m *model) moveRight() {
 func (m *model) resetCursor() {
 	m.c = 0
 	m.r = 0
+}
+
+func (m *model) setCursor(pos *position) {
+	m.c = pos.c
+	m.r = pos.r
+}
+
+func (m *model) saveCursor() {
+	m.cursorCache[m.path] = &position{c: m.c, r: m.r}
 }
 
 func (m *model) current() (*entry, bool) {
