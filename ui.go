@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,6 +16,9 @@ var (
 	keyDown  = key.NewBinding(key.WithKeys("down"))
 	keyLeft  = key.NewBinding(key.WithKeys("left"))
 	keyRight = key.NewBinding(key.WithKeys("right"))
+
+	keySelect = key.NewBinding(key.WithKeys("enter"))
+	keyBack   = key.NewBinding(key.WithKeys("backspace"))
 
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
 	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
@@ -40,6 +44,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 
+		// Quit
+
 		case key.Matches(msg, keyQuit):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
 			return m, tea.Quit
@@ -57,6 +63,35 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyRight):
 			m.moveRight()
+
+		// Selectors
+
+		case key.Matches(msg, keySelect):
+			current, ok := m.current()
+			if !ok {
+				return m, nil
+			}
+			if current.hasMode(entryModeDir) {
+				m.path = filepath.Join(m.path, current.Name())
+				m.resetCursor()
+				err := m.list()
+				if err != nil {
+					// TODO: Improve error handling rather than quitting the application.
+					return m, tea.Quit
+				}
+			}
+			// TODO: handle files.
+
+		case key.Matches(msg, keyBack):
+			m.path = filepath.Join(m.path, "..")
+			err := m.list()
+			if err != nil {
+				// TODO: Improve error handling rather than quitting the application.
+				return m, tea.Quit
+			}
+
+		case key.Matches(msg, keyBack):
+			return m, nil
 
 		// Toggles
 

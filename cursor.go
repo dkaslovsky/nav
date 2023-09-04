@@ -54,3 +54,16 @@ func (m *model) moveRight() {
 		m.c = m.columns - 1
 	}
 }
+
+func (m *model) resetCursor() {
+	m.c = 0
+	m.r = 0
+}
+
+func (m *model) current() (*entry, bool) {
+	idx := m.r + (m.c * m.rows)
+	if idx > len(m.entries) {
+		return nil, false
+	}
+	return m.entries[idx], true
+}
