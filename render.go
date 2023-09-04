@@ -5,28 +5,30 @@ import (
 )
 
 var (
-	rendererCursor = newRenderer(lipgloss.NewStyle().Bold(true).SetString(">"))
-	rendererNormal = newRenderer(lipgloss.NewStyle().SetString(" "))
+	cursorRendererSelected = newCursorRenderer(lipgloss.NewStyle().Bold(true).SetString(">"))
+	cursorRendererNormal   = newCursorRenderer(lipgloss.NewStyle().SetString(" "))
+
+	barRendererLocation = lipgloss.NewStyle().Background(lipgloss.Color("#5C5C5C")).Foreground(lipgloss.Color("#FFFFFF"))
 )
 
-type renderer struct {
+type cursorRenderer struct {
 	style lipgloss.Style
 	pad   string
 }
 
-func newRenderer(style lipgloss.Style) *renderer {
+func newCursorRenderer(style lipgloss.Style) *cursorRenderer {
 	pad := ""
 	padLen := columnSeparatorLen - len(style.Value()) - 1
 	if padLen > 0 {
 		pad = columnSeparator[:padLen]
 	}
 
-	return &renderer{
+	return &cursorRenderer{
 		style: style,
 		pad:   pad,
 	}
 }
 
-func (r *renderer) render(name string) string {
+func (r *cursorRenderer) Render(name string) string {
 	return r.style.Render(name) + r.pad
 }
