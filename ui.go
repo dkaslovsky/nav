@@ -10,7 +10,9 @@ import (
 )
 
 var (
-	keyQuit = key.NewBinding(key.WithKeys("q"))
+	keyQuit        = key.NewBinding(key.WithKeys("q"))
+	keyQuitCurrent = key.NewBinding(key.WithKeys("c"))
+	keyQuitForce   = key.NewBinding(key.WithKeys("esc"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up"))
 	keyDown  = key.NewBinding(key.WithKeys("down"))
@@ -48,6 +50,21 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyQuit):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+			fmt.Println(m.path)
+			return m, tea.Quit
+
+		case key.Matches(msg, keyQuitCurrent):
+			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+			current, ok := m.current()
+			if !ok {
+				return m, nil
+			}
+			fmt.Println(filepath.Join(m.path, current.Name()))
+			return m, tea.Quit
+
+		case key.Matches(msg, keyQuitForce):
+			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+			m.exitCode = 2
 			return m, tea.Quit
 
 		// Cursor

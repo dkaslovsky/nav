@@ -20,6 +20,8 @@ type model struct {
 
 	cursorCache map[string]*position
 
+	exitCode int
+
 	modeColor         bool
 	modeFollowSymlink bool
 	modeHidden        bool

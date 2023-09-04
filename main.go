@@ -33,7 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	os.Exit(0)
+	os.Exit(m.exitCode)
 }
 
 func parseArgs(args []string, m *model) error {
