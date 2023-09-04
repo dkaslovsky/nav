@@ -1,10 +1,5 @@
 package main
 
-type position struct {
-	c int
-	r int
-}
-
 func (m *model) moveUp() {
 	m.r--
 	if m.r < 0 {
@@ -54,6 +49,11 @@ func (m *model) moveRight() {
 	}
 }
 
+type position struct {
+	c int
+	r int
+}
+
 func (m *model) resetCursor() {
 	m.c = 0
 	m.r = 0
@@ -68,10 +68,6 @@ func (m *model) saveCursor() {
 	m.cursorCache[m.path] = &position{c: m.c, r: m.r}
 }
 
-func (m *model) selected() (*entry, bool) {
-	idx := m.r + (m.c * m.rows)
-	if idx > len(m.entries) {
-		return nil, false
-	}
-	return m.entries[idx], true
+func (m *model) index(c, r int) int {
+	return r + (c * m.rows)
 }

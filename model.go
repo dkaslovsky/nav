@@ -73,8 +73,11 @@ func (m *model) view() string {
 		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
 	}
 
-	var gridNames [][]string
-	var layout gridLayout
+	// Grid layout for display.
+	var (
+		gridNames [][]string
+		layout    gridLayout
+	)
 
 	if m.modeList {
 		gridNames, layout = gridSingleColumn(displayNames, m.width, m.height)
@@ -92,6 +95,7 @@ func (m *model) view() string {
 		m.r = 0
 	}
 
+	// Render entry names in grid.
 	output := make([]string, layout.rows)
 	for row := 0; row < layout.rows; row++ {
 		for col := 0; col < layout.columns; col++ {
@@ -121,4 +125,16 @@ func (m *model) displayNameOpts() []displayNameOption {
 		opts = append(opts, displayNameWithTrailing())
 	}
 	return opts
+}
+
+func (m *model) selected() (*entry, bool) {
+	idx := index(m.c, m.r, m.rows)
+	if idx > len(m.entries) {
+		return nil, false
+	}
+	return m.entries[idx], true
+}
+
+func index(c int, r int, rows int) int {
+	return r + (c * rows)
 }

@@ -36,7 +36,7 @@ func grid(dispNames []*displayName, layout gridLayout) [][]string {
 	for col := 0; col < layout.columns; col++ {
 		colNames := make([]string, layout.rows)
 		for row := 0; row < layout.rows; row++ {
-			idx := row + (col * layout.rows)
+			idx := index(col, row, layout.rows)
 			if idx < len(dispNames) {
 				n := dispNames[idx]
 				colNames[row] = n.String() + strings.Repeat(" ", layout.maxColumnLen[col]-n.Len())
@@ -69,7 +69,7 @@ tgtLoop:
 		for row := 0; row < layout.rows; row++ {
 			rowLen := 0
 			for col := 0; col < tgt; col++ {
-				idx := row + (col * layout.rows)
+				idx := index(col, row, layout.rows)
 				if idx < len(dispNames) {
 					curLen := dispNames[idx].Len()
 					rowLen += (curLen + columnSeparatorLen)
