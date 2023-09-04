@@ -6,8 +6,8 @@ import (
 )
 
 type model struct {
-	path  string
-	files []*entry
+	path    string
+	entries []*entry
 
 	width  int // Terminal width.
 	height int // Terminal height.
@@ -44,27 +44,27 @@ func (m *model) list() error {
 		return err
 	}
 
-	m.files = []*entry{}
+	m.entries = []*entry{}
 	for _, file := range files {
 		ent, err := newEntry(file)
 		if err != nil {
 			return err
 		}
-		m.files = append(m.files, ent)
+		m.entries = append(m.entries, ent)
 	}
-	sortEntries(m.files)
+	sortEntries(m.entries)
 
 	return nil
 }
 
 func (m *model) view() string {
 	displayNames := []*displayName{}
-	for _, file := range m.files {
+	for _, ent := range m.entries {
 		// Optionally do not show hidden files.
-		if !m.modeHidden && file.hasMode(entryModeHidden) {
+		if !m.modeHidden && ent.hasMode(entryModeHidden) {
 			continue
 		}
-		displayNames = append(displayNames, newDisplayName(file, m.displayNameOpts()...))
+		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
 	}
 
 	var gridNames [][]string

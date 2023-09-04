@@ -31,7 +31,6 @@ func gridMultiColumn(dispNames []*displayName, width int, height int) ([][]strin
 
 func grid(dispNames []*displayName, layout gridLayout) [][]string {
 	names := make([][]string, layout.columns)
-
 	for col := 0; col < layout.columns; col++ {
 		colNames := make([]string, layout.rows)
 		for row := 0; row < layout.rows; row++ {
