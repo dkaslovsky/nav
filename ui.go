@@ -55,7 +55,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyQuitCurrent):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			current, ok := m.current()
+			current, ok := m.selected()
 			if !ok {
 				return m, nil
 			}
@@ -84,7 +84,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Selectors
 
 		case key.Matches(msg, keySelect):
-			current, ok := m.current()
+			current, ok := m.selected()
 			if !ok {
 				return m, nil
 			}

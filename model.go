@@ -96,9 +96,9 @@ func (m *model) view() string {
 	for row := 0; row < layout.rows; row++ {
 		for col := 0; col < layout.columns; col++ {
 			if col == m.c && row == m.r {
-				output[row] += cursor.Render(gridNames[col][row]) + separator[:len(separator)-len(cursorStr)-1]
+				output[row] += render(cursorStyle, gridNames[col][row])
 			} else {
-				output[row] += gridNames[col][row] + separator
+				output[row] += render(normalStyle, gridNames[col][row])
 			}
 		}
 	}

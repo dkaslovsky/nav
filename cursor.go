@@ -1,11 +1,5 @@
 package main
 
-import "github.com/charmbracelet/lipgloss"
-
-const cursorStr = ">"
-
-var cursor = lipgloss.NewStyle().Bold(true).SetString(cursorStr)
-
 type position struct {
 	c int
 	r int
@@ -74,7 +68,7 @@ func (m *model) saveCursor() {
 	m.cursorCache[m.path] = &position{c: m.c, r: m.r}
 }
 
-func (m *model) current() (*entry, bool) {
+func (m *model) selected() (*entry, bool) {
 	idx := m.r + (m.c * m.rows)
 	if idx > len(m.entries) {
 		return nil, false
