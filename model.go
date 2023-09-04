@@ -66,6 +66,11 @@ func (m *model) list() error {
 }
 
 func (m *model) view() string {
+	output := []string{
+		// First row of output is the location bar.
+		barRendererLocation.Render(m.location()),
+	}
+
 	displayNames := []*displayName{}
 	for _, ent := range m.entries {
 		// Optionally do not show hidden files.
@@ -77,13 +82,15 @@ func (m *model) view() string {
 
 	// Grid layout for display.
 	var (
+		width     = m.width
+		height    = m.height - 1 // Account for location bar
 		gridNames [][]string
 		layout    gridLayout
 	)
 	if m.modeList {
-		gridNames, layout = gridSingleColumn(displayNames, m.width, m.height)
+		gridNames, layout = gridSingleColumn(displayNames, width, height)
 	} else {
-		gridNames, layout = gridMultiColumn(displayNames, m.width, m.height)
+		gridNames, layout = gridMultiColumn(displayNames, width, height)
 	}
 	m.columns = layout.columns
 	m.rows = layout.rows
@@ -105,9 +112,8 @@ func (m *model) view() string {
 			}
 		}
 	}
-
-	output := []string{barRendererLocation.Render(m.location())}
 	output = append(output, gridOutput...)
+
 	return strings.Join(output, "\n")
 }
 
