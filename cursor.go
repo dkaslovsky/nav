@@ -67,7 +67,3 @@ func (m *model) setCursor(pos *position) {
 func (m *model) saveCursor() {
 	m.cursorCache[m.path] = &position{c: m.c, r: m.r}
 }
-
-func (m *model) index(c, r int) int {
-	return r + (c * m.rows)
-}
