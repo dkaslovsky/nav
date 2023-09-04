@@ -9,8 +9,6 @@ const columnSeparatorLen = 4
 
 var columnSeparator = strings.Repeat(" ", columnSeparatorLen)
 
-// const columnSeparator = "    "
-
 func gridSingleColumn(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
 	tgtColumns := 1
 

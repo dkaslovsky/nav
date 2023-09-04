@@ -122,15 +122,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyFollowSymlink):
 			m.modeFollowSymlink = !m.modeFollowSymlink
-			return m, nil
 
 		case key.Matches(msg, keyHidden):
 			m.modeHidden = !m.modeHidden
-			return m, nil
 
 		case key.Matches(msg, keyList):
 			m.modeList = !m.modeList
-			return m, nil
+
 		}
 	}
 
