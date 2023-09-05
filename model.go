@@ -22,6 +22,8 @@ type model struct {
 
 	cursorCache map[string]*position
 
+	displayIndex map[int]int // Map displayed entry index to entry index.
+
 	exitCode int
 
 	modeColor         bool
@@ -37,6 +39,8 @@ func newModel() *model {
 		height: 60,
 
 		cursorCache: make(map[string]*position),
+
+		displayIndex: make(map[int]int),
 
 		modeColor:         true,
 		modeFollowSymlink: false,
@@ -66,8 +70,8 @@ func (m *model) list() error {
 }
 
 func (m *model) selected() (*entry, bool) {
-	idx := index(m.c, m.r, m.rows)
-	if idx > len(m.entries) {
+	idx, found := m.displayIndex[index(m.c, m.r, m.rows)]
+	if !found || idx > len(m.entries) {
 		return nil, false
 	}
 	return m.entries[idx], true

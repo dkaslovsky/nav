@@ -39,12 +39,13 @@ func (m *model) View() string {
 	}
 
 	displayNames := []*displayName{}
-	for _, ent := range m.entries {
+	for idx, ent := range m.entries {
 		// Optionally do not show hidden files.
 		if !m.modeHidden && ent.hasMode(entryModeHidden) {
 			continue
 		}
 		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
+		m.displayIndex[len(displayNames)-1] = idx
 	}
 
 	// Grid layout for display.
