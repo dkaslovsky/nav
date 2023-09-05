@@ -137,21 +137,43 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !ok {
 				return m, nil
 			}
-			if current.hasMode(entryModeDir) {
-				m.path = filepath.Join(m.path, current.Name())
 
-				m.resetCursor()
-				if pos, ok := m.cursorCache[m.path]; ok {
-					m.setCursor(pos)
-				}
+			isDir := current.hasMode(entryModeDir)
+			isSymlink := current.hasMode(entryModeSymlink)
 
-				err := m.list()
-				if err != nil {
-					// TODO: Improve error handling rather than quitting the application.
-					return m, tea.Quit
-				}
+			if !(isDir || isSymlink) {
+				// The selected entry is a file, which is a no-op.
+				break
 			}
-			// TODO: handle files.
+
+			if isSymlink {
+				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, current.Name()))
+				if err != nil {
+					return m, nil
+				}
+				info, err := os.Stat(followed)
+				if err != nil {
+					return m, nil
+				}
+				if !info.IsDir() {
+					// The symlink points to a file, which is a no-op.
+					break
+				}
+				m.path = followed
+			} else {
+				m.path = filepath.Join(m.path, current.Name())
+			}
+
+			m.resetCursor()
+			if pos, ok := m.cursorCache[m.path]; ok {
+				m.setCursor(pos)
+			}
+
+			err := m.list()
+			if err != nil {
+				// TODO: Improve error handling rather than quitting the application.
+				return m, tea.Quit
+			}
 
 		case key.Matches(msg, keyBack):
 			m.path = filepath.Join(m.path, "..")
