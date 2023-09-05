@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +33,55 @@ func (m *model) Init() tea.Cmd {
 }
 
 func (m *model) View() string {
-	return m.view()
+	output := []string{
+		// First row of output is the location bar.
+		barRendererLocation.Render(m.location()),
+	}
+
+	displayNames := []*displayName{}
+	for _, ent := range m.entries {
+		// Optionally do not show hidden files.
+		if !m.modeHidden && ent.hasMode(entryModeHidden) {
+			continue
+		}
+		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
+	}
+
+	// Grid layout for display.
+	var (
+		width     = m.width
+		height    = m.height - 1 // Account for location bar
+		gridNames [][]string
+		layout    gridLayout
+	)
+	if m.modeList {
+		gridNames, layout = gridSingleColumn(displayNames, width, height)
+	} else {
+		gridNames, layout = gridMultiColumn(displayNames, width, height)
+	}
+	m.columns = layout.columns
+	m.rows = layout.rows
+	if m.c >= m.columns {
+		m.c = 0
+	}
+	if m.r >= m.rows {
+		m.r = 0
+	}
+
+	// Render entry names in grid.
+	gridOutput := make([]string, layout.rows)
+	for row := 0; row < layout.rows; row++ {
+		for col := 0; col < layout.columns; col++ {
+			if col == m.c && row == m.r {
+				gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
+			} else {
+				gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
+			}
+		}
+	}
+	output = append(output, gridOutput...)
+
+	return strings.Join(output, "\n")
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

@@ -65,75 +65,6 @@ func (m *model) list() error {
 	return nil
 }
 
-func (m *model) view() string {
-	output := []string{
-		// First row of output is the location bar.
-		barRendererLocation.Render(m.location()),
-	}
-
-	displayNames := []*displayName{}
-	for _, ent := range m.entries {
-		// Optionally do not show hidden files.
-		if !m.modeHidden && ent.hasMode(entryModeHidden) {
-			continue
-		}
-		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
-	}
-
-	// Grid layout for display.
-	var (
-		width     = m.width
-		height    = m.height - 1 // Account for location bar
-		gridNames [][]string
-		layout    gridLayout
-	)
-	if m.modeList {
-		gridNames, layout = gridSingleColumn(displayNames, width, height)
-	} else {
-		gridNames, layout = gridMultiColumn(displayNames, width, height)
-	}
-	m.columns = layout.columns
-	m.rows = layout.rows
-	if m.c >= m.columns {
-		m.c = 0
-	}
-	if m.r >= m.rows {
-		m.r = 0
-	}
-
-	// Render entry names in grid.
-	gridOutput := make([]string, layout.rows)
-	for row := 0; row < layout.rows; row++ {
-		for col := 0; col < layout.columns; col++ {
-			if col == m.c && row == m.r {
-				gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
-			} else {
-				gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
-			}
-		}
-	}
-	output = append(output, gridOutput...)
-
-	return strings.Join(output, "\n")
-}
-
-func (m *model) displayNameOpts() []displayNameOption {
-	opts := []displayNameOption{}
-	if m.modeColor {
-		opts = append(opts, displayNameWithColor())
-	}
-	if m.modeFollowSymlink {
-		opts = append(opts, displayNameWithFollowSymlink(m.path))
-	}
-	if m.modeList {
-		opts = append(opts, displayNameWithList())
-	}
-	if m.modeTrailing {
-		opts = append(opts, displayNameWithTrailing())
-	}
-	return opts
-}
-
 func (m *model) selected() (*entry, bool) {
 	idx := index(m.c, m.r, m.rows)
 	if idx > len(m.entries) {
@@ -152,6 +83,23 @@ func (m *model) location() string {
 		location = strings.ReplaceAll(strings.Replace(location, "\\/", fileSeparator, 1), "/", fileSeparator)
 	}
 	return location
+}
+
+func (m *model) displayNameOpts() []displayNameOption {
+	opts := []displayNameOption{}
+	if m.modeColor {
+		opts = append(opts, displayNameWithColor())
+	}
+	if m.modeFollowSymlink {
+		opts = append(opts, displayNameWithFollowSymlink(m.path))
+	}
+	if m.modeList {
+		opts = append(opts, displayNameWithList())
+	}
+	if m.modeTrailing {
+		opts = append(opts, displayNameWithTrailing())
+	}
+	return opts
 }
 
 func index(c int, r int, rows int) int {
