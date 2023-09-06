@@ -329,8 +329,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *model) status() string {
-	status := []string{"  " + name}
-
 	mode := "NORMAL"
 	cmds := []string{
 		`"/": search`,
@@ -349,7 +347,17 @@ func (m *model) status() string {
 			`"esc": exit application`,
 		}
 	}
-	status = append(status, fmt.Sprintf("%s MODE", mode), strings.Join(cmds, ", "), "")
+	status := strings.Join([]string{
+		"  " + name,
+		fmt.Sprintf("%s MODE", mode),
+		strings.Join(cmds, ", "),
+		"",
+	}, "\t")
 
-	return barRendererStatus.Render(strings.Join(status, "\t"))
+	err := ""
+	if m.error != "" {
+		err = fmt.Sprintf("ERROR: %s\t", m.error)
+	}
+
+	return barRendererStatus.Render(status) + barRendererError.Render(err)
 }

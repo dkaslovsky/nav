@@ -14,6 +14,7 @@ type model struct {
 	entries   []*entry
 	displayed int
 	exitCode  int
+	error     string
 
 	width  int // Terminal width.
 	height int // Terminal height.
