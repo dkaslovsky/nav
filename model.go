@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var fileSeparator = string(filepath.Separator)
+
 type model struct {
 	path      string
 	entries   []*entry
@@ -24,10 +26,13 @@ type model struct {
 
 	viewCache map[string]*cacheItem
 
+	search string
+
 	modeColor         bool
 	modeFollowSymlink bool
 	modeHidden        bool
 	modeList          bool
+	modeSearch        bool
 	modeTrailing      bool
 }
 
@@ -42,6 +47,7 @@ func newModel() *model {
 		modeFollowSymlink: false,
 		modeHidden:        false,
 		modeList:          false,
+		modeSearch:        false,
 		modeTrailing:      true,
 	}
 }
@@ -83,7 +89,6 @@ func (m *model) location() string {
 		location = strings.Replace(m.path, userHomeDir, "~", 1)
 	}
 	if runtime.GOOS == "windows" {
-		fileSeparator := string(filepath.Separator)
 		location = strings.ReplaceAll(strings.Replace(location, "\\/", fileSeparator, 1), "/", fileSeparator)
 	}
 	return location

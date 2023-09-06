@@ -26,6 +26,7 @@ var (
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
 	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
 	keyList          = key.NewBinding(key.WithKeys("l")) // Toggles showing file info in list mode.
+	keySearch        = key.NewBinding(key.WithKeys("/")) // Toggles search mode.
 )
 
 func (m *model) Init() tea.Cmd {
@@ -33,10 +34,14 @@ func (m *model) Init() tea.Cmd {
 }
 
 func (m *model) View() string {
-	output := []string{
-		// First row of output is the location bar.
-		barRendererLocation.Render(m.location()),
+	output := []string{}
+
+	// First row of output is the location bar.
+	locationBar := barRendererLocation.Render(m.location())
+	if m.modeSearch {
+		locationBar += barRendererSearch.Render(fileSeparator + m.search)
 	}
+	output = append(output, locationBar)
 
 	// Construct display names from filtered entries and populate a local cache mapping between them.
 	var (
@@ -45,10 +50,18 @@ func (m *model) View() string {
 		localCache   = newCacheItem(&position{c: 0, r: 0}) // Store local copy of current state.
 	)
 	for entryIdx, ent := range m.entries {
-		// Optionally filter hidden files.
+
+		// Filter hidden files.
 		if !m.modeHidden && ent.hasMode(entryModeHidden) {
 			continue
 		}
+		// Filter for search.
+		if m.modeSearch && m.search != "" {
+			if !strings.HasPrefix(ent.Name(), m.search) {
+				continue
+			}
+		}
+
 		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
 
 		// Populate local cache.
@@ -128,6 +141,30 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyMsg:
+
+		// Search mode
+
+		if m.modeSearch {
+			if key.Matches(msg, keySearch) {
+				m.search = ""
+				m.modeSearch = false
+				return m, nil
+			}
+
+			if key.Matches(msg, keyBack) {
+				if len(m.search) > 0 {
+					m.search = m.search[:len(m.search)-1]
+					return m, nil
+				}
+			}
+
+			if msg.Type == tea.KeyRunes {
+				m.search += string(msg.Runes)
+			}
+
+			return m, nil
+		}
+
 		switch {
 
 		// Quit
@@ -214,6 +251,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 
+			// Clear search mode
+			m.modeSearch = false
+			m.search = ""
+
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
@@ -233,6 +274,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 
+			// Clear search mode
+			m.modeSearch = false
+			m.search = ""
+
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
@@ -246,6 +291,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyList):
 			m.modeList = !m.modeList
+
+		case key.Matches(msg, keySearch):
+			m.modeSearch = !m.modeSearch
 
 		}
 	}

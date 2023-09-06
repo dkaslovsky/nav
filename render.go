@@ -9,6 +9,7 @@ var (
 	cursorRendererNormal   = newCursorRenderer(lipgloss.NewStyle().SetString(" "))
 
 	barRendererLocation = lipgloss.NewStyle().Background(lipgloss.Color("#5C5C5C")).Foreground(lipgloss.Color("#FFFFFF"))
+	barRendererSearch   = lipgloss.NewStyle().Background(lipgloss.Color("#499F1C")).Foreground(lipgloss.Color("#FFFFFF"))
 )
 
 type cursorRenderer struct {
