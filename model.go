@@ -10,11 +10,12 @@ import (
 var fileSeparator = string(filepath.Separator)
 
 type model struct {
-	path      string
-	entries   []*entry
-	displayed int
-	exitCode  int
-	error     string
+	path        string
+	entries     []*entry
+	displayed   int
+	exitCode    int
+	errorStatus string
+	error       error
 
 	width  int // Terminal width.
 	height int // Terminal height.
@@ -30,6 +31,7 @@ type model struct {
 	search string
 
 	modeColor         bool
+	modeDebug         bool
 	modeFollowSymlink bool
 	modeHelp          bool
 	modeHidden        bool
@@ -46,6 +48,7 @@ func newModel() *model {
 		viewCache: make(map[string]*cacheItem),
 
 		modeColor:         true,
+		modeDebug:         false,
 		modeFollowSymlink: false,
 		modeHelp:          false,
 		modeHidden:        false,
@@ -116,6 +119,16 @@ func (m *model) displayNameOpts() []displayNameOption {
 
 func (m *model) displayIndex() int {
 	return index(m.c, m.r, m.rows)
+}
+
+func (m *model) clearError() {
+	m.errorStatus = ""
+	m.error = nil
+}
+
+func (m *model) clearSearch() {
+	m.modeSearch = false
+	m.search = ""
 }
 
 func index(c int, r int, rows int) int {

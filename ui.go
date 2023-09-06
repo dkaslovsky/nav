@@ -13,7 +13,7 @@ import (
 var (
 	keyQuit        = key.NewBinding(key.WithKeys("q"))
 	keyQuitCurrent = key.NewBinding(key.WithKeys("c"))
-	keyQuitForce   = key.NewBinding(key.WithKeys("esc"))
+	keyQuitForce   = key.NewBinding(key.WithKeys("esc", "Q"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up"))
 	keyDown  = key.NewBinding(key.WithKeys("down"))
@@ -23,6 +23,7 @@ var (
 	keySelect = key.NewBinding(key.WithKeys("enter"))
 	keyBack   = key.NewBinding(key.WithKeys("backspace"))
 
+	keyDebug         = key.NewBinding(key.WithKeys("d")) // Toggles showing debug information.
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
 	keyHelp          = key.NewBinding(key.WithKeys("h")) // Toggles showing help screen.
 	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
@@ -37,6 +38,10 @@ func (m *model) Init() tea.Cmd {
 func (m *model) View() string {
 	if m.modeHelp {
 		return strings.Join([]string{usage(), m.status()}, "\n")
+	}
+
+	if m.modeDebug {
+		return strings.Join([]string{m.debug(), m.status()}, "\n")
 	}
 
 	output := []string{}
@@ -149,6 +154,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 
+		// Force Quit
+
+		if key.Matches(msg, keyQuitForce) {
+			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+			m.exitCode = 2
+			return m, tea.Quit
+		}
+
 		// Help mode
 
 		if m.modeHelp {
@@ -163,6 +176,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			return m, nil
+		}
+
+		// Debug mode
+
+		if m.modeDebug {
+			if key.Matches(msg, keyDebug, keyQuit) {
+				m.modeDebug = !m.modeDebug
+				return m, nil
+			}
 		}
 
 		// Search mode
@@ -206,11 +228,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fmt.Println(filepath.Join(m.path, current.Name()))
 			return m, tea.Quit
 
-		case key.Matches(msg, keyQuitForce):
-			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			m.exitCode = 2
-			return m, tea.Quit
-
 		// Cursor
 
 		case key.Matches(msg, keyUp):
@@ -246,13 +263,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if isSymlink {
 				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, current.Name()))
 				if err != nil {
-					// TODO: Handle error.
-					return m, tea.Quit
+					m.errorStatus = "failed to evaluate symlink"
+					m.error = err
+					return m, nil
 				}
 				info, err := os.Stat(followed)
 				if err != nil {
-					// TODO: Handle error.
-					return m, tea.Quit
+					m.errorStatus = "failed to evaluate symlink"
+					m.error = err
+					return m, nil
 				}
 				if !info.IsDir() {
 					// The symlink points to a file, which is a no-op.
@@ -262,8 +281,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				path, err := filepath.Abs(filepath.Join(m.path, current.Name()))
 				if err != nil {
-					// TODO: Handle error.
-					return m, tea.Quit
+					m.errorStatus = "failed to evaluate path"
+					m.error = err
+					return m, nil
 				}
 				m.path = path
 			}
@@ -274,9 +294,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 
-			// Clear search mode
-			m.modeSearch = false
-			m.search = ""
+			m.clearSearch()
+			m.clearError()
 
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
@@ -297,14 +316,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 
-			// Clear search mode
-			m.modeSearch = false
-			m.search = ""
+			m.clearSearch()
+			m.clearError()
 
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
 		// Toggles
+
+		case key.Matches(msg, keyDebug):
+			m.modeDebug = !m.modeDebug
 
 		case key.Matches(msg, keyFollowSymlink):
 			m.modeFollowSymlink = !m.modeFollowSymlink
@@ -320,6 +341,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keySearch):
 			m.modeSearch = !m.modeSearch
+			m.clearError()
 
 		}
 	}
@@ -332,6 +354,7 @@ func (m *model) status() string {
 	mode := "NORMAL"
 	cmds := []string{
 		`"/": search`,
+		`"d": debug`,
 		`"h": help`,
 		`"q": quit`,
 	}
@@ -343,21 +366,40 @@ func (m *model) status() string {
 	} else if m.modeHelp {
 		mode = "HELP"
 		cmds = []string{
-			`"q": cancel help`,
-			`"esc": exit application`,
+			`"h": cancel help`,
+		}
+	} else if m.modeDebug {
+		mode = "DEBUG"
+		cmds = []string{
+			`"d": cancel debug`,
 		}
 	}
+	cmds = append(cmds, `"Q": force exit`)
 	status := strings.Join([]string{
 		"  " + name,
 		fmt.Sprintf("%s MODE", mode),
-		strings.Join(cmds, ", "),
+		strings.Join(cmds, " | "),
 		"",
 	}, "\t")
 
 	err := ""
-	if m.error != "" {
-		err = fmt.Sprintf("ERROR: %s\t", m.error)
+	if m.errorStatus != "" {
+		err = fmt.Sprintf("ERROR: %s\t", m.errorStatus)
 	}
 
 	return barRendererStatus.Render(status) + barRendererError.Render(err)
+}
+
+func (m *model) debug() string {
+	output := barRendererSearch.Render("No errors")
+	if m.errorStatus != "" && m.error != nil {
+		output = fmt.Sprintf(
+			"%s\n %s\n\n%s\n %v",
+			barRendererError.Render("Error Message"),
+			m.errorStatus,
+			barRendererError.Render("Error"),
+			m.error,
+		)
+	}
+	return fmt.Sprintf("%s\n\n", output)
 }
