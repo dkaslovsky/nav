@@ -82,14 +82,39 @@ func parseArgs(args []string, m *model) error {
 }
 
 func usage() string {
-	return `
-	This is the help screen.
+	usage := `
+	%s (v%s) is an interactive terminal filesystem explorer.
 
-	It will be more helpful soon.
+	For interactive ls/cd workflows, it can be used in a bash/zsh function such as
+	function lsi {
+		cd "$(%s "$@")"
+	}
+	
+	Useful key commands are listed below in the status bar.
 
-	Use "q" to exit help mode.
-	Use "esc" to exit the application.
+	------------------------
+	| Full list of commands |
+	------------------------
+
+	Arrow keys are used to move the cursor.
+
+	"enter":     navigates into the directory under the cursor (no action for files, yet)
+	"backspace": navigates back to the previous directory
+
+	"h": enters/exits help mode
+	"d": enters/exits debug mode
+	"/": enters/exits search mod
+
+	"a": toggles showing hidden files
+	"l": toggles listing full file information (ls -l)
+	"s": toggles following symlinks
+
+	"q":   quits the application and outputs the current directory
+	"c":   quits the application and outputs the path to the entry under the cursor
+	"Q":   force quits the application (exit 2) when not in search mode
+	"esc": force quits the application (exit 2) in any mode
 	`
+	return fmt.Sprintf(usage, name, version, name)
 }
 
 func versionAndExit() {

@@ -157,6 +157,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if key.Matches(msg, keyQuitForceEsc) || !m.modeSearch {
 				_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
 				m.exitCode = 2
+				if m.modeHelp {
+					m.exitCode = 0
+				}
 				return m, tea.Quit
 			}
 		}
@@ -164,14 +167,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-			switch {
-
-			case key.Matches(msg, keyQuit, keyHelp):
+			if key.Matches(msg, keyHelp) {
 				m.modeHelp = !m.modeHelp
-
-			case key.Matches(msg, keyQuitForce):
-				return m, tea.Quit
-
 			}
 
 			return m, nil
@@ -365,7 +362,7 @@ func (m *model) statusBar() string {
 		mode = "HELP"
 		cmds = []string{
 			`"h": cancel help`,
-			`"Q": force exit`,
+			`"Q": quit`,
 		}
 	} else if m.modeDebug {
 		mode = "DEBUG"
