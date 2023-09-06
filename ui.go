@@ -11,9 +11,10 @@ import (
 )
 
 var (
-	keyQuit        = key.NewBinding(key.WithKeys("q"))
-	keyQuitCurrent = key.NewBinding(key.WithKeys("c"))
-	keyQuitForce   = key.NewBinding(key.WithKeys("esc", "Q"))
+	keyQuitForce        = key.NewBinding(key.WithKeys("esc", "Q"))
+	keyQuitForceEsc     = key.NewBinding(key.WithKeys("esc"))
+	keyQuit             = key.NewBinding(key.WithKeys("q"))
+	keyQuitWithSelected = key.NewBinding(key.WithKeys("c"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up"))
 	keyDown  = key.NewBinding(key.WithKeys("down"))
@@ -37,21 +38,16 @@ func (m *model) Init() tea.Cmd {
 
 func (m *model) View() string {
 	if m.modeHelp {
-		return strings.Join([]string{usage(), m.status()}, "\n")
+		return strings.Join([]string{usage(), m.statusBar()}, "\n")
 	}
 
 	if m.modeDebug {
-		return strings.Join([]string{m.debug(), m.status()}, "\n")
+		return strings.Join([]string{m.debug(), m.statusBar()}, "\n")
 	}
 
-	output := []string{}
-
-	// First row of output is the location bar.
-	locationBar := barRendererLocation.Render(m.location())
-	if m.modeSearch {
-		locationBar += barRendererSearch.Render(fileSeparator + m.search)
+	output := []string{
+		m.locationBar(), // First row of output is the location bar.
 	}
-	output = append(output, locationBar)
 
 	// Construct display names from filtered entries and populate a local cache mapping between them.
 	var (
@@ -78,13 +74,14 @@ func (m *model) View() string {
 		localCache.displayToEntityIndex[displayIdx] = entryIdx
 		localCache.entityToDisplayIndex[entryIdx] = displayIdx
 		displayIdx++
+
 	}
 	m.displayed = displayIdx
 
 	// Grid layout for display.
 	var (
 		width     = m.width
-		height    = m.height - 2 // Account for location and status bars
+		height    = m.height - 2 // Account for location and status bars.
 		gridNames [][]string
 		layout    gridLayout
 	)
@@ -140,7 +137,7 @@ func (m *model) View() string {
 	output = append(output, gridOutput...)
 
 	// Add status bar to output.
-	output = append(output, m.status())
+	output = append(output, m.statusBar())
 	return strings.Join(output, "\n")
 }
 
@@ -157,9 +154,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Force Quit
 
 		if key.Matches(msg, keyQuitForce) {
-			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			m.exitCode = 2
-			return m, tea.Quit
+			if key.Matches(msg, keyQuitForceEsc) || !m.modeSearch {
+				_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+				m.exitCode = 2
+				return m, tea.Quit
+			}
 		}
 
 		// Help mode
@@ -193,21 +192,22 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 
 			case key.Matches(msg, keySearch):
-				m.search = ""
-				m.modeSearch = false
+				m.clearSearch()
+				return m, nil
 
 			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {
 					m.search = m.search[:len(m.search)-1]
 				}
+				return m, nil
 
 			default:
 				if msg.Type == tea.KeyRunes {
 					m.search += string(msg.Runes)
+					return m, nil
 				}
-			}
 
-			return m, nil
+			}
 		}
 
 		switch {
@@ -219,7 +219,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fmt.Println(m.path)
 			return m, tea.Quit
 
-		case key.Matches(msg, keyQuitCurrent):
+		case key.Matches(msg, keyQuitWithSelected):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
 			current, ok := m.selected()
 			if !ok {
@@ -350,31 +350,40 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m *model) status() string {
-	mode := "NORMAL"
-	cmds := []string{
-		`"/": search`,
-		`"d": debug`,
-		`"h": help`,
-		`"q": quit`,
-	}
+func (m *model) statusBar() string {
+	var (
+		mode string
+		cmds []string
+	)
 	if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []string{
 			`"/": cancel search`,
+			`"esc": force exit`,
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
 		cmds = []string{
 			`"h": cancel help`,
+			`"Q": force exit`,
 		}
 	} else if m.modeDebug {
 		mode = "DEBUG"
 		cmds = []string{
 			`"d": cancel debug`,
+			`"Q": force exit`,
+		}
+	} else {
+		mode = "NORMAL"
+		cmds = []string{
+			`"/": search`,
+			`"d": debug`,
+			`"h": help`,
+			`"q": quit`,
+			`"Q": force exit`,
 		}
 	}
-	cmds = append(cmds, `"Q": force exit`)
+
 	status := strings.Join([]string{
 		"  " + name,
 		fmt.Sprintf("%s MODE", mode),
@@ -391,7 +400,7 @@ func (m *model) status() string {
 }
 
 func (m *model) debug() string {
-	output := barRendererSearch.Render("No errors")
+	output := barRendererOK.Render("No errors")
 	if m.errorStatus != "" && m.error != nil {
 		output = fmt.Sprintf(
 			"%s\n %s\n\n%s\n %v",
@@ -402,4 +411,12 @@ func (m *model) debug() string {
 		)
 	}
 	return fmt.Sprintf("%s\n\n", output)
+}
+
+func (m *model) locationBar() string {
+	locationBar := barRendererLocation.Render(m.location())
+	if m.modeSearch {
+		locationBar += barRendererSearch.Render(fileSeparator + m.search)
+	}
+	return locationBar
 }
