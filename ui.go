@@ -38,15 +38,25 @@ func (m *model) View() string {
 		barRendererLocation.Render(m.location()),
 	}
 
-	displayNames := []*displayName{}
-	for idx, ent := range m.entries {
-		// Optionally do not show hidden files.
+	// Construct display names from filtered entries and populate a local cache mapping between them.
+	var (
+		displayIdx   = 0
+		displayNames = []*displayName{}
+		localCache   = newCacheItem(&position{c: 0, r: 0}) // Store local copy of current state.
+	)
+	for entryIdx, ent := range m.entries {
+		// Optionally filter hidden files.
 		if !m.modeHidden && ent.hasMode(entryModeHidden) {
 			continue
 		}
 		displayNames = append(displayNames, newDisplayName(ent, m.displayNameOpts()...))
-		m.displayIndex[len(displayNames)-1] = idx
+
+		// Populate local cache.
+		localCache.displayToEntityIndex[displayIdx] = entryIdx
+		localCache.entityToDisplayIndex[entryIdx] = displayIdx
+		displayIdx++
 	}
+	m.displayed = displayIdx
 
 	// Grid layout for display.
 	var (
@@ -60,14 +70,38 @@ func (m *model) View() string {
 	} else {
 		gridNames, layout = gridMultiColumn(displayNames, width, height)
 	}
-	m.columns = layout.columns
-	m.rows = layout.rows
-	if m.c >= m.columns {
-		m.c = 0
+	localCache.columns, localCache.rows = layout.columns, layout.rows
+	m.columns, m.rows = layout.columns, layout.rows
+	if m.c >= m.columns || m.r > m.rows {
+		m.resetCursor()
 	}
-	if m.r >= m.rows {
-		m.r = 0
+
+	// Retrieve cached state for the current page from its previous rendering.
+	var cache *cacheItem
+	if c, found := m.viewCache[m.path]; found {
+		if c.hasIndexes() {
+			// Full cache is found.
+			cache = c
+		} else {
+			// Only previous cursor position is cached, use local cache with this cursor position.
+			cache = localCache
+			cache.cursorPosition = c.cursorPosition
+		}
+	} else {
+		// No cache exists yet, use local cache.
+		cache = localCache
 	}
+	// Lookup the entry index using the cached cursor (display) position.
+	if entryIdx, entryFound := cache.displayToEntityIndex[cache.cursorPosition.index(cache.rows)]; entryFound {
+		// Use the entry index to get the current (local cache) display index.
+		if dispIdx, dispFound := localCache.entityToDisplayIndex[entryIdx]; dispFound {
+			// Set the cursor position using the current display index.
+			m.setCursor(newPosition(dispIdx, localCache.rows))
+		}
+	}
+
+	// Update the cache with current state.
+	m.viewCache[m.path] = localCache
 
 	// Render entry names in grid.
 	gridOutput := make([]string, layout.rows)
@@ -139,6 +173,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
+			m.saveCursor()
+
 			isDir := current.hasMode(entryModeDir)
 			isSymlink := current.hasMode(entryModeSymlink)
 
@@ -150,11 +186,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if isSymlink {
 				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, current.Name()))
 				if err != nil {
-					return m, nil
+					// TODO: Handle error.
+					return m, tea.Quit
 				}
 				info, err := os.Stat(followed)
 				if err != nil {
-					return m, nil
+					// TODO: Handle error.
+					return m, tea.Quit
 				}
 				if !info.IsDir() {
 					// The symlink points to a file, which is a no-op.
@@ -162,12 +200,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.path = followed
 			} else {
-				m.path = filepath.Join(m.path, current.Name())
-			}
-
-			m.resetCursor()
-			if pos, ok := m.cursorCache[m.path]; ok {
-				m.setCursor(pos)
+				path, err := filepath.Abs(filepath.Join(m.path, current.Name()))
+				if err != nil {
+					// TODO: Handle error.
+					return m, tea.Quit
+				}
+				m.path = path
 			}
 
 			err := m.list()
@@ -175,20 +213,28 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// TODO: Improve error handling rather than quitting the application.
 				return m, tea.Quit
 			}
+
+			// Return to ensure the cursor is not re-saved using the updated path.
+			return m, nil
 
 		case key.Matches(msg, keyBack):
-			m.path = filepath.Join(m.path, "..")
+			m.saveCursor()
 
-			m.resetCursor()
-			if pos, ok := m.cursorCache[m.path]; ok {
-				m.setCursor(pos)
+			path, err := filepath.Abs(filepath.Join(m.path, ".."))
+			if err != nil {
+				// TODO: Handle error.
+				return m, tea.Quit
 			}
+			m.path = path
 
-			err := m.list()
+			err = m.list()
 			if err != nil {
 				// TODO: Improve error handling rather than quitting the application.
 				return m, tea.Quit
 			}
+
+			// Return to ensure the cursor is not re-saved using the updated path.
+			return m, nil
 
 		// Toggles
 

@@ -8,8 +8,10 @@ import (
 )
 
 type model struct {
-	path    string
-	entries []*entry
+	path      string
+	entries   []*entry
+	displayed int
+	exitCode  int
 
 	width  int // Terminal width.
 	height int // Terminal height.
@@ -20,11 +22,7 @@ type model struct {
 	columns int // Displayed columns.
 	rows    int // Displayed columns.
 
-	cursorCache map[string]*position
-
-	displayIndex map[int]int // Map displayed entry index to entry index.
-
-	exitCode int
+	viewCache map[string]*cacheItem
 
 	modeColor         bool
 	modeFollowSymlink bool
@@ -38,9 +36,7 @@ func newModel() *model {
 		width:  80,
 		height: 60,
 
-		cursorCache: make(map[string]*position),
-
-		displayIndex: make(map[int]int),
+		viewCache: make(map[string]*cacheItem),
 
 		modeColor:         true,
 		modeFollowSymlink: false,
@@ -70,7 +66,11 @@ func (m *model) list() error {
 }
 
 func (m *model) selected() (*entry, bool) {
-	idx, found := m.displayIndex[index(m.c, m.r, m.rows)]
+	cache, ok := m.viewCache[m.path]
+	if !ok {
+		return nil, false
+	}
+	idx, found := cache.displayToEntityIndex[m.displayIndex()]
 	if !found || idx > len(m.entries) {
 		return nil, false
 	}
@@ -104,6 +104,10 @@ func (m *model) displayNameOpts() []displayNameOption {
 		opts = append(opts, displayNameWithTrailing())
 	}
 	return opts
+}
+
+func (m *model) displayIndex() int {
+	return index(m.c, m.r, m.rows)
 }
 
 func index(c int, r int, rows int) int {
