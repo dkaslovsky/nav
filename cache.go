@@ -17,5 +17,5 @@ func newCacheItem(pos *position) *cacheItem {
 }
 
 func (ci *cacheItem) hasIndexes() bool {
-	return len(ci.entityToDisplayIndex) == 0 && len(ci.displayToEntityIndex) == 0
+	return len(ci.entityToDisplayIndex) > 0 && len(ci.displayToEntityIndex) > 0
 }
