@@ -24,6 +24,7 @@ var (
 	keyBack   = key.NewBinding(key.WithKeys("backspace"))
 
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
+	keyHelp          = key.NewBinding(key.WithKeys("h")) // Toggles showing help screen.
 	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
 	keyList          = key.NewBinding(key.WithKeys("l")) // Toggles showing file info in list mode.
 	keySearch        = key.NewBinding(key.WithKeys("/")) // Toggles search mode.
@@ -34,6 +35,10 @@ func (m *model) Init() tea.Cmd {
 }
 
 func (m *model) View() string {
+	if m.modeHelp {
+		return strings.Join([]string{usage(), m.status()}, "\n")
+	}
+
 	output := []string{}
 
 	// First row of output is the location bar.
@@ -74,7 +79,7 @@ func (m *model) View() string {
 	// Grid layout for display.
 	var (
 		width     = m.width
-		height    = m.height - 1 // Account for location bar
+		height    = m.height - 2 // Account for location and status bars
 		gridNames [][]string
 		layout    gridLayout
 	)
@@ -129,6 +134,8 @@ func (m *model) View() string {
 	}
 	output = append(output, gridOutput...)
 
+	// Add status bar to output.
+	output = append(output, m.status())
 	return strings.Join(output, "\n")
 }
 
@@ -142,24 +149,40 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 
+		// Help mode
+
+		if m.modeHelp {
+			switch {
+
+			case key.Matches(msg, keyQuit, keyHelp):
+				m.modeHelp = !m.modeHelp
+
+			case key.Matches(msg, keyQuitForce):
+				return m, tea.Quit
+
+			}
+
+			return m, nil
+		}
+
 		// Search mode
 
 		if m.modeSearch {
-			if key.Matches(msg, keySearch) {
+			switch {
+
+			case key.Matches(msg, keySearch):
 				m.search = ""
 				m.modeSearch = false
-				return m, nil
-			}
 
-			if key.Matches(msg, keyBack) {
+			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {
 					m.search = m.search[:len(m.search)-1]
-					return m, nil
 				}
-			}
 
-			if msg.Type == tea.KeyRunes {
-				m.search += string(msg.Runes)
+			default:
+				if msg.Type == tea.KeyRunes {
+					m.search += string(msg.Runes)
+				}
 			}
 
 			return m, nil
@@ -286,6 +309,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keyFollowSymlink):
 			m.modeFollowSymlink = !m.modeFollowSymlink
 
+		case key.Matches(msg, keyHelp):
+			m.modeHelp = !m.modeHelp
+
 		case key.Matches(msg, keyHidden):
 			m.modeHidden = !m.modeHidden
 
@@ -300,4 +326,30 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.saveCursor()
 	return m, nil
+}
+
+func (m *model) status() string {
+	status := []string{"  " + name}
+
+	mode := "NORMAL"
+	cmds := []string{
+		`"/": search`,
+		`"h": help`,
+		`"q": quit`,
+	}
+	if m.modeSearch {
+		mode = "SEARCH"
+		cmds = []string{
+			`"/": cancel search`,
+		}
+	} else if m.modeHelp {
+		mode = "HELP"
+		cmds = []string{
+			`"q": cancel help`,
+			`"esc": exit application`,
+		}
+	}
+	status = append(status, fmt.Sprintf("%s MODE", mode), strings.Join(cmds, ", "), "")
+
+	return barRendererStatus.Render(strings.Join(status, "\t"))
 }

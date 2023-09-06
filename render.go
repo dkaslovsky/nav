@@ -10,6 +10,7 @@ var (
 
 	barRendererLocation = lipgloss.NewStyle().Background(lipgloss.Color("#5C5C5C")).Foreground(lipgloss.Color("#FFFFFF"))
 	barRendererSearch   = lipgloss.NewStyle().Background(lipgloss.Color("#499F1C")).Foreground(lipgloss.Color("#FFFFFF"))
+	barRendererStatus   = lipgloss.NewStyle().Background(lipgloss.Color("#494949")).Foreground(lipgloss.Color("#FFFFFF"))
 )
 
 type cursorRenderer struct {

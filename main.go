@@ -10,6 +10,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const (
+	name    = "nav"
+	version = "0.0.1"
+)
+
 func main() {
 	var err error
 
@@ -42,9 +47,9 @@ func parseArgs(args []string, m *model) error {
 	for _, arg := range args {
 		switch arg {
 		case "--help", "-h":
-			usage()
+			m.modeHelp = true
 		case "--version", "-v":
-			version()
+			versionAndExit()
 		case "--no-color":
 			m.modeColor = false
 		case "--follow-symlinks":
@@ -76,12 +81,18 @@ func parseArgs(args []string, m *model) error {
 	return nil
 }
 
-func usage() {
-	_, _ = fmt.Fprintf(os.Stderr, "usage todo...")
-	os.Exit(0)
+func usage() string {
+	return `
+	This is the help screen.
+
+	It will be more helpful soon.
+
+	Use "q" to exit help mode.
+	Use "esc" to exit the application.
+	`
 }
 
-func version() {
-	_, _ = fmt.Fprintf(os.Stderr, "version todo...")
+func versionAndExit() {
+	_, _ = fmt.Fprintf(os.Stderr, "%s: %s", name, version)
 	os.Exit(0)
 }

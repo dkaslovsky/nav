@@ -30,6 +30,7 @@ type model struct {
 
 	modeColor         bool
 	modeFollowSymlink bool
+	modeHelp          bool
 	modeHidden        bool
 	modeList          bool
 	modeSearch        bool
@@ -45,6 +46,7 @@ func newModel() *model {
 
 		modeColor:         true,
 		modeFollowSymlink: false,
+		modeHelp:          false,
 		modeHidden:        false,
 		modeList:          false,
 		modeSearch:        false,
