@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 )
 
 const (
@@ -32,6 +34,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	output := termenv.NewOutput(os.Stderr)
+	lipgloss.SetColorProfile(output.ColorProfile())
 
 	_, err = tea.NewProgram(m, tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
