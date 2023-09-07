@@ -118,6 +118,6 @@ func usage() string {
 }
 
 func versionAndExit() {
-	_, _ = fmt.Fprintf(os.Stderr, "%s: %s", name, version)
+	_, _ = fmt.Fprintf(os.Stderr, "%s (v%s)", name, version)
 	os.Exit(0)
 }
