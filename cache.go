@@ -8,7 +8,11 @@ type cacheItem struct {
 	rows                 int
 }
 
-func newCacheItem(pos *position) *cacheItem {
+func newCacheItem() *cacheItem {
+	return newCacheItemWithPosition(nil)
+}
+
+func newCacheItemWithPosition(pos *position) *cacheItem {
 	return &cacheItem{
 		cursorPosition:       pos,
 		entityToDisplayIndex: make(map[int]int),

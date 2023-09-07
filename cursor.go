@@ -49,12 +49,14 @@ func (m *model) moveRight() {
 	}
 }
 
+// position intentionally does not have a constructor to avoid potential inversion of column and row.
+// It should always be instantiated explicitly: pos := &position{c: 0, r: 0}
 type position struct {
 	c int
 	r int
 }
 
-func newPosition(idx int, rows int) *position {
+func newPositionFromIndex(idx int, rows int) *position {
 	return &position{
 		c: int(float64(idx) / float64(rows)),
 		r: idx % rows,
@@ -81,5 +83,5 @@ func (m *model) saveCursor() {
 		cache.cursorPosition = pos
 		return
 	}
-	m.viewCache[m.path] = newCacheItem(pos)
+	m.viewCache[m.path] = newCacheItemWithPosition(pos)
 }
