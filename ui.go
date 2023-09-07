@@ -157,9 +157,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if key.Matches(msg, keyQuitForceEsc) || !m.modeSearch {
 				_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
 				m.exitCode = 2
-				if m.modeHelp {
-					m.exitCode = 0
-				}
 				return m, tea.Quit
 			}
 		}
