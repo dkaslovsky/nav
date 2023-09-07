@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"io/fs"
-	"os/user"
 	"path/filepath"
-	"strconv"
-	"syscall"
 	"time"
+
+	"github.com/dkaslovsky/nav/internal/fileinfo"
 )
 
 // displayName contains a formatted name and effective length for display in the terminal.
@@ -92,26 +91,20 @@ func displayNameWithFollowSymlink(path string) displayNameOption {
 
 func displayNameWithList() displayNameOption {
 	return func(c *displayNameConfig, mode entryMode, info fs.FileInfo) {
-		stat, ok := info.Sys().(*syscall.Stat_t)
-		if !ok {
-			return
+		user := "-"
+		if u, err := fileinfo.UserName(info); err == nil {
+			user = u
 		}
-
-		usr, err := user.LookupId(strconv.FormatUint(uint64(stat.Uid), 10))
-		if err != nil {
-			return
-		}
-
-		grp, err := user.LookupGroupId(strconv.FormatUint(uint64(stat.Gid), 10))
-		if err != nil {
-			return
+		group := "-"
+		if g, err := fileinfo.GroupName(info); err == nil {
+			group = g
 		}
 
 		c.listInfo = fmt.Sprintf(
-			"%10s %8s %8s %8s %14s  ",
+			"%11s %8s %8s %8s %14s  ",
 			info.Mode(),
-			usr.Username,
-			grp.Name,
+			user,
+			group,
 			byteCountSI(info.Size()),
 			formatModTime(info.ModTime(), time.Now().Year()),
 		)
