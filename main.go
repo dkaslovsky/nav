@@ -108,7 +108,7 @@ func usage() string {
 
 	"h": enters/exits help mode
 	"d": enters/exits debug mode
-	"/": enters/exits search mod
+	"/": enters/exits search mode
 
 	"a": toggles showing hidden files
 	"l": toggles listing full file information (ls -l)

@@ -31,7 +31,7 @@ Useful key commands are listed below in the status bar.
 
 - "h": enters/exits help mode
 - "d": enters/exits debug mode
-- "/": enters/exits search mod
+- "/": enters/exits search mode
 
 <br/>
 
