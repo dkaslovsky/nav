@@ -93,6 +93,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 
 			case key.Matches(msg, keySearch):
+				m.clearError()
 				m.clearSearch()
 				return m, nil
 

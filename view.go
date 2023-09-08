@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -13,6 +14,7 @@ func (m *model) normalView() string {
 		displayNames    = []*displayName{}
 		displayNameOpts = m.displayNameOpts()
 		displayed       = 0
+		validEntries    = 0
 	)
 
 	// Construct display names from filtered entries and populate a new cache mapping between them.
@@ -21,17 +23,35 @@ func (m *model) normalView() string {
 		if !m.modeHidden && ent.hasMode(entryModeHidden) {
 			continue
 		}
+
+		validEntries++
+
 		// Filter for search.
 		if m.modeSearch && m.search != "" {
 			if !strings.HasPrefix(ent.Name(), m.search) {
 				continue
 			}
 		}
+
 		displayNames = append(displayNames, newDisplayName(ent, displayNameOpts...))
 
 		updateCache.displayToEntityIndex[displayed] = entryIdx
 		updateCache.entityToDisplayIndex[entryIdx] = displayed
 		displayed++
+	}
+
+	if validEntries == 0 {
+		return m.locationBar() + "\n\n\t(empty directory)\n"
+	}
+
+	if m.modeSearch {
+		if displayed == 0 && validEntries > 0 {
+			m.errorStatus = "No matches found"
+			m.error = errors.New("Search resulted in no matching entries")
+			return m.locationBar() + "\n\n"
+		} else {
+			m.clearError()
+		}
 	}
 
 	// Grid layout for display.
