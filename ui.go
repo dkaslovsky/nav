@@ -30,9 +30,9 @@ var (
 
 	keyDebug         = key.NewBinding(key.WithKeys("d")) // Toggles showing debug information.
 	keyFollowSymlink = key.NewBinding(key.WithKeys("f")) // Toggles showing symlink paths.
-	keyHelp          = key.NewBinding(key.WithKeys("u")) // Toggles showing usage screen.
+	keyHelp          = key.NewBinding(key.WithKeys("H")) // Toggles showing help screen.
 	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
-	keyList          = key.NewBinding(key.WithKeys("s")) // Toggles showing file info in list mode.
+	keyList          = key.NewBinding(key.WithKeys("L")) // Toggles showing file info in list mode.
 	keySearch        = key.NewBinding(key.WithKeys("i")) // Toggles search mode.
 )
 

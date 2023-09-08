@@ -87,6 +87,7 @@ func parseArgs(args []string, m *model) error {
 }
 
 func usage() string {
+	pad := 12
 	usage := `
 	%s (v%s) is an interactive terminal filesystem explorer.
 
@@ -102,24 +103,63 @@ func usage() string {
 	------------------------
 
 	Arrow keys are used to move the cursor.
+	Vim navigation is enabled via "h" (left), "j" (down) "k" (up), and "l" (right). 
 
-	"enter":     navigates into the directory under the cursor (no action for files, yet)
-	"backspace": navigates back to the previous directory
+	"%s":%snavigates into the directory under the cursor
+	"%s":%snavigates back to the previous directory
 
-	"h": enters/exits help mode
-	"d": enters/exits debug mode
-	"/": enters/exits search mode
+	"%s":%senters help mode
+	"%s":%senters search mode (insert in location bar)
+	"%s":%senters debug mode  (view error details)
+	"%s":%sswitches back to normal mode
 
-	"a": toggles showing hidden files
-	"l": toggles listing full file information (ls -l)
-	"s": toggles following symlinks
+	"%s":%stoggles showing hidden files
+	"%s":%stoggles listing full file information (ls -l)
+	"%s":%stoggles following symlinks
 
-	"q":   quits the application and outputs the current directory
-	"c":   quits the application and outputs the path to the entry under the cursor
-	"Q":   force quits the application (exit 2) when not in search mode
-	"esc": force quits the application (exit 2) in any mode
+	"%s":%squits the application and outputs the current directory
+	"%s":%squits the application and outputs the path to the entry under the cursor
+	"%s":%squits the application with no output
 	`
-	return fmt.Sprintf(usage, name, version, name)
+	return fmt.Sprintf(usage,
+		name, version, name,
+
+		keySelect.Keys()[0],
+		strings.Repeat(" ", pad-len(keySelect.Keys()[0])),
+
+		keyBack.Keys()[0],
+		strings.Repeat(" ", pad-len(keyBack.Keys()[0])),
+
+		keyHelp.Keys()[0],
+		strings.Repeat(" ", pad-len(keyHelp.Keys()[0])),
+
+		keySearch.Keys()[0],
+		strings.Repeat(" ", pad-len(keySearch.Keys()[0])),
+
+		keyDebug.Keys()[0],
+		strings.Repeat(" ", pad-len(keyDebug.Keys()[0])),
+
+		keyEsc.Keys()[0],
+		strings.Repeat(" ", pad-len(keyEsc.Keys()[0])),
+
+		keyHidden.Keys()[0],
+		strings.Repeat(" ", pad-len(keyHidden.Keys()[0])),
+
+		keyList.Keys()[0],
+		strings.Repeat(" ", pad-len(keyList.Keys()[0])),
+
+		keyFollowSymlink.Keys()[0],
+		strings.Repeat(" ", pad-len(keyFollowSymlink.Keys()[0])),
+
+		keyQuit.Keys()[0],
+		strings.Repeat(" ", pad-len(keyQuit.Keys()[0])),
+
+		keyQuitWithSelected.Keys()[0],
+		strings.Repeat(" ", pad-len(keyQuitWithSelected.Keys()[0])),
+
+		keyQuitForce.Keys()[0],
+		strings.Repeat(" ", pad-len(keyQuitForce.Keys()[0])),
+	)
 }
 
 func versionAndExit() {
