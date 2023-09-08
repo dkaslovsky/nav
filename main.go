@@ -53,7 +53,7 @@ func parseArgs(args []string, m *model) error {
 	for _, arg := range args {
 		switch arg {
 		case "--help", "-h":
-			m.modeHelp = true
+			usageAndExit()
 		case "--version", "-v":
 			versionAndExit()
 		case "--no-color":
@@ -105,7 +105,7 @@ func usage() string {
 		cd "$(%s "$@")"
 	}
 	
-	Useful key commands are listed below in the status bar.
+	Useful key commands are listed in the status bar.
 
 	------------------------
 	| Full list of commands |
@@ -149,6 +149,11 @@ func usage() string {
 		usageKeyLine(keyQuitWithSelected),
 		usageKeyLine(keyQuitForce),
 	)
+}
+
+func usageAndExit() {
+	fmt.Println(usage())
+	os.Exit(0)
 }
 
 func versionAndExit() {
