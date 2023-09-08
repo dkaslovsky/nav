@@ -135,6 +135,7 @@ func (m *model) statusBar() string {
 	if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []string{
+			fmt.Sprintf(`"%s": complete`, keyTab.Keys()[0]),
 			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
 			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
 		}
@@ -154,9 +155,9 @@ func (m *model) statusBar() string {
 		mode = "NORMAL"
 		cmds = []string{
 			fmt.Sprintf(`"%s": search`, keySearch.Keys()[0]),
-			fmt.Sprintf(`"%s": debug`, keyDebug.Keys()[0]),
 			fmt.Sprintf(`"%s": help`, keyHelp.Keys()[0]),
-			// fmt.Sprintf(`"%s": quit`, keyQuit.Keys()[0]),
+			fmt.Sprintf(`"%s": return cwd`, keyQuit.Keys()[0]),
+			fmt.Sprintf(`"%s": return selected`, keyQuitWithSelected.Keys()[0]),
 			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
 		}
 	}
@@ -170,7 +171,7 @@ func (m *model) statusBar() string {
 
 	err := ""
 	if m.errorStatus != "" {
-		err = fmt.Sprintf("ERROR: %s\t", m.errorStatus)
+		err = fmt.Sprintf("ERROR: %s (\"d\": debug)\t", m.errorStatus)
 	}
 
 	return barRendererStatus.Render(status) + barRendererError.Render(err)
