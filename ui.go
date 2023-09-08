@@ -11,31 +11,30 @@ import (
 )
 
 var (
-	keyQuitForce        = key.NewBinding(key.WithKeys("ctrl+c"))
-	keyQuit             = key.NewBinding(key.WithKeys("q"))
-	keyQuitWithSelected = key.NewBinding(key.WithKeys("c"))
+	keyQuitForce         = key.NewBinding(key.WithKeys("ctrl+c"))
+	keyQuitWithDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
+	keyQuitWithSelected  = key.NewBinding(key.WithKeys("ctrl+x"))
 
-	keyEsc = key.NewBinding(key.WithKeys("esc"))
+	keyEsc           = key.NewBinding(key.WithKeys("esc"))
+	keySelect        = key.NewBinding(key.WithKeys("enter"))
+	keyBack          = key.NewBinding(key.WithKeys("backspace"))
+	keyTab           = key.NewBinding(key.WithKeys("tab"))
+	keyFileSeparator = key.NewBinding(key.WithKeys("/"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
 	keyDown  = key.NewBinding(key.WithKeys("down", "j"))
 	keyLeft  = key.NewBinding(key.WithKeys("left", "h"))
 	keyRight = key.NewBinding(key.WithKeys("right", "l"))
 
-	keySelect = key.NewBinding(key.WithKeys("enter"))
-	keyBack   = key.NewBinding(key.WithKeys("backspace"))
-	keyTab    = key.NewBinding(key.WithKeys("tab"))
+	keyDebugMode  = key.NewBinding(key.WithKeys("d"))
+	keyHelpMode   = key.NewBinding(key.WithKeys("H"))
+	keySearchMode = key.NewBinding(key.WithKeys("i"))
 
-	keySlash = key.NewBinding(key.WithKeys("/"))
+	keyToggleFollowSymlink = key.NewBinding(key.WithKeys("f"))
+	keyToggleHidden        = key.NewBinding(key.WithKeys("a"))
+	keyToggleList          = key.NewBinding(key.WithKeys("L"))
 
 	keyDismissError = key.NewBinding(key.WithKeys("e"))
-
-	keyDebug         = key.NewBinding(key.WithKeys("d")) // Toggles showing debug information.
-	keyFollowSymlink = key.NewBinding(key.WithKeys("f")) // Toggles showing symlink paths.
-	keyHelp          = key.NewBinding(key.WithKeys("H")) // Toggles showing help screen.
-	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
-	keyList          = key.NewBinding(key.WithKeys("L")) // Toggles showing file info in list mode.
-	keySearch        = key.NewBinding(key.WithKeys("i")) // Toggles search mode.
 )
 
 func (m *model) Init() tea.Cmd {
@@ -161,9 +160,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				return m, nil
 
-			case key.Matches(msg, keySlash):
+			case key.Matches(msg, keyFileSeparator):
 				if m.displayed != 1 {
-					m.search += keySlash.Keys()[0]
+					m.search += keyString(keyFileSeparator)
 					return m, nil
 				}
 				// TODO: this is the same as tab, consider encapsulation.
@@ -195,9 +194,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Quit
 
-		case key.Matches(msg, keyQuit):
+		case key.Matches(msg, keyQuitWithDirectory):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			fmt.Println(m.path)
+			fmt.Println((m.path))
 			return m, tea.Quit
 
 		case key.Matches(msg, keyQuitWithSelected):
@@ -305,25 +304,25 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Change modes
 
-		case key.Matches(msg, keyDebug):
+		case key.Matches(msg, keyDebugMode):
 			m.modeDebug = true
 
-		case key.Matches(msg, keyHelp):
+		case key.Matches(msg, keyHelpMode):
 			m.modeHelp = true
 
-		case key.Matches(msg, keySearch):
+		case key.Matches(msg, keySearchMode):
 			m.modeSearch = true
 			m.clearError()
 
 		// Toggles
 
-		case key.Matches(msg, keyFollowSymlink):
+		case key.Matches(msg, keyToggleFollowSymlink):
 			m.modeFollowSymlink = !m.modeFollowSymlink
 
-		case key.Matches(msg, keyHidden):
+		case key.Matches(msg, keyToggleHidden):
 			m.modeHidden = !m.modeHidden
 
-		case key.Matches(msg, keyList):
+		case key.Matches(msg, keyToggleList):
 			m.modeList = !m.modeList
 
 		// Dismiss Error

@@ -10,9 +10,9 @@ import (
 func usage() string {
 	pad := 12
 
-	usageKeyLine := func(key key.Binding) string {
-		keyStr := key.Keys()[0]
-		return fmt.Sprintf("\"%s\":%s", keyStr, strings.Repeat(" ", pad-len(keyStr)))
+	usageKeyLine := func(key key.Binding, text string) string {
+		keyStr := keyString(key)
+		return fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), text)
 	}
 
 	usage := `
@@ -30,41 +30,31 @@ func usage() string {
 	------------------------
 
 	Arrow keys are used to move the cursor.
-	Vim navigation is enabled via "h" (left), "j" (down) "k" (up), and "l" (right). 
+	Vim navigation is available using "h" (left), "j" (down) "k" (up), and "l" (right).
 
-	%s navigates into the directory under the cursor
-	%s navigates back to the previous directory
-
-	%s enters help mode
-	%s enters search mode (insert in location bar)
-	%s enters debug mode  (view error details)
-	%s switches back to normal mode
-
-	%s toggles showing hidden files
-	%s toggles listing full file information (ls -l)
-	%s toggles following symlinks
-
-	%s dismisses errors
-
-	%s quits the application and outputs the current directory
-	%s quits the application and outputs the path to the entry under the cursor
-	%s quits the application with no output
-	`
+%s
+`
+	cmds := []string{
+		usageKeyLine(keySelect, "navigates into the directory under the cursor"),
+		usageKeyLine(keyBack, "navigates back to the previous directory"),
+		"",
+		usageKeyLine(keyQuitWithSelected, "returns the path to the entry under the cursor and quits"),
+		usageKeyLine(keyQuitWithDirectory, "returns the path to the current directory and quits"),
+		"",
+		usageKeyLine(keyHelpMode, "enters help mode"),
+		usageKeyLine(keySearchMode, "enters search mode (insert in location bar)"),
+		usageKeyLine(keyDebugMode, "enters debug mode  (view error details)"),
+		usageKeyLine(keyEsc, "switches back to normal mode"),
+		"",
+		usageKeyLine(keyToggleHidden, "toggles showing hidden files"),
+		usageKeyLine(keyToggleList, "toggles listing full file information (ls -l)"),
+		usageKeyLine(keyToggleFollowSymlink, "toggles following symlinks"),
+		"",
+		usageKeyLine(keyDismissError, "dismisses errors"),
+		usageKeyLine(keyQuitForce, "quits the application with no return"),
+	}
 
 	return fmt.Sprintf(usage,
-		name, version, name,
-		usageKeyLine(keySelect),
-		usageKeyLine(keyBack),
-		usageKeyLine(keyHelp),
-		usageKeyLine(keySearch),
-		usageKeyLine(keyDebug),
-		usageKeyLine(keyEsc),
-		usageKeyLine(keyHidden),
-		usageKeyLine(keyList),
-		usageKeyLine(keyFollowSymlink),
-		usageKeyLine(keyDismissError),
-		usageKeyLine(keyQuit),
-		usageKeyLine(keyQuitWithSelected),
-		usageKeyLine(keyQuitForce),
+		name, version, name, strings.Join(cmds, "\n"),
 	)
 }

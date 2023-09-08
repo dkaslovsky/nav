@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/bubbles/key"
 )
 
 var ErrNoSearchResults = errors.New("Search resulted in no matching entries")
@@ -137,30 +139,29 @@ func (m *model) statusBar() string {
 	if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []string{
-			fmt.Sprintf(`"%s": complete`, keyTab.Keys()[0]),
-			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
-			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
+			fmt.Sprintf(`"%s": complete`, keyString(keyTab)),
+			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
+			fmt.Sprintf(`"%s": quit`, keyString(keyQuitForce)),
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
 		cmds = []string{
-			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
-			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
+			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
+			fmt.Sprintf(`"%s": quit`, keyString(keyQuitForce)),
 		}
 	} else if m.modeDebug {
 		mode = "DEBUG"
 		cmds = []string{
-			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
-			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
+			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
+			fmt.Sprintf(`"%s": quit`, keyString(keyQuitForce)),
 		}
 	} else {
 		mode = "NORMAL"
 		cmds = []string{
-			fmt.Sprintf(`"%s": search`, keySearch.Keys()[0]),
-			fmt.Sprintf(`"%s": help`, keyHelp.Keys()[0]),
-			fmt.Sprintf(`"%s": return dir`, keyQuit.Keys()[0]),
-			fmt.Sprintf(`"%s": return selected`, keyQuitWithSelected.Keys()[0]),
-			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
+			fmt.Sprintf(`"%s": search`, keyString(keySearchMode)),
+			fmt.Sprintf(`"%s": help`, keyString(keyHelpMode)),
+			fmt.Sprintf(`"%s": return dir`, keyString(keyQuitWithDirectory)),
+			fmt.Sprintf(`"%s": return sel`, keyString(keyQuitWithSelected)),
 		}
 	}
 
@@ -174,7 +175,7 @@ func (m *model) statusBar() string {
 	err := ""
 	if m.errorStatus != "" && m.error != nil {
 		if !errors.Is(m.error, ErrNoSearchResults) {
-			err = fmt.Sprintf("\tERROR (\"%s\": dismiss, \"%s\": debug): %s \t", keyDismissError.Keys()[0], keyDebug.Keys()[0], m.errorStatus)
+			err = fmt.Sprintf("\tERROR (\"%s\": dismiss, \"%s\": debug): %s \t", keyString(keyDismissError), keyString(keyDebugMode), m.errorStatus)
 			return barRendererError.Render(err)
 		}
 		err = fmt.Sprintf("ERROR: %s\t", m.errorStatus)
@@ -191,4 +192,8 @@ func (m *model) locationBar() string {
 		}
 	}
 	return locationBar
+}
+
+func keyString(key key.Binding) string {
+	return key.Keys()[0]
 }

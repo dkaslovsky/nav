@@ -53,7 +53,7 @@ func parseArgs(args []string, m *model) error {
 
 	for _, arg := range args {
 		switch arg {
-		case "--help", "-h":
+		case "--help", "-h", "-H":
 			usageAndExit()
 		case "--version", "-v":
 			versionAndExit()

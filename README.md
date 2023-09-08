@@ -18,11 +18,14 @@ function lsi {
 
 ### Full list of commands
 
-    Arrow keys are used to move the cursor.
-	Vim navigation is enabled via "h" (left), "j" (down) "k" (up), and "l" (right).
+	Arrow keys are used to move the cursor.
+	Vim navigation is available using "h" (left), "j" (down) "k" (up), and "l" (right).
 
 	"enter":       navigates into the directory under the cursor
 	"backspace":   navigates back to the previous directory
+
+	"ctrl+x":      returns the path to the entry under the cursor and quits
+	"ctrl+d":      returns the path to the current directory and quits
 
 	"H":           enters help mode
 	"i":           enters search mode (insert in location bar)
@@ -34,12 +37,8 @@ function lsi {
 	"f":           toggles following symlinks
 
 	"e":           dismisses errors
-
-	"q":           quits the application and outputs the current directory
-	"c":           quits the application and outputs the path to the entry under the cursor
-	"ctrl+c":      quits the application with no output
-
+	"ctrl+c":      quits the application with no return
 <br/>
 
 
-`nav` was originally inspired by https://github.com/antonmedv/walk but has deviated significantly and has been written from the ground up to support a different set of of features.
+`nav` was originally inspired by https://github.com/antonmedv/walk but has deviated significantly and has been written from the ground up to support a different set of features.
