@@ -117,6 +117,8 @@ func usage() string {
 	"%s":%stoggles listing full file information (ls -l)
 	"%s":%stoggles following symlinks
 
+	"%s":%sdismisses errors
+
 	"%s":%squits the application and outputs the current directory
 	"%s":%squits the application and outputs the path to the entry under the cursor
 	"%s":%squits the application with no output
@@ -150,6 +152,9 @@ func usage() string {
 
 		keyFollowSymlink.Keys()[0],
 		strings.Repeat(" ", pad-len(keyFollowSymlink.Keys()[0])),
+
+		keyDismissError.Keys()[0],
+		strings.Repeat(" ", pad-len(keyDismissError.Keys()[0])),
 
 		keyQuit.Keys()[0],
 		strings.Repeat(" ", pad-len(keyQuit.Keys()[0])),

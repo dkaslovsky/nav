@@ -13,40 +13,31 @@ function lsi {
 	cd "$(nav "$@")"
 }
 ```
-Useful key commands are listed below in the status bar.
 
 <br/>
 
 ### Full list of commands
 
-- Arrow keys are used to move the cursor.
+    Arrow keys are used to move the cursor.
+	Vim navigation is enabled via "h" (left), "j" (down) "k" (up), and "l" (right).
 
-<br/>
+	"enter":       navigates into the directory under the cursor
+	"backspace":   navigates back to the previous directory
 
+	"H":           enters help mode
+	"i":           enters search mode (insert in location bar)
+	"d":           enters debug mode  (view error details)
+	"esc":         switches back to normal mode
 
-- "enter":     navigates into the directory under the cursor (no action for files, yet)
-- "backspace": navigates back to the previous directory
+	"a":           toggles showing hidden files
+	"L":           toggles listing full file information (ls -l)
+	"f":           toggles following symlinks
 
-<br/>
+	"e":           dismisses errors
 
-- "h": enters/exits help mode
-- "d": enters/exits debug mode
-- "/": enters/exits search mode
-
-<br/>
-
-
-- "a": toggles showing hidden files
-- "l": toggles listing full file information (ls -l)
-- "s": toggles following symlinks
-
-<br/>
-
-
-- "q":   quits the application and outputs the current directory
-- "c":   quits the application and outputs the path to the entry under the cursor
-- "Q":   force quits the application (exit 2) when not in search mode
-- "esc": force quits the application (exit 2) in any mode
+	"q":           quits the application and outputs the current directory
+	"c":           quits the application and outputs the path to the entry under the cursor
+	"ctrl+c":      quits the application with no output
 
 <br/>
 
