@@ -41,7 +41,7 @@ func (m *model) normalView() string {
 	}
 
 	if validEntries == 0 {
-		return m.locationBar() + "\n\n\t(empty directory)\n"
+		return m.locationBar() + "\n\n\t(no entries)\n"
 	}
 
 	if m.modeSearch {
