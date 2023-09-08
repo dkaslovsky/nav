@@ -196,7 +196,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyQuitWithDirectory):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			fmt.Println((m.path))
+			fmt.Println(sanitizeOutputPath(m.path))
 			return m, tea.Quit
 
 		case key.Matches(msg, keyQuitWithSelected):
@@ -205,7 +205,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !ok {
 				return m, nil
 			}
-			fmt.Println(filepath.Join(m.path, current.Name()))
+			fmt.Println(sanitizeOutputPath(filepath.Join(m.path, current.Name())))
 			return m, tea.Quit
 
 		// Cursor
@@ -334,4 +334,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.saveCursor()
 	return m, nil
+}
+
+func sanitizeOutputPath(s string) string {
+	return strings.Replace(s, " ", "\\ ", -1)
 }
