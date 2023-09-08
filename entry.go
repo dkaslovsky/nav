@@ -28,6 +28,8 @@ func newEntry(dirEntry fs.DirEntry) (*entry, error) {
 	return e, nil
 }
 
+const maskExec = 0o111
+
 func (e *entry) setMode() {
 	e.mode = entryModeNone
 
@@ -37,11 +39,16 @@ func (e *entry) setMode() {
 		e.mode = e.mode | entryModeHidden
 	}
 
-	// Set e to be a symlink even if it is also a directory or file.
+	var isExec bool
 	if fi, err := e.Info(); err == nil {
+		// Set e to be a symlink even if it is also a directory or file.
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			e.mode = e.mode | entryModeSymlink
 			return
+		}
+		// Check if e is executable but do not set this mode until after confirming it is a file below.
+		if fi.Mode()&maskExec == maskExec {
+			isExec = true
 		}
 	}
 
@@ -52,6 +59,9 @@ func (e *entry) setMode() {
 
 	// Set e to be a file since it is not a symlink or a directory.
 	e.mode = e.mode | entryModeFile
+	if isExec {
+		e.mode = e.mode | entryModeExec
+	}
 }
 
 func (e *entry) hasMode(mode entryMode) bool {
@@ -66,6 +76,7 @@ const (
 	entryModeFile
 	entryModeSymlink
 	entryModeHidden
+	entryModeExec
 )
 
 func (mode entryMode) has(tgt entryMode) bool {

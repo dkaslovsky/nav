@@ -46,11 +46,12 @@ func newDisplayName(e *entry, opts ...displayNameOption) *displayName {
 type color string
 
 const (
+	colorReset   color = "\033[0m"
 	colorCyan    color = "\033[36m"
 	colorGreen   color = "\033[32m"
 	colorGray    color = "\033[37m"
 	colorMagenta color = "\033[35m"
-	colorReset   color = "\033[0m"
+	colorYellow  color = "\033[33m"
 )
 
 // displayNameConfig contains configuration values for constructing an entry's display name.
@@ -71,9 +72,11 @@ func displayNameWithColor() displayNameOption {
 		case mode.has(entryModeSymlink):
 			c.color = colorMagenta
 		case mode.has(entryModeHidden):
-			c.color = colorGreen
+			c.color = colorYellow
 		case mode.has(entryModeDir):
 			c.color = colorCyan
+		case mode.has(entryModeExec):
+			c.color = colorGreen
 		}
 	}
 }
@@ -118,6 +121,8 @@ func displayNameWithTrailing() displayNameOption {
 			c.trailing = "@"
 		case mode.has(entryModeDir):
 			c.trailing = "/"
+		case mode.has(entryModeExec):
+			c.trailing = "*"
 		}
 	}
 }
