@@ -64,6 +64,8 @@ func parseArgs(args []string, m *model) error {
 			m.modeHidden = true
 		case "--list":
 			m.modeList = true
+		case "--search":
+			m.modeSearch = true
 		case "--no-trailing":
 			m.modeTrailing = false
 		default:
