@@ -56,5 +56,6 @@ function lsi {
 	--no-trailing:            toggle off trailing annotators
 <br/>
 
+In the future, `nav` might support a wider range of `ls` options.
 
 `nav` was originally inspired by https://github.com/antonmedv/walk but has deviated significantly and has been written from the ground up to support a different set of features.
