@@ -101,8 +101,25 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {
 					m.search = m.search[:len(m.search)-1]
-					// return m, nil
+					return m, nil
 				}
+
+				m.saveCursor()
+
+				_, m.search = filepath.Split(m.path)
+				path, err := filepath.Abs(filepath.Join(m.path, ".."))
+				if err != nil {
+					// TODO: Handle error.
+					return m, tea.Quit
+				}
+				m.path = path
+
+				err = m.list()
+				if err != nil {
+					// TODO: Improve error handling rather than quitting the application.
+					return m, tea.Quit
+				}
+
 				return m, nil
 
 			case key.Matches(msg, keySelect):
@@ -115,6 +132,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return m, tea.Quit
 					}
 				}
+				return m, nil
 
 			case key.Matches(msg, keyTab):
 				if m.displayed != 1 {
@@ -129,6 +147,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return m, tea.Quit
 					}
 				}
+				return m, nil
 
 			default:
 				if msg.Type == tea.KeyRunes {
