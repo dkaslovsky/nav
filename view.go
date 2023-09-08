@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var ErrNoSearchResults = errors.New("Search resulted in no matching entries")
+
 func (m *model) normalView() string {
 	var (
 		// Cache for storing the current state as it is constructed.
@@ -47,7 +49,7 @@ func (m *model) normalView() string {
 	if m.modeSearch {
 		if displayed == 0 && validEntries > 0 {
 			m.errorStatus = "No matches found"
-			m.error = errors.New("Search resulted in no matching entries")
+			m.error = ErrNoSearchResults
 			return m.locationBar() + "\n\n"
 		} else {
 			m.clearError()
@@ -156,7 +158,7 @@ func (m *model) statusBar() string {
 		cmds = []string{
 			fmt.Sprintf(`"%s": search`, keySearch.Keys()[0]),
 			fmt.Sprintf(`"%s": help`, keyHelp.Keys()[0]),
-			fmt.Sprintf(`"%s": return cwd`, keyQuit.Keys()[0]),
+			fmt.Sprintf(`"%s": return dir`, keyQuit.Keys()[0]),
 			fmt.Sprintf(`"%s": return selected`, keyQuitWithSelected.Keys()[0]),
 			fmt.Sprintf(`"%s": quit`, keyQuitForce.Keys()[0]),
 		}
@@ -170,8 +172,12 @@ func (m *model) statusBar() string {
 	}, "\t")
 
 	err := ""
-	if m.errorStatus != "" {
-		err = fmt.Sprintf("ERROR: %s (\"d\": debug)\t", m.errorStatus)
+	if m.errorStatus != "" && m.error != nil {
+		if !errors.Is(m.error, ErrNoSearchResults) {
+			err = fmt.Sprintf("\tERROR (\"%s\": dismiss, \"%s\": debug): %s \t", keyDismissError.Keys()[0], keyDebug.Keys()[0], m.errorStatus)
+			return barRendererError.Render(err)
+		}
+		err = fmt.Sprintf("ERROR: %s\t", m.errorStatus)
 	}
 
 	return barRendererStatus.Render(status) + barRendererError.Render(err)

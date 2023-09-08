@@ -28,6 +28,8 @@ var (
 
 	keySlash = key.NewBinding(key.WithKeys("/"))
 
+	keyDismissError = key.NewBinding(key.WithKeys("e"))
+
 	keyDebug         = key.NewBinding(key.WithKeys("d")) // Toggles showing debug information.
 	keyFollowSymlink = key.NewBinding(key.WithKeys("f")) // Toggles showing symlink paths.
 	keyHelp          = key.NewBinding(key.WithKeys("H")) // Toggles showing help screen.
@@ -85,6 +87,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if key.Matches(msg, keyEsc) {
 				m.modeDebug = false
 			}
+
+			return m, nil
 		}
 
 		// Search mode
@@ -321,6 +325,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyList):
 			m.modeList = !m.modeList
+
+		// Dismiss Error
+		case key.Matches(msg, keyDismissError):
+			m.clearError()
 
 		}
 	}
