@@ -91,8 +91,9 @@ func flags() string {
 		usageFlagLine("toggle on showing hidden files at startup", flagHidden),
 		usageFlagLine("toggle on list mode at startup", flagList, flagListShort),
 		usageFlagLine("toggle on following symlinks at startup", flagFollowSymlinks, flagFollowSymlinksShort),
+		"",
 		usageFlagLine("toggle off color output", flagNoColor),
-		usageFlagLine("toggle off color trailing annotators", flagNoTrailing),
+		usageFlagLine("toggle off trailing annotators", flagNoTrailing),
 	}
 	return fmt.Sprintf(usage, strings.Join(flags, "\n"))
 }

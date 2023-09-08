@@ -38,6 +38,22 @@ function lsi {
 
 	"e":           dismisses errors
 	"ctrl+c":      quits the application with no return
+
+<br/>
+
+### Command line flags
+
+	--help, -h, -H:           display help
+	--version, -v:            display version
+
+	--search, -s:             start in search mode
+
+	--hidden:                 toggle on showing hidden files at startup
+	--list, -l:               toggle on list mode at startup
+	--follow-symlinks, -f:    toggle on following symlinks at startup
+
+	--no-color:               toggle off color output
+	--no-trailing:            toggle off trailing annotators
 <br/>
 
 

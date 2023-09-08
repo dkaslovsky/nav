@@ -32,8 +32,9 @@ const (
 	flagHidden              = "--hidden"
 	flagList                = "--list"
 	flagListShort           = "-l"
-	flagNoColor             = "--no-color"
-	flagNoTrailing          = "--no-trailing"
+
+	flagNoColor    = "--no-color"
+	flagNoTrailing = "--no-trailing"
 )
 
 func main() {
