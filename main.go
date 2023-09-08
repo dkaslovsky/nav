@@ -37,6 +37,8 @@ const (
 	flagNoTrailing = "--no-trailing"
 )
 
+const envEscRemap = "NAV_ESC_REMAP"
+
 func main() {
 	var err error
 

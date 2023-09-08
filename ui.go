@@ -21,6 +21,8 @@ var (
 	keyTab           = key.NewBinding(key.WithKeys("tab"))
 	keyFileSeparator = key.NewBinding(key.WithKeys("/"))
 
+	keyExtraEsc = key.NewBinding(key.WithKeys(os.Getenv(envEscRemap)))
+
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
 	keyDown  = key.NewBinding(key.WithKeys("down", "j"))
 	keyLeft  = key.NewBinding(key.WithKeys("left", "h"))
@@ -73,7 +75,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-			if key.Matches(msg, keyEsc) {
+			if key.Matches(msg, keyEsc, keyExtraEsc) {
 				m.modeHelp = false
 			}
 
@@ -83,7 +85,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Debug mode
 
 		if m.modeDebug {
-			if key.Matches(msg, keyEsc) {
+			if key.Matches(msg, keyEsc, keyExtraEsc) {
 				m.modeDebug = false
 			}
 
@@ -95,7 +97,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.modeSearch {
 			switch {
 
-			case key.Matches(msg, keyEsc):
+			case key.Matches(msg, keyEsc, keyExtraEsc):
 				m.clearError()
 				m.clearSearch()
 				return m, nil
