@@ -135,7 +135,7 @@ func (m *model) statusBar() string {
 	if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []string{
-			`"/": cancel search`,
+			fmt.Sprintf(`"%s": cancel search`, keySearch.Keys()[0]),
 			`"esc": force exit`,
 		}
 	} else if m.modeHelp {
@@ -153,7 +153,7 @@ func (m *model) statusBar() string {
 	} else {
 		mode = "NORMAL"
 		cmds = []string{
-			`"/": search`,
+			fmt.Sprintf(`"%s": search`, keySearch.Keys()[0]),
 			`"d": debug`,
 			`"h": help`,
 			`"q": quit`,
@@ -179,7 +179,9 @@ func (m *model) statusBar() string {
 func (m *model) locationBar() string {
 	locationBar := barRendererLocation.Render(m.location())
 	if m.modeSearch {
-		locationBar += barRendererSearch.Render(fileSeparator + m.search)
+		if m.path != fileSeparator {
+			locationBar += barRendererSearch.Render(fileSeparator + m.search)
+		}
 	}
 	return locationBar
 }

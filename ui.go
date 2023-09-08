@@ -25,12 +25,14 @@ var (
 	keyBack   = key.NewBinding(key.WithKeys("backspace"))
 	keyTab    = key.NewBinding(key.WithKeys("tab"))
 
+	keySlash = key.NewBinding(key.WithKeys("/"))
+
 	keyDebug         = key.NewBinding(key.WithKeys("d")) // Toggles showing debug information.
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
 	keyHelp          = key.NewBinding(key.WithKeys("h")) // Toggles showing help screen.
 	keyHidden        = key.NewBinding(key.WithKeys("a")) // Toggles showing hidden files, (similar to ls -a).
 	keyList          = key.NewBinding(key.WithKeys("l")) // Toggles showing file info in list mode.
-	keySearch        = key.NewBinding(key.WithKeys("/")) // Toggles search mode.
+	keySearch        = key.NewBinding(key.WithKeys("i")) // Toggles search mode.
 )
 
 func (m *model) Init() tea.Cmd {
@@ -125,6 +127,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, keySelect):
 				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
 					m.path = m.path + "/" + selected.Name()
+					// TODO: encapsulate this fix
+					if strings.HasPrefix(m.path, "//") {
+						m.path = m.path[1:]
+					}
 					m.search = ""
 					err := m.list()
 					if err != nil {
@@ -138,8 +144,34 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.displayed != 1 {
 					return m, nil
 				}
+				// TODO: this is the same as slash, consider encapsulation.
 				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
 					m.path = m.path + "/" + selected.Name()
+					// TODO: encapsulate this fix
+					if strings.HasPrefix(m.path, "//") {
+						m.path = m.path[1:]
+					}
+					m.search = ""
+					err := m.list()
+					if err != nil {
+						// TODO: Improve error handling rather than quitting the application.
+						return m, tea.Quit
+					}
+				}
+				return m, nil
+
+			case key.Matches(msg, keySlash):
+				if m.displayed != 1 {
+					m.search += keySlash.Keys()[0]
+					return m, nil
+				}
+				// TODO: this is the same as tab, consider encapsulation.
+				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
+					m.path = m.path + "/" + selected.Name()
+					// TODO: encapsulate this fix
+					if strings.HasPrefix(m.path, "//") {
+						m.path = m.path[1:]
+					}
 					m.search = ""
 					err := m.list()
 					if err != nil {
