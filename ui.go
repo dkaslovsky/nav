@@ -72,8 +72,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-			if key.Matches(msg, keyHelp) {
-				m.modeHelp = !m.modeHelp
+			if key.Matches(msg, keyEsc) {
+				m.modeHelp = false
 			}
 
 			return m, nil
@@ -82,9 +82,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Debug mode
 
 		if m.modeDebug {
-			if key.Matches(msg, keyDebug, keyQuit) {
-				m.modeDebug = !m.modeDebug
-				return m, nil
+			if key.Matches(msg, keyEsc) {
+				m.modeDebug = false
 			}
 		}
 
@@ -300,26 +299,28 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
-		// Toggles
+		// Change modes
 
 		case key.Matches(msg, keyDebug):
-			m.modeDebug = !m.modeDebug
+			m.modeDebug = true
+
+		case key.Matches(msg, keyHelp):
+			m.modeHelp = true
+
+		case key.Matches(msg, keySearch):
+			m.modeSearch = true
+			m.clearError()
+
+		// Toggles
 
 		case key.Matches(msg, keyFollowSymlink):
 			m.modeFollowSymlink = !m.modeFollowSymlink
-
-		case key.Matches(msg, keyHelp):
-			m.modeHelp = !m.modeHelp
 
 		case key.Matches(msg, keyHidden):
 			m.modeHidden = !m.modeHidden
 
 		case key.Matches(msg, keyList):
 			m.modeList = !m.modeList
-
-		case key.Matches(msg, keySearch):
-			m.modeSearch = !m.modeSearch
-			m.clearError()
 
 		}
 	}
