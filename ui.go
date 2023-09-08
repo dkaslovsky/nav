@@ -23,6 +23,7 @@ var (
 
 	keySelect = key.NewBinding(key.WithKeys("enter"))
 	keyBack   = key.NewBinding(key.WithKeys("backspace"))
+	keyTab    = key.NewBinding(key.WithKeys("tab"))
 
 	keyDebug         = key.NewBinding(key.WithKeys("d")) // Toggles showing debug information.
 	keyFollowSymlink = key.NewBinding(key.WithKeys("s")) // Toggles showing symlink paths.
@@ -100,8 +101,34 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {
 					m.search = m.search[:len(m.search)-1]
+					// return m, nil
 				}
 				return m, nil
+
+			case key.Matches(msg, keySelect):
+				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
+					m.path = m.path + "/" + selected.Name()
+					m.search = ""
+					err := m.list()
+					if err != nil {
+						// TODO: Improve error handling rather than quitting the application.
+						return m, tea.Quit
+					}
+				}
+
+			case key.Matches(msg, keyTab):
+				if m.displayed != 1 {
+					return m, nil
+				}
+				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
+					m.path = m.path + "/" + selected.Name()
+					m.search = ""
+					err := m.list()
+					if err != nil {
+						// TODO: Improve error handling rather than quitting the application.
+						return m, tea.Quit
+					}
+				}
 
 			default:
 				if msg.Type == tea.KeyRunes {
