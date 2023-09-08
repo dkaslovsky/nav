@@ -155,7 +155,7 @@ func (m *model) statusBar() string {
 		cmds = []string{
 			fmt.Sprintf(`"%s": search`, keySearch.Keys()[0]),
 			fmt.Sprintf(`"%s": debug`, keyDebug.Keys()[0]),
-			fmt.Sprintf(`"%s": help`, keyHelp.Keys()[0]),
+			fmt.Sprintf(`"%s": usage`, keyHelp.Keys()[0]),
 			fmt.Sprintf(`"%s": quit`, keyQuit.Keys()[0]),
 			fmt.Sprintf(`"%s": force quit`, keyQuitForce.Keys()[0]),
 		}
