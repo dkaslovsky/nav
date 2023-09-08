@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	keyQuitForce        = key.NewBinding(key.WithKeys("esc", "Q"))
-	keyQuitForceEsc     = key.NewBinding(key.WithKeys("esc"))
+	keyQuitForce        = key.NewBinding(key.WithKeys("ctrl+c"))
 	keyQuit             = key.NewBinding(key.WithKeys("q"))
 	keyQuitWithSelected = key.NewBinding(key.WithKeys("c"))
+
+	keyEsc = key.NewBinding(key.WithKeys("esc"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up"))
 	keyDown  = key.NewBinding(key.WithKeys("down"))
@@ -62,13 +63,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 
 		// Force Quit
-
 		if key.Matches(msg, keyQuitForce) {
-			if key.Matches(msg, keyQuitForceEsc) || !m.modeSearch {
-				_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-				m.exitCode = 2
-				return m, tea.Quit
-			}
+			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+			m.exitCode = 2
+			return m, tea.Quit
 		}
 
 		// Help mode
@@ -95,7 +93,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.modeSearch {
 			switch {
 
-			case key.Matches(msg, keySearch):
+			case key.Matches(msg, keyEsc):
 				m.clearError()
 				m.clearSearch()
 				return m, nil

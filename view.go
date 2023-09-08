@@ -135,29 +135,29 @@ func (m *model) statusBar() string {
 	if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []string{
-			fmt.Sprintf(`"%s": cancel search`, keySearch.Keys()[0]),
-			`"esc": force exit`,
+			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
+			fmt.Sprintf(`"%s": force quit`, keyQuitForce.Keys()[0]),
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
 		cmds = []string{
-			`"h": cancel help`,
-			`"Q": quit`,
+			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
+			fmt.Sprintf(`"%s": force quit`, keyQuitForce.Keys()[0]),
 		}
 	} else if m.modeDebug {
 		mode = "DEBUG"
 		cmds = []string{
-			`"d": cancel debug`,
-			`"Q": force exit`,
+			fmt.Sprintf(`"%s": normal mode`, keyEsc.Keys()[0]),
+			fmt.Sprintf(`"%s": force quit`, keyQuitForce.Keys()[0]),
 		}
 	} else {
 		mode = "NORMAL"
 		cmds = []string{
 			fmt.Sprintf(`"%s": search`, keySearch.Keys()[0]),
-			`"d": debug`,
-			`"h": help`,
-			`"q": quit`,
-			`"Q": force exit`,
+			fmt.Sprintf(`"%s": debug`, keyDebug.Keys()[0]),
+			fmt.Sprintf(`"%s": help`, keyHelp.Keys()[0]),
+			fmt.Sprintf(`"%s": quit`, keyQuit.Keys()[0]),
+			fmt.Sprintf(`"%s": force quit`, keyQuitForce.Keys()[0]),
 		}
 	}
 
