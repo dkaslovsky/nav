@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
@@ -88,6 +89,12 @@ func parseArgs(args []string, m *model) error {
 
 func usage() string {
 	pad := 12
+
+	usageKeyLine := func(key key.Binding) string {
+		keyStr := key.Keys()[0]
+		return fmt.Sprintf("\"%s\":%s", keyStr, strings.Repeat(" ", pad-len(keyStr)))
+	}
+
 	usage := `
 	%s (v%s) is an interactive terminal filesystem explorer.
 
@@ -105,65 +112,40 @@ func usage() string {
 	Arrow keys are used to move the cursor.
 	Vim navigation is enabled via "h" (left), "j" (down) "k" (up), and "l" (right). 
 
-	"%s":%snavigates into the directory under the cursor
-	"%s":%snavigates back to the previous directory
+	%s navigates into the directory under the cursor
+	%s navigates back to the previous directory
 
-	"%s":%senters help mode
-	"%s":%senters search mode (insert in location bar)
-	"%s":%senters debug mode  (view error details)
-	"%s":%sswitches back to normal mode
+	%s enters help mode
+	%s enters search mode (insert in location bar)
+	%s enters debug mode  (view error details)
+	%s switches back to normal mode
 
-	"%s":%stoggles showing hidden files
-	"%s":%stoggles listing full file information (ls -l)
-	"%s":%stoggles following symlinks
+	%s toggles showing hidden files
+	%s toggles listing full file information (ls -l)
+	%s toggles following symlinks
 
-	"%s":%sdismisses errors
+	%s dismisses errors
 
-	"%s":%squits the application and outputs the current directory
-	"%s":%squits the application and outputs the path to the entry under the cursor
-	"%s":%squits the application with no output
+	%s quits the application and outputs the current directory
+	%s quits the application and outputs the path to the entry under the cursor
+	%s quits the application with no output
 	`
+
 	return fmt.Sprintf(usage,
 		name, version, name,
-
-		keySelect.Keys()[0],
-		strings.Repeat(" ", pad-len(keySelect.Keys()[0])),
-
-		keyBack.Keys()[0],
-		strings.Repeat(" ", pad-len(keyBack.Keys()[0])),
-
-		keyHelp.Keys()[0],
-		strings.Repeat(" ", pad-len(keyHelp.Keys()[0])),
-
-		keySearch.Keys()[0],
-		strings.Repeat(" ", pad-len(keySearch.Keys()[0])),
-
-		keyDebug.Keys()[0],
-		strings.Repeat(" ", pad-len(keyDebug.Keys()[0])),
-
-		keyEsc.Keys()[0],
-		strings.Repeat(" ", pad-len(keyEsc.Keys()[0])),
-
-		keyHidden.Keys()[0],
-		strings.Repeat(" ", pad-len(keyHidden.Keys()[0])),
-
-		keyList.Keys()[0],
-		strings.Repeat(" ", pad-len(keyList.Keys()[0])),
-
-		keyFollowSymlink.Keys()[0],
-		strings.Repeat(" ", pad-len(keyFollowSymlink.Keys()[0])),
-
-		keyDismissError.Keys()[0],
-		strings.Repeat(" ", pad-len(keyDismissError.Keys()[0])),
-
-		keyQuit.Keys()[0],
-		strings.Repeat(" ", pad-len(keyQuit.Keys()[0])),
-
-		keyQuitWithSelected.Keys()[0],
-		strings.Repeat(" ", pad-len(keyQuitWithSelected.Keys()[0])),
-
-		keyQuitForce.Keys()[0],
-		strings.Repeat(" ", pad-len(keyQuitForce.Keys()[0])),
+		usageKeyLine(keySelect),
+		usageKeyLine(keyBack),
+		usageKeyLine(keyHelp),
+		usageKeyLine(keySearch),
+		usageKeyLine(keyDebug),
+		usageKeyLine(keyEsc),
+		usageKeyLine(keyHidden),
+		usageKeyLine(keyList),
+		usageKeyLine(keyFollowSymlink),
+		usageKeyLine(keyDismissError),
+		usageKeyLine(keyQuit),
+		usageKeyLine(keyQuitWithSelected),
+		usageKeyLine(keyQuitForce),
 	)
 }
 
