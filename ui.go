@@ -44,7 +44,7 @@ func (m *model) Init() tea.Cmd {
 func (m *model) View() string {
 	var view string
 	if m.modeHelp {
-		view = usage()
+		view = commands()
 	} else if m.modeDebug {
 		view = m.debugView()
 	} else {

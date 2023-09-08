@@ -17,6 +17,25 @@ const (
 	version = "0.0.1"
 )
 
+const (
+	flagHelp          = "--help"
+	flagHelpShort     = "-h"
+	flagHelpShortCaps = "-H"
+	flagVersion       = "--version"
+	flagVersionShort  = "-v"
+
+	flagSearch      = "--search"
+	flagSearchShort = "-s"
+
+	flagFollowSymlinks      = "--follow-symlinks"
+	flagFollowSymlinksShort = "-f"
+	flagHidden              = "--hidden"
+	flagList                = "--list"
+	flagListShort           = "-l"
+	flagNoColor             = "--no-color"
+	flagNoTrailing          = "--no-trailing"
+)
+
 func main() {
 	var err error
 
@@ -53,21 +72,21 @@ func parseArgs(args []string, m *model) error {
 
 	for _, arg := range args {
 		switch arg {
-		case "--help", "-h", "-H":
+		case flagHelp, flagHelpShort, flagHelpShortCaps:
 			usageAndExit()
-		case "--version", "-v":
+		case flagVersion, flagVersionShort:
 			versionAndExit()
-		case "--no-color":
-			m.modeColor = false
-		case "--follow-symlinks":
-			m.modeFollowSymlink = true
-		case "--hidden":
+		case flagHidden:
 			m.modeHidden = true
-		case "--list":
+		case flagList, flagListShort:
 			m.modeList = true
-		case "--search":
+		case flagSearch, flagSearchShort:
 			m.modeSearch = true
-		case "--no-trailing":
+		case flagFollowSymlinks, flagFollowSymlinksShort:
+			m.modeFollowSymlink = true
+		case flagNoColor:
+			m.modeColor = false
+		case flagNoTrailing:
 			m.modeTrailing = false
 		default:
 			if strings.HasPrefix(arg, "-") {
@@ -91,7 +110,7 @@ func parseArgs(args []string, m *model) error {
 }
 
 func usageAndExit() {
-	fmt.Println(usage())
+	fmt.Printf("%s\n%s\n%s\n", usage(), commands(), flags())
 	os.Exit(0)
 }
 

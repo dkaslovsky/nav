@@ -8,13 +8,6 @@ import (
 )
 
 func usage() string {
-	pad := 12
-
-	usageKeyLine := func(key key.Binding, text string) string {
-		keyStr := keyString(key)
-		return fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), text)
-	}
-
 	usage := `
 	%s (v%s) is an interactive terminal filesystem explorer.
 
@@ -24,7 +17,22 @@ func usage() string {
 	}
 	
 	Useful key commands are listed in the status bar.
+`
 
+	return fmt.Sprintf(usage,
+		name, version, name,
+	)
+}
+
+func commands() string {
+	pad := 12
+
+	usageKeyLine := func(key key.Binding, text string) string {
+		keyStr := keyString(key)
+		return fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), text)
+	}
+
+	usage := `
 	------------------------
 	| Full list of commands |
 	------------------------
@@ -54,7 +62,37 @@ func usage() string {
 		usageKeyLine(keyQuitForce, "quits the application with no return"),
 	}
 
-	return fmt.Sprintf(usage,
-		name, version, name, strings.Join(cmds, "\n"),
-	)
+	return fmt.Sprintf(usage, strings.Join(cmds, "\n"))
+}
+
+func flags() string {
+	pad := 25
+
+	usageFlagLine := func(text string, flagSet ...string) string {
+		flagStr := strings.Join(flagSet, ", ")
+		return fmt.Sprintf("\t%s:%s%s", flagStr, strings.Repeat(" ", pad-len(flagStr)), text)
+	}
+
+	usage := `
+	----------------------
+	| Command Line Flags |
+	----------------------
+
+	The following flags are available:
+
+%s
+`
+	flags := []string{
+		usageFlagLine("display help", flagHelp, flagHelpShort, flagHelpShortCaps),
+		usageFlagLine("display version", flagVersion, flagVersionShort),
+		"",
+		usageFlagLine("start in search mode", flagSearch, flagSearchShort),
+		"",
+		usageFlagLine("toggle on showing hidden files at startup", flagHidden),
+		usageFlagLine("toggle on list mode at startup", flagList, flagListShort),
+		usageFlagLine("toggle on following symlinks at startup", flagFollowSymlinks, flagFollowSymlinksShort),
+		usageFlagLine("toggle off color output", flagNoColor),
+		usageFlagLine("toggle off color trailing annotators", flagNoTrailing),
+	}
+	return fmt.Sprintf(usage, strings.Join(flags, "\n"))
 }
