@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -98,8 +99,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 
 			case key.Matches(msg, keyEsc, keyExtraEsc):
-				m.clearError()
 				m.clearSearch()
+				if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
+					m.clearError()
+				}
 				return m, nil
 
 			case key.Matches(msg, keyBack):
@@ -113,32 +116,42 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				_, m.search = filepath.Split(m.path)
 				path, err := filepath.Abs(filepath.Join(m.path, ".."))
 				if err != nil {
-					// TODO: Handle error.
-					return m, tea.Quit
+					m.setError(err, "failed to evaluate path")
+					return m, nil
 				}
 				m.path = path
 
 				err = m.list()
 				if err != nil {
-					// TODO: Improve error handling rather than quitting the application.
-					return m, tea.Quit
+					m.setError(err, "failed to list entries")
+					return m, nil
 				}
 
 				return m, nil
 
+			// TODO: keySelect, keyTab, and keyFileSeparator share common logic that should be encapsulated.
 			case key.Matches(msg, keySelect):
-				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
-					m.path = m.path + "/" + selected.Name()
-					// TODO: encapsulate this fix
-					if strings.HasPrefix(m.path, "//") {
-						m.path = m.path[1:]
-					}
-					m.search = ""
-					err := m.list()
-					if err != nil {
-						// TODO: Improve error handling rather than quitting the application.
-						return m, tea.Quit
-					}
+				selected, err := m.selected()
+				if err != nil {
+					m.setError(err, "failed to select entry")
+					m.clearSearch()
+					return m, nil
+				}
+				if !selected.hasMode(entryModeDir) {
+					// No-op for non directories
+					return m, nil
+				}
+				m.path = m.path + "/" + selected.Name()
+				// TODO: encapsulate this fix
+				if strings.HasPrefix(m.path, "//") {
+					m.path = m.path[1:]
+				}
+				m.search = ""
+				err = m.list()
+				if err != nil {
+					m.setError(err, "failed to list entries")
+					m.clearSearch()
+					return m, nil
 				}
 				return m, nil
 
@@ -146,19 +159,27 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.displayed != 1 {
 					return m, nil
 				}
-				// TODO: this is the same as slash, consider encapsulation.
-				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
-					m.path = m.path + "/" + selected.Name()
-					// TODO: encapsulate this fix
-					if strings.HasPrefix(m.path, "//") {
-						m.path = m.path[1:]
-					}
-					m.search = ""
-					err := m.list()
-					if err != nil {
-						// TODO: Improve error handling rather than quitting the application.
-						return m, tea.Quit
-					}
+				selected, err := m.selected()
+				if err != nil {
+					m.setError(err, "failed to select entry")
+					m.clearSearch()
+					return m, nil
+				}
+				if !selected.hasMode(entryModeDir) {
+					// No-op for non directories
+					return m, nil
+				}
+				m.path = m.path + "/" + selected.Name()
+				// TODO: encapsulate this fix
+				if strings.HasPrefix(m.path, "//") {
+					m.path = m.path[1:]
+				}
+				m.search = ""
+				err = m.list()
+				if err != nil {
+					m.setError(err, "failed to list entries")
+					m.clearSearch()
+					return m, nil
 				}
 				return m, nil
 
@@ -167,19 +188,27 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.search += keyString(keyFileSeparator)
 					return m, nil
 				}
-				// TODO: this is the same as tab, consider encapsulation.
-				if selected, ok := m.selected(); ok && selected.hasMode(entryModeDir) {
-					m.path = m.path + "/" + selected.Name()
-					// TODO: encapsulate this fix
-					if strings.HasPrefix(m.path, "//") {
-						m.path = m.path[1:]
-					}
-					m.search = ""
-					err := m.list()
-					if err != nil {
-						// TODO: Improve error handling rather than quitting the application.
-						return m, tea.Quit
-					}
+				selected, err := m.selected()
+				if err != nil {
+					m.setError(err, "failed to select entry")
+					m.clearSearch()
+					return m, nil
+				}
+				if !selected.hasMode(entryModeDir) {
+					// No-op for non directories
+					return m, nil
+				}
+				m.path = m.path + "/" + selected.Name()
+				// TODO: encapsulate this fix
+				if strings.HasPrefix(m.path, "//") {
+					m.path = m.path[1:]
+				}
+				m.search = ""
+				err = m.list()
+				if err != nil {
+					m.setError(err, "failed to list entries")
+					m.clearSearch()
+					return m, nil
 				}
 				return m, nil
 
@@ -203,8 +232,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyQuitWithSelected):
 			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			current, ok := m.selected()
-			if !ok {
+			current, err := m.selected()
+			if err != nil {
+				m.setError(err, "failed to select entry")
 				return m, nil
 			}
 			fmt.Println(sanitizeOutputPath(filepath.Join(m.path, current.Name())))
@@ -227,8 +257,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Selectors
 
 		case key.Matches(msg, keySelect):
-			current, ok := m.selected()
-			if !ok {
+			current, err := m.selected()
+			if err != nil {
+				m.setError(err, "failed to select entry")
 				return m, nil
 			}
 
@@ -245,14 +276,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if isSymlink {
 				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, current.Name()))
 				if err != nil {
-					m.errorStatus = "failed to evaluate symlink"
-					m.error = err
+					m.setError(err, "failed to evaluate symlink")
 					return m, nil
 				}
 				info, err := os.Stat(followed)
 				if err != nil {
-					m.errorStatus = "failed to evaluate symlink"
-					m.error = err
+					m.setError(err, "failed to evaluate symlink")
 					return m, nil
 				}
 				if !info.IsDir() {
@@ -263,17 +292,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				path, err := filepath.Abs(filepath.Join(m.path, current.Name()))
 				if err != nil {
-					m.errorStatus = "failed to evaluate path"
-					m.error = err
+					m.setError(err, "failed to evaluate path")
 					return m, nil
 				}
 				m.path = path
 			}
 
-			err := m.list()
+			err = m.list()
 			if err != nil {
-				// TODO: Improve error handling rather than quitting the application.
-				return m, tea.Quit
+				m.setError(err, "failed to list entries")
+				return m, nil
 			}
 
 			m.clearSearch()
@@ -287,15 +315,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			path, err := filepath.Abs(filepath.Join(m.path, ".."))
 			if err != nil {
-				// TODO: Handle error.
-				return m, tea.Quit
+				m.setError(err, "failed to evaluate path")
+				return m, nil
 			}
 			m.path = path
 
 			err = m.list()
 			if err != nil {
-				// TODO: Improve error handling rather than quitting the application.
-				return m, tea.Quit
+				m.setError(err, "failed to list entries")
+				return m, nil
 			}
 
 			m.clearSearch()
@@ -327,7 +355,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, keyToggleList):
 			m.modeList = !m.modeList
 
-		// Dismiss Error
 		case key.Matches(msg, keyDismissError):
 			m.clearError()
 

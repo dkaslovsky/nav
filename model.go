@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -77,16 +79,19 @@ func (m *model) list() error {
 	return nil
 }
 
-func (m *model) selected() (*entry, bool) {
+func (m *model) selected() (*entry, error) {
 	cache, ok := m.viewCache[m.path]
 	if !ok {
-		return nil, false
+		return nil, fmt.Errorf("cache item not found for %s", m.path)
 	}
 	idx, found := cache.displayToEntityIndex[m.displayIndex()]
-	if !found || idx > len(m.entries) {
-		return nil, false
+	if !found {
+		return nil, errors.New("failed to map to valid entry index")
 	}
-	return m.entries[idx], true
+	if idx > len(m.entries) {
+		return nil, fmt.Errorf("invalid index %d for entries with length %d", idx, len(m.entries))
+	}
+	return m.entries[idx], nil
 }
 
 func (m *model) location() string {
@@ -123,6 +128,11 @@ func (m *model) displayNameOpts() []displayNameOption {
 
 func (m *model) displayIndex() int {
 	return index(m.c, m.r, m.rows)
+}
+
+func (m *model) setError(err error, status string) {
+	m.errorStatus = status
+	m.error = err
 }
 
 func (m *model) clearError() {

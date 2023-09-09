@@ -50,11 +50,12 @@ func (m *model) normalView() string {
 
 	if m.modeSearch {
 		if displayed == 0 && validEntries > 0 {
-			m.errorStatus = "No matches found"
-			m.error = ErrNoSearchResults
+			m.setError(ErrNoSearchResults, "no matches found")
 			return m.locationBar() + "\n\n"
 		} else {
-			m.clearError()
+			if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
+				m.clearError()
+			}
 		}
 	}
 
