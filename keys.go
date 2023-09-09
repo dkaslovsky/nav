@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"unicode"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -62,27 +61,25 @@ func (m *model) setEscRemapKey() {
 		return
 	}
 
-	keyRune := rune(escRemap[0])
-	if unicode.IsLetter(keyRune) || unicode.IsDigit(keyRune) {
-		m.setError(
-			fmt.Errorf("remapped escape key [%s] must not be alphanumeric", string(escRemap[0])),
-			"invalid remapped esc key",
-		)
-		return
+	k := escRemap[0]
+	for i := 0; i < len(escRemap); i++ {
+		kr := rune(escRemap[i])
+		if unicode.IsLetter(kr) || unicode.IsDigit(kr) {
+			m.setError(
+				fmt.Errorf("remapped escape key [%s] must not be alphanumeric and has been disabled", escRemap),
+				"invalid remapped esc key",
+			)
+			return
+		}
+		if escRemap[i] != k {
+			m.setError(
+				fmt.Errorf("remapped escape key [%s] must not contain different characters and has been disabled", escRemap),
+				"invalid remapped esc key",
+			)
+			return
+		}
 	}
 
-	m.esc.key = key.NewBinding(key.WithKeys(string(escRemap[0])))
-	if len(escRemap) == 1 {
-		return
-	}
-	presses, err := strconv.Atoi(escRemap[1:])
-	if err != nil {
-		m.setError(
-			fmt.Errorf("remapped escape key [%s] must contain integer digits after the first character", escRemap),
-			"invalid remapped esc key",
-		)
-		return
-	}
-
-	m.esc.presses = presses
+	m.esc.key = key.NewBinding(key.WithKeys(string(k)))
+	m.esc.presses = len(escRemap)
 }
