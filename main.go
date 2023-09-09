@@ -109,6 +109,8 @@ func parseArgs(args []string, m *model) error {
 		}
 	}
 
+	m.setEscRemapKey()
+
 	return nil
 }
 

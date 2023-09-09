@@ -19,6 +19,8 @@ type model struct {
 	errorStatus string
 	error       error
 
+	esc *remappedEscKey
+
 	width  int // Terminal width.
 	height int // Terminal height.
 
@@ -96,10 +98,10 @@ func (m *model) selected() (*entry, error) {
 
 func (m *model) location() string {
 	location := m.path
-	// TODO: encapsulate this fix
-	if strings.HasPrefix(location, "//") {
-		location = location[1:]
-	}
+	// // TODO: encapsulate this fix
+	// if strings.HasPrefix(location, "//") {
+	// 	location = location[1:]
+	// }
 	if userHomeDir, err := os.UserHomeDir(); err == nil {
 		location = strings.Replace(m.path, userHomeDir, "~", 1)
 	}

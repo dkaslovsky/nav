@@ -11,35 +11,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var (
-	keyQuitForce         = key.NewBinding(key.WithKeys("ctrl+c"))
-	keyQuitWithDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
-	keyQuitWithSelected  = key.NewBinding(key.WithKeys("ctrl+x"))
-
-	keyEsc           = key.NewBinding(key.WithKeys("esc"))
-	keySelect        = key.NewBinding(key.WithKeys("enter"))
-	keyBack          = key.NewBinding(key.WithKeys("backspace"))
-	keyTab           = key.NewBinding(key.WithKeys("tab"))
-	keyFileSeparator = key.NewBinding(key.WithKeys("/"))
-
-	keyExtraEsc = key.NewBinding(key.WithKeys(os.Getenv(envEscRemap)))
-
-	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
-	keyDown  = key.NewBinding(key.WithKeys("down", "j"))
-	keyLeft  = key.NewBinding(key.WithKeys("left", "h"))
-	keyRight = key.NewBinding(key.WithKeys("right", "l"))
-
-	keyDebugMode  = key.NewBinding(key.WithKeys("d"))
-	keyHelpMode   = key.NewBinding(key.WithKeys("H"))
-	keySearchMode = key.NewBinding(key.WithKeys("i"))
-
-	keyToggleFollowSymlink = key.NewBinding(key.WithKeys("f"))
-	keyToggleHidden        = key.NewBinding(key.WithKeys("a"))
-	keyToggleList          = key.NewBinding(key.WithKeys("L"))
-
-	keyDismissError = key.NewBinding(key.WithKeys("e"))
-)
-
 func (m *model) Init() tea.Cmd {
 	return nil
 }
@@ -76,8 +47,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-			if key.Matches(msg, keyEsc, keyExtraEsc) {
+			switch {
+
+			case key.Matches(msg, keyEsc):
 				m.modeHelp = false
+
+			case key.Matches(msg, m.esc.key):
+				if m.esc.triggered() {
+					m.modeHelp = false
+				}
+
 			}
 
 			return m, nil
@@ -86,8 +65,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Debug mode
 
 		if m.modeDebug {
-			if key.Matches(msg, keyEsc, keyExtraEsc) {
+			switch {
+
+			case key.Matches(msg, keyEsc):
 				m.modeDebug = false
+
+			case key.Matches(msg, m.esc.key):
+				if m.esc.triggered() {
+					m.modeDebug = false
+				}
 			}
 
 			return m, nil
@@ -98,12 +84,21 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.modeSearch {
 			switch {
 
-			case key.Matches(msg, keyEsc, keyExtraEsc):
+			case key.Matches(msg, keyEsc):
 				m.clearSearch()
 				if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
 					m.clearError()
 				}
 				return m, nil
+
+			case key.Matches(msg, m.esc.key):
+				if m.esc.triggered() {
+					m.clearSearch()
+					if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
+						m.clearError()
+					}
+					return m, nil
+				}
 
 			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {
