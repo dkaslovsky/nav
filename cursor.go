@@ -1,5 +1,42 @@
 package main
 
+// position intentionally does not have a constructor to avoid potential inversion of column and row.
+// It should always be instantiated explicitly: pos := &position{c: 0, r: 0}
+type position struct {
+	c int
+	r int
+}
+
+func newPositionFromIndex(idx int, rows int) *position {
+	return &position{
+		c: int(float64(idx) / float64(rows)),
+		r: idx % rows,
+	}
+}
+
+func (p *position) index(rows int) int {
+	return index(p.c, p.r, rows)
+}
+
+func (m *model) resetCursor() {
+	m.c = 0
+	m.r = 0
+}
+
+func (m *model) setCursor(pos *position) {
+	m.c = pos.c
+	m.r = pos.r
+}
+
+func (m *model) saveCursor() {
+	pos := &position{c: m.c, r: m.r}
+	if cache, ok := m.viewCache[m.path]; ok {
+		cache.setPosition(pos)
+		return
+	}
+	m.viewCache[m.path] = newCacheItemWithPosition(pos)
+}
+
 func (m *model) moveUp() {
 	m.r--
 	if m.r < 0 {
@@ -47,41 +84,4 @@ func (m *model) moveRight() {
 		m.r = m.rows - 1 - (m.columns*m.rows - m.displayed)
 		m.c = m.columns - 1
 	}
-}
-
-// position intentionally does not have a constructor to avoid potential inversion of column and row.
-// It should always be instantiated explicitly: pos := &position{c: 0, r: 0}
-type position struct {
-	c int
-	r int
-}
-
-func newPositionFromIndex(idx int, rows int) *position {
-	return &position{
-		c: int(float64(idx) / float64(rows)),
-		r: idx % rows,
-	}
-}
-
-func (p *position) index(rows int) int {
-	return index(p.c, p.r, rows)
-}
-
-func (m *model) resetCursor() {
-	m.c = 0
-	m.r = 0
-}
-
-func (m *model) setCursor(pos *position) {
-	m.c = pos.c
-	m.r = pos.r
-}
-
-func (m *model) saveCursor() {
-	pos := &position{c: m.c, r: m.r}
-	if cache, ok := m.viewCache[m.path]; ok {
-		cache.cursorPosition = pos
-		return
-	}
-	m.viewCache[m.path] = newCacheItemWithPosition(pos)
 }

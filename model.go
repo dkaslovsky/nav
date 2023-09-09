@@ -84,7 +84,7 @@ func (m *model) selected() (*entry, error) {
 	if !ok {
 		return nil, fmt.Errorf("cache item not found for %s", m.path)
 	}
-	idx, found := cache.displayToEntityIndex[m.displayIndex()]
+	idx, found := cache.lookupEntryIndex(m.displayIndex())
 	if !found {
 		return nil, errors.New("failed to map to valid entry index")
 	}

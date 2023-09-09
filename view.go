@@ -38,9 +38,7 @@ func (m *model) normalView() string {
 		}
 
 		displayNames = append(displayNames, newDisplayName(ent, displayNameOpts...))
-
-		updateCache.displayToEntityIndex[displayed] = entryIdx
-		updateCache.entityToDisplayIndex[entryIdx] = displayed
+		updateCache.addIndexPair(&indexPair{entry: entryIdx, display: displayed})
 		displayed++
 	}
 
@@ -76,9 +74,9 @@ func (m *model) normalView() string {
 	updateCursorPosition := &position{c: 0, r: 0}
 	if cache, found := m.viewCache[m.path]; found && cache.hasIndexes() {
 		// Lookup the entry index using the cached cursor (display) position.
-		if entryIdx, entryFound := cache.displayToEntityIndex[cache.cursorPosition.index(cache.rows)]; entryFound {
+		if entryIdx, entryFound := cache.lookupEntryIndex(cache.cursorIndex()); entryFound {
 			// Use the entry index to get the current display index.
-			if dispIdx, dispFound := updateCache.entityToDisplayIndex[entryIdx]; dispFound {
+			if dispIdx, dispFound := updateCache.lookupDisplayIndex(entryIdx); dispFound {
 				// Set the cursor position using the current display index and layout.
 				updateCursorPosition = newPositionFromIndex(dispIdx, layout.rows)
 			}
@@ -95,9 +93,9 @@ func (m *model) normalView() string {
 	}
 
 	// Update the cache.
-	updateCache.cursorPosition = updateCursorPosition
-	updateCache.columns = layout.columns
-	updateCache.rows = layout.rows
+	updateCache.setPosition(updateCursorPosition)
+	updateCache.setColumns(layout.columns)
+	updateCache.setRows(layout.rows)
 	m.viewCache[m.path] = updateCache
 
 	// Render entry names in grid.
