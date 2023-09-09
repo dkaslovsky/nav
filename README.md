@@ -9,7 +9,7 @@ Terminal navigator for interactive `ls` and `cd` workflows.
 
 For interactive ls/cd workflows, it can be used in a bash/zsh function such as
 ```bash
-function lsi {
+function nv {
 	cd "$(nav "$@")"
 }
 ```

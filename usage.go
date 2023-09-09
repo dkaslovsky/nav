@@ -12,7 +12,7 @@ func usage() string {
 	%s (v%s) is an interactive terminal filesystem explorer.
 
 	For interactive ls/cd workflows, it can be used in a bash/zsh function such as
-	function lsi {
+	function %s {
 		cd "$(%s "$@")"
 	}
 	
@@ -20,7 +20,7 @@ func usage() string {
 `
 
 	return fmt.Sprintf(usage,
-		name, version, name,
+		name, version, "nv", name,
 	)
 }
 
