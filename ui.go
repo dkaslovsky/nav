@@ -90,6 +90,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			switch {
 
+			// Do not allow remapped escape key in the search.
+			case key.Matches(msg, m.esc.key):
+				return m, nil
+
 			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {
 					m.search = m.search[:len(m.search)-1]
