@@ -97,7 +97,7 @@ func parseArgs(args []string, m *model) error {
 		case flagNoTrailing:
 			m.modeTrailing = false
 		case flagRemapEsc:
-			if i > len(args)-2 || strings.HasPrefix(args[i+1], "-") {
+			if i > len(args)-2 {
 				return fmt.Errorf("%s must be followed by a string value", flagRemapEsc)
 			}
 			err := m.setEscRemapKey(args[i+1])
@@ -125,8 +125,6 @@ func parseArgs(args []string, m *model) error {
 			return err
 		}
 	}
-
-	// m.setEscRemapKey()
 
 	return nil
 }
