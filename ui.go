@@ -44,19 +44,23 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
+		esc := false
+		if m.modeSearch || m.modeDebug || m.modeHelp {
+			if key.Matches(msg, m.esc.key) {
+				if m.esc.triggered() {
+					esc = true
+				}
+			} else {
+				m.esc.reset()
+			}
+		}
+
 		// Help mode
 
 		if m.modeHelp {
-			switch {
 
-			case key.Matches(msg, keyEsc):
+			if esc || key.Matches(msg, keyEsc) {
 				m.modeHelp = false
-
-			case key.Matches(msg, m.esc.key):
-				if m.esc.triggered() {
-					m.modeHelp = false
-				}
-
 			}
 
 			return m, nil
@@ -65,15 +69,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Debug mode
 
 		if m.modeDebug {
-			switch {
 
-			case key.Matches(msg, keyEsc):
+			if esc || key.Matches(msg, keyEsc) {
 				m.modeDebug = false
-
-			case key.Matches(msg, m.esc.key):
-				if m.esc.triggered() {
-					m.modeDebug = false
-				}
 			}
 
 			return m, nil
@@ -82,23 +80,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Search mode
 
 		if m.modeSearch {
-			switch {
-
-			case key.Matches(msg, keyEsc):
+			if esc || key.Matches(msg, keyEsc) {
 				m.clearSearch()
 				if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
 					m.clearError()
 				}
 				return m, nil
+			}
 
-			case key.Matches(msg, m.esc.key):
-				if m.esc.triggered() {
-					m.clearSearch()
-					if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
-						m.clearError()
-					}
-					return m, nil
-				}
+			switch {
 
 			case key.Matches(msg, keyBack):
 				if len(m.search) > 0 {

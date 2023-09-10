@@ -8,6 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
+const envEscRemap = "NAV_ESC_REMAP"
+
 var (
 	keyQuitForce         = key.NewBinding(key.WithKeys("ctrl+c"))
 	keyQuitWithDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
@@ -48,6 +50,10 @@ func (k *remappedEscKey) triggered() bool {
 		return true
 	}
 	return false
+}
+
+func (k *remappedEscKey) reset() {
+	k.pressed = 0
 }
 
 func (m *model) setEscRemapKey() {
