@@ -94,6 +94,8 @@ func flags() string {
 		"",
 		usageFlagLine("toggle off color output", flagNoColor),
 		usageFlagLine("toggle off trailing annotators", flagNoTrailing),
+		"",
+		usageFlagLine("remap the escape key to the following value", flagRemapEsc),
 	}
 	return fmt.Sprintf(usage, strings.Join(flags, "\n"))
 }

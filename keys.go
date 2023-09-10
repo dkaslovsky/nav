@@ -1,14 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"errors"
 	"unicode"
 
 	"github.com/charmbracelet/bubbles/key"
 )
-
-const envEscRemap = "NAV_ESC_REMAP"
 
 var (
 	keyQuitForce         = key.NewBinding(key.WithKeys("ctrl+c"))
@@ -56,36 +53,25 @@ func (k *remappedEscKey) reset() {
 	k.pressed = 0
 }
 
-func (m *model) setEscRemapKey() {
-	m.esc = &remappedEscKey{
-		key:     key.NewBinding(key.WithKeys("")), // No-op key binding.
-		presses: 1,
-	}
-
-	escRemap := os.Getenv(envEscRemap)
+func (m *model) setEscRemapKey(escRemap string) error {
 	if escRemap == "" {
-		return
+		return errors.New("invalid remapped escape key: empty string provided")
 	}
 
 	k := escRemap[0]
 	for i := 0; i < len(escRemap); i++ {
 		kr := rune(escRemap[i])
 		if unicode.IsLetter(kr) || unicode.IsDigit(kr) {
-			m.setError(
-				fmt.Errorf("remapped escape key [%s] must not be alphanumeric and has been disabled", escRemap),
-				"invalid remapped esc key",
-			)
-			return
+			return errors.New("remapped escape key must not be alphanumeric")
 		}
 		if escRemap[i] != k {
-			m.setError(
-				fmt.Errorf("remapped escape key [%s] must not contain different characters and has been disabled", escRemap),
-				"invalid remapped esc key",
-			)
-			return
+			return errors.New("remapped escape key must not contain different characters")
 		}
 	}
 
-	m.esc.key = key.NewBinding(key.WithKeys(string(k)))
-	m.esc.presses = len(escRemap)
+	m.esc = &remappedEscKey{
+		key:     key.NewBinding(key.WithKeys(string(k))),
+		presses: len(escRemap),
+	}
+	return nil
 }

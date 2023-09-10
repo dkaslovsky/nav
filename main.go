@@ -35,6 +35,8 @@ const (
 
 	flagNoColor    = "--no-color"
 	flagNoTrailing = "--no-trailing"
+
+	flagRemapEsc = "--remap-esc"
 )
 
 func main() {
@@ -71,7 +73,12 @@ func main() {
 func parseArgs(args []string, m *model) error {
 	var err error
 
-	for _, arg := range args {
+	// for _, arg := range args {
+
+	i := 0
+	for i < len(args) {
+		arg := args[i]
+
 		switch arg {
 		case flagHelp, flagHelpShort, flagHelpShortCaps:
 			usageAndExit()
@@ -89,6 +96,16 @@ func parseArgs(args []string, m *model) error {
 			m.modeColor = false
 		case flagNoTrailing:
 			m.modeTrailing = false
+		case flagRemapEsc:
+			if i > len(args)-2 || strings.HasPrefix(args[i+1], "-") {
+				return fmt.Errorf("%s must be followed by a string value", flagRemapEsc)
+			}
+			err := m.setEscRemapKey(args[i+1])
+			if err != nil {
+				return err
+			}
+			i += 2
+			continue
 		default:
 			if strings.HasPrefix(arg, "-") {
 				return fmt.Errorf("unknown flag: %s", arg)
@@ -98,6 +115,8 @@ func parseArgs(args []string, m *model) error {
 				return err
 			}
 		}
+
+		i++
 	}
 
 	if m.path == "" {
@@ -107,7 +126,7 @@ func parseArgs(args []string, m *model) error {
 		}
 	}
 
-	m.setEscRemapKey()
+	// m.setEscRemapKey()
 
 	return nil
 }
