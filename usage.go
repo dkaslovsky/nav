@@ -13,14 +13,14 @@ func usage() string {
 
 	For interactive ls/cd workflows, it can be used in a bash/zsh function such as
 	function %s {
-		cd "$(%s "$@")"
+		cd "$(%s %s "$@")"
 	}
 	
 	Useful key commands are listed in the status bar.
 `
 
 	return fmt.Sprintf(usage,
-		name, version, "nv", name,
+		name, version, "nv", name, flagSubshell,
 	)
 }
 
