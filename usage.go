@@ -46,8 +46,8 @@ func commands() string {
 		usageKeyLine(keySelect, "navigates into the directory under the cursor"),
 		usageKeyLine(keyBack, "navigates back to the previous directory"),
 		"",
-		usageKeyLine(keyQuitWithSelected, "returns the path to the entry under the cursor and quits"),
-		usageKeyLine(keyQuitWithDirectory, "returns the path to the current directory and quits"),
+		usageKeyLine(keyReturnSelected, "returns the path to the entry under the cursor and quits"),
+		usageKeyLine(keyReturnDirectory, "returns the path to the current directory and quits"),
 		"",
 		usageKeyLine(keyHelpMode, "enters help mode"),
 		usageKeyLine(keySearchMode, "enters search mode (insert in location bar)"),
@@ -59,7 +59,7 @@ func commands() string {
 		usageKeyLine(keyToggleFollowSymlink, "toggles following symlinks"),
 		"",
 		usageKeyLine(keyDismissError, "dismisses errors"),
-		usageKeyLine(keyQuitForce, "quits the application with no return"),
+		usageKeyLine(keyQuit, "quits the application with no return"),
 	}
 
 	return fmt.Sprintf(usage, strings.Join(cmds, "\n"))

@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	keyQuitForce         = key.NewBinding(key.WithKeys("ctrl+c"))
-	keyQuitWithDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
-	keyQuitWithSelected  = key.NewBinding(key.WithKeys("ctrl+x"))
+	keyQuit            = key.NewBinding(key.WithKeys("ctrl+c"))
+	keyReturnDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
+	keyReturnSelected  = key.NewBinding(key.WithKeys("ctrl+x"))
 
 	keyEsc           = key.NewBinding(key.WithKeys("esc"))
 	keySelect        = key.NewBinding(key.WithKeys("enter"))

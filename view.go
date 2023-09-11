@@ -140,27 +140,27 @@ func (m *model) statusBar() string {
 		cmds = []string{
 			fmt.Sprintf(`"%s": complete`, keyString(keyTab)),
 			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
-			fmt.Sprintf(`"%s": quit`, keyString(keyQuitForce)),
+			fmt.Sprintf(`"%s": quit`, keyString(keyQuit)),
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
 		cmds = []string{
 			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
-			fmt.Sprintf(`"%s": quit`, keyString(keyQuitForce)),
+			fmt.Sprintf(`"%s": quit`, keyString(keyQuit)),
 		}
 	} else if m.modeDebug {
 		mode = "DEBUG"
 		cmds = []string{
 			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
-			fmt.Sprintf(`"%s": quit`, keyString(keyQuitForce)),
+			fmt.Sprintf(`"%s": quit`, keyString(keyQuit)),
 		}
 	} else {
 		mode = "NORMAL"
 		cmds = []string{
 			fmt.Sprintf(`"%s": search`, keyString(keySearchMode)),
 			fmt.Sprintf(`"%s": help`, keyString(keyHelpMode)),
-			fmt.Sprintf(`"%s": return dir`, keyString(keyQuitWithDirectory)),
-			fmt.Sprintf(`"%s": return sel`, keyString(keyQuitWithSelected)),
+			fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory)),
+			fmt.Sprintf(`"%s": return sel`, keyString(keyReturnSelected)),
 		}
 	}
 

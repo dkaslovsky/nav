@@ -43,11 +43,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 
-		// Force Quit
-		if key.Matches(msg, keyQuitForce) {
+		// Quit
+
+		if key.Matches(msg, keyQuit) {
 			m.setExitWithCode("", 2)
 			return m, tea.Quit
 		}
+
+		// Remapped escape logic
 
 		esc := false
 		if m.modeSearch || m.modeDebug || m.modeHelp {
@@ -131,6 +134,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.clearSearch()
 					return m, nil
 				}
+				// ** TODO: return file name, handle symlinks **
 				if !selected.hasMode(entryModeDir) {
 					// No-op for non directories
 					return m, nil
@@ -217,16 +221,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch {
 
-		// Quit
+		// Return
 
-		case key.Matches(msg, keyQuitWithDirectory):
+		case key.Matches(msg, keyReturnDirectory):
 			m.setExit(sanitizeOutputPath(m.path))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
 			return m, tea.Quit
 
-		case key.Matches(msg, keyQuitWithSelected):
+		case key.Matches(msg, keyReturnSelected):
 			selected, err := m.selected()
 			if err != nil {
 				m.setError(err, "failed to select entry")
