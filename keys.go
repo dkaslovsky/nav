@@ -75,3 +75,9 @@ func (m *model) setEscRemapKey(escRemap string) error {
 	}
 	return nil
 }
+
+func defaultEscRemapKey() *remappedEscKey {
+	return &remappedEscKey{
+		key: key.NewBinding(key.WithKeys("")),
+	}
+}

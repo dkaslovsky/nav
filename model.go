@@ -52,6 +52,8 @@ func newModel() *model {
 		width:  80,
 		height: 60,
 
+		esc: defaultEscRemapKey(),
+
 		viewCache: make(map[string]*cacheItem),
 
 		modeColor:         true,
