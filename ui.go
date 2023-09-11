@@ -267,11 +267,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.saveCursor()
 
-			isDir := current.hasMode(entryModeDir)
-			isSymlink := current.hasMode(entryModeSymlink)
-
-			if !(isDir || isSymlink) {
-				// The selected entry is a file
+			if current.hasMode(entryModeFile) {
 				m.modeExit = true
 				m.exitStr = sanitizeOutputPath(filepath.Join(m.path, current.Name()))
 				if m.modeSubshell {
@@ -279,8 +275,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				return m, tea.Quit
 			}
-
-			if isSymlink {
+			if current.hasMode(entryModeSymlink) {
 				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, current.Name()))
 				if err != nil {
 					m.setError(err, "failed to evaluate symlink")
@@ -292,17 +287,28 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 				if !info.IsDir() {
-					// The symlink points to a file, which is a no-op.
-					break
+					// The symlink points to a file.
+					m.modeExit = true
+					m.exitStr = sanitizeOutputPath(filepath.Join(m.path, followed))
+					if m.modeSubshell {
+						fmt.Print(m.exitStr)
+					}
+					return m, tea.Quit
 				}
 				m.path = followed
-			} else {
+			} else if current.hasMode(entryModeDir) {
 				path, err := filepath.Abs(filepath.Join(m.path, current.Name()))
 				if err != nil {
 					m.setError(err, "failed to evaluate path")
 					return m, nil
 				}
 				m.path = path
+			} else {
+				m.setError(
+					errors.New("selection is not a file, directory, or symlink"),
+					"unexpected file type",
+				)
+				return m, nil
 			}
 
 			err = m.list()
