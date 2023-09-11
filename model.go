@@ -12,28 +12,24 @@ import (
 var fileSeparator = string(filepath.Separator)
 
 type model struct {
-	path        string
-	entries     []*entry
-	displayed   int
-	exitCode    int
-	errorStatus string
-	error       error
-
-	esc *remappedEscKey
-
-	width  int // Terminal width.
-	height int // Terminal height.
-
-	c int // Cursor column position.
-	r int // Cursor row position.
-
-	columns int // Displayed columns.
-	rows    int // Displayed columns.
-
+	path      string
+	entries   []*entry
+	displayed int
+	exitCode  int
+	exitStr   string
+	error     error
+	errorStr  string
+	esc       *remappedEscKey
 	viewCache map[string]*cacheItem
 
-	search  string
-	exitStr string
+	c       int // Cursor column position.
+	r       int // Cursor row position.
+	columns int // Displayed columns.
+	rows    int // Displayed columns.
+	width   int // Terminal width.
+	height  int // Terminal height.
+
+	search string
 
 	modeColor         bool
 	modeDebug         bool
@@ -140,12 +136,22 @@ func (m *model) displayIndex() int {
 }
 
 func (m *model) setError(err error, status string) {
-	m.errorStatus = status
+	m.errorStr = status
 	m.error = err
 }
 
+func (m *model) setExit(exitStr string) {
+	m.setExitWithCode(exitStr, 0)
+}
+
+func (m *model) setExitWithCode(exitStr string, exitCode int) {
+	m.modeExit = true
+	m.exitStr = exitStr
+	m.exitCode = exitCode
+}
+
 func (m *model) clearError() {
-	m.errorStatus = ""
+	m.errorStr = ""
 	m.error = nil
 }
 

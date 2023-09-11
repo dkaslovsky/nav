@@ -45,8 +45,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Force Quit
 		if key.Matches(msg, keyQuitForce) {
-			m.modeExit = true
-			m.exitCode = 2
+			m.setExitWithCode("", 2)
 			return m, tea.Quit
 		}
 
@@ -221,22 +220,20 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Quit
 
 		case key.Matches(msg, keyQuitWithDirectory):
-			m.modeExit = true
-			m.exitStr = sanitizeOutputPath(m.path)
+			m.setExit(sanitizeOutputPath(m.path))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
 			return m, tea.Quit
 
 		case key.Matches(msg, keyQuitWithSelected):
-			current, err := m.selected()
+			selected, err := m.selected()
 			if err != nil {
 				m.setError(err, "failed to select entry")
 				return m, nil
 			}
 
-			m.modeExit = true
-			m.exitStr = sanitizeOutputPath(filepath.Join(m.path, current.Name()))
+			m.setExit(sanitizeOutputPath(filepath.Join(m.path, selected.Name())))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
@@ -259,7 +256,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Selectors
 
 		case key.Matches(msg, keySelect):
-			current, err := m.selected()
+			selected, err := m.selected()
 			if err != nil {
 				m.setError(err, "failed to select entry")
 				return m, nil
@@ -267,16 +264,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.saveCursor()
 
-			if current.hasMode(entryModeFile) {
-				m.modeExit = true
-				m.exitStr = sanitizeOutputPath(filepath.Join(m.path, current.Name()))
+			if selected.hasMode(entryModeFile) {
+				m.setExit(sanitizeOutputPath(filepath.Join(m.path, selected.Name())))
 				if m.modeSubshell {
 					fmt.Print(m.exitStr)
 				}
 				return m, tea.Quit
 			}
-			if current.hasMode(entryModeSymlink) {
-				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, current.Name()))
+			if selected.hasMode(entryModeSymlink) {
+				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, selected.Name()))
 				if err != nil {
 					m.setError(err, "failed to evaluate symlink")
 					return m, nil
@@ -288,16 +284,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				if !info.IsDir() {
 					// The symlink points to a file.
-					m.modeExit = true
-					m.exitStr = sanitizeOutputPath(filepath.Join(m.path, followed))
+					m.setExit(sanitizeOutputPath(filepath.Join(m.path, followed)))
 					if m.modeSubshell {
 						fmt.Print(m.exitStr)
 					}
 					return m, tea.Quit
 				}
 				m.path = followed
-			} else if current.hasMode(entryModeDir) {
-				path, err := filepath.Abs(filepath.Join(m.path, current.Name()))
+			} else if selected.hasMode(entryModeDir) {
+				path, err := filepath.Abs(filepath.Join(m.path, selected.Name()))
 				if err != nil {
 					m.setError(err, "failed to evaluate path")
 					return m, nil

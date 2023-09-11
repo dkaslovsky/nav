@@ -118,11 +118,11 @@ func (m *model) normalView() string {
 
 func (m *model) debugView() string {
 	output := barRendererOK.Render("No errors")
-	if m.errorStatus != "" && m.error != nil {
+	if m.errorStr != "" && m.error != nil {
 		output = fmt.Sprintf(
 			"%s\n %s\n\n%s\n %v",
 			barRendererError.Render("Error Message"),
-			m.errorStatus,
+			m.errorStr,
 			barRendererError.Render("Error"),
 			m.error,
 		)
@@ -172,12 +172,12 @@ func (m *model) statusBar() string {
 	}, "\t")
 
 	err := ""
-	if m.errorStatus != "" && m.error != nil {
+	if m.errorStr != "" && m.error != nil {
 		if !errors.Is(m.error, ErrNoSearchResults) {
-			err = fmt.Sprintf("\tERROR (\"%s\": dismiss, \"%s\": debug): %s \t", keyString(keyDismissError), keyString(keyDebugMode), m.errorStatus)
+			err = fmt.Sprintf("\tERROR (\"%s\": dismiss, \"%s\": debug): %s \t", keyString(keyDismissError), keyString(keyDebugMode), m.errorStr)
 			return barRendererError.Render(err)
 		}
-		err = fmt.Sprintf("ERROR: %s\t", m.errorStatus)
+		err = fmt.Sprintf("ERROR: %s\t", m.errorStr)
 	}
 
 	return barRendererStatus.Render(status) + barRendererError.Render(err)
