@@ -271,8 +271,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			isSymlink := current.hasMode(entryModeSymlink)
 
 			if !(isDir || isSymlink) {
-				// The selected entry is a file, which is a no-op.
-				break
+				// The selected entry is a file
+				m.modeExit = true
+				m.exitStr = sanitizeOutputPath(filepath.Join(m.path, current.Name()))
+				if m.modeSubshell {
+					fmt.Print(m.exitStr)
+				}
+				return m, tea.Quit
 			}
 
 			if isSymlink {
