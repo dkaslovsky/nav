@@ -208,7 +208,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 
 			default:
-				if msg.Type == tea.KeyRunes {
+				if msg.Type == tea.KeyRunes || key.Matches(msg, keySpace) {
 					m.search += string(msg.Runes)
 					return m, nil
 				}
