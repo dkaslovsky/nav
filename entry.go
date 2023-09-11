@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -81,6 +83,29 @@ const (
 
 func (mode entryMode) has(tgt entryMode) bool {
 	return mode&tgt == tgt
+}
+
+type symlink struct {
+	absPath string
+	info    fs.FileInfo
+}
+
+func followSymlink(path string, e *entry) (*symlink, error) {
+	if !e.hasMode(entryModeSymlink) {
+		return nil, fmt.Errorf("cannot follow non-symlink entry: %s", e.Name())
+	}
+	followed, err := filepath.EvalSymlinks(filepath.Join(path, e.Name()))
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(followed)
+	if err != nil {
+		return nil, err
+	}
+	return &symlink{
+		absPath: followed,
+		info:    info,
+	}, nil
 }
 
 // sortEntries performs an in-place sort of a slice of entries by type (mode) and alphabetically

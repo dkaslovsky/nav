@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -237,7 +236,19 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-			m.setExit(sanitizeOutputPath(filepath.Join(m.path, selected.Name())))
+			var path string
+			if selected.hasMode(entryModeSymlink) {
+				sl, err := followSymlink(m.path, selected)
+				if err != nil {
+					m.setError(err, "failed to evaluate symlink")
+					return m, nil
+				}
+				path = sl.absPath
+			} else {
+				path = filepath.Join(m.path, selected.Name())
+			}
+
+			m.setExit(sanitizeOutputPath(path))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
@@ -276,25 +287,20 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 			if selected.hasMode(entryModeSymlink) {
-				followed, err := filepath.EvalSymlinks(filepath.Join(m.path, selected.Name()))
+				sl, err := followSymlink(m.path, selected)
 				if err != nil {
 					m.setError(err, "failed to evaluate symlink")
 					return m, nil
 				}
-				info, err := os.Stat(followed)
-				if err != nil {
-					m.setError(err, "failed to evaluate symlink")
-					return m, nil
-				}
-				if !info.IsDir() {
+				if !sl.info.IsDir() {
 					// The symlink points to a file.
-					m.setExit(sanitizeOutputPath(filepath.Join(m.path, followed)))
+					m.setExit(sanitizeOutputPath(sl.absPath))
 					if m.modeSubshell {
 						fmt.Print(m.exitStr)
 					}
 					return m, tea.Quit
 				}
-				m.path = followed
+				m.path = sl.absPath
 			} else if selected.hasMode(entryModeDir) {
 				path, err := filepath.Abs(filepath.Join(m.path, selected.Name()))
 				if err != nil {
