@@ -48,6 +48,8 @@ function nv {
 
 	--search, -s:             start in search mode
 
+	--subshell:               return output suitable for subshell invocation
+
 	--hidden:                 toggle on showing hidden files at startup
 	--list, -l:               toggle on list mode at startup
 	--follow-symlinks, -f:    toggle on following symlinks at startup
@@ -55,7 +57,7 @@ function nv {
 	--no-color:               toggle off color output
 	--no-trailing:            toggle off trailing annotators
 
-	--remap-esc:              remap the escape key to a provided value
+	--remap-esc:              remap the escape key to the provided value
 <br/>
 
 In the future, `nav` might support a wider range of `ls` options.
