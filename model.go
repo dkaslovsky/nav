@@ -32,15 +32,18 @@ type model struct {
 
 	viewCache map[string]*cacheItem
 
-	search string
+	search  string
+	exitStr string
 
 	modeColor         bool
 	modeDebug         bool
+	modeExit          bool
 	modeFollowSymlink bool
 	modeHelp          bool
 	modeHidden        bool
 	modeList          bool
 	modeSearch        bool
+	modeSubshell      bool
 	modeTrailing      bool
 }
 
@@ -53,11 +56,13 @@ func newModel() *model {
 
 		modeColor:         true,
 		modeDebug:         false,
+		modeExit:          false,
 		modeFollowSymlink: false,
 		modeHelp:          false,
 		modeHidden:        false,
 		modeList:          false,
 		modeSearch:        false,
+		modeSubshell:      false,
 		modeTrailing:      true,
 	}
 }

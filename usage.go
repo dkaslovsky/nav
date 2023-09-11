@@ -88,6 +88,8 @@ func flags() string {
 		"",
 		usageFlagLine("start in search mode", flagSearch, flagSearchShort),
 		"",
+		usageFlagLine("return output suitable for subshell invocation", flagSubshell),
+		"",
 		usageFlagLine("toggle on showing hidden files at startup", flagHidden),
 		usageFlagLine("toggle on list mode at startup", flagList, flagListShort),
 		usageFlagLine("toggle on following symlinks at startup", flagFollowSymlinks, flagFollowSymlinksShort),

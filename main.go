@@ -27,6 +27,8 @@ const (
 	flagSearch      = "--search"
 	flagSearchShort = "-s"
 
+	flagSubshell = "--subshell"
+
 	flagFollowSymlinks      = "--follow-symlinks"
 	flagFollowSymlinksShort = "-f"
 	flagHidden              = "--hidden"
@@ -90,6 +92,8 @@ func parseArgs(args []string, m *model) error {
 			m.modeList = true
 		case flagSearch, flagSearchShort:
 			m.modeSearch = true
+		case flagSubshell:
+			m.modeSubshell = true
 		case flagFollowSymlinks, flagFollowSymlinksShort:
 			m.modeFollowSymlink = true
 		case flagNoColor:
@@ -135,6 +139,6 @@ func usageAndExit() {
 }
 
 func versionAndExit() {
-	_, _ = fmt.Fprintf(os.Stderr, "%s (v%s)", name, version)
+	fmt.Printf("%s (v%s)", name, version)
 	os.Exit(0)
 }

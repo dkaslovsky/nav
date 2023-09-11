@@ -17,6 +17,12 @@ func (m *model) Init() tea.Cmd {
 
 func (m *model) View() string {
 	var view string
+	if m.modeExit {
+		if m.modeSubshell || m.exitStr == "" {
+			return ""
+		}
+		return m.exitStr + "\n"
+	}
 	if m.modeHelp {
 		view = commands()
 	} else if m.modeDebug {
@@ -39,7 +45,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Force Quit
 		if key.Matches(msg, keyQuitForce) {
-			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
+			m.modeExit = true
 			m.exitCode = 2
 			return m, tea.Quit
 		}
@@ -215,18 +221,25 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Quit
 
 		case key.Matches(msg, keyQuitWithDirectory):
-			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
-			fmt.Println(sanitizeOutputPath(m.path))
+			m.modeExit = true
+			m.exitStr = sanitizeOutputPath(m.path)
+			if m.modeSubshell {
+				fmt.Print(m.exitStr)
+			}
 			return m, tea.Quit
 
 		case key.Matches(msg, keyQuitWithSelected):
-			_, _ = fmt.Fprintln(os.Stderr) // Keep last item visible on exit.
 			current, err := m.selected()
 			if err != nil {
 				m.setError(err, "failed to select entry")
 				return m, nil
 			}
-			fmt.Println(sanitizeOutputPath(filepath.Join(m.path, current.Name())))
+
+			m.modeExit = true
+			m.exitStr = sanitizeOutputPath(filepath.Join(m.path, current.Name()))
+			if m.modeSubshell {
+				fmt.Print(m.exitStr)
+			}
 			return m, tea.Quit
 
 		// Cursor
