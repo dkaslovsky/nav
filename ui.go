@@ -65,7 +65,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-
 			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyHelpMode) {
 				m.modeHelp = false
 			}
@@ -76,7 +75,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Debug mode
 
 		if m.modeDebug {
-
 			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyDebugMode) {
 				m.modeDebug = false
 			}

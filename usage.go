@@ -38,15 +38,6 @@ func commands() string {
 		}
 		return strings.Join(s, "\n")
 	}
-	// usageKeyLine := func(text string, key key.Binding) string {
-	// 	keyStr := keyString(key)
-	// 	textParts := strings.Split(text, "\n")
-	// 	s := []string{fmt.Sprintf("\t\"%s\":", keyStr)}
-	// 	for _, textPart := range textParts {
-	// 		s = append(s, fmt.Sprintf("\t    %s", textPart))
-	// 	}
-	// 	return strings.Join(s, "\n")
-	// }
 
 	usage := `
 	------------
@@ -88,14 +79,6 @@ func flags() string {
 		flagStr := strings.Join(flags, ", ")
 		return fmt.Sprintf("\t%s:%s%s", flagStr, strings.Repeat(" ", pad-len(flagStr)), text)
 	}
-	// usageFlagLine := func(text string, flags ...string) string {
-	// 	s := []string{fmt.Sprintf("\t%s:", strings.Join(flags, ", "))}
-	// 	textParts := strings.Split(text, "\n")
-	// 	for _, textPart := range textParts {
-	// 		s = append(s, fmt.Sprintf("\t    %s", textPart))
-	// 	}
-	// 	return strings.Join(s, "\n")
-	// }
 
 	usage := `
 	-------------

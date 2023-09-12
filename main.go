@@ -75,8 +75,6 @@ func main() {
 func parseArgs(args []string, m *model) error {
 	var err error
 
-	// for _, arg := range args {
-
 	i := 0
 	for i < len(args) {
 		arg := args[i]
