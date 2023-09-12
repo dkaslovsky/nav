@@ -108,7 +108,8 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 		return m, nil
 	}
 
-	// TODO: encapsulate this fix
+	// Trim repeated leading file separator characters that occur from searching back
+	// to the root directory.
 	if strings.HasPrefix(m.path, "//") {
 		m.path = m.path[1:]
 	}
