@@ -81,6 +81,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.modeDebug = false
 			}
 
+			if key.Matches(msg, keyDismissError) {
+				m.clearError()
+				m.modeDebug = false
+			}
+
 			return m, nil
 		}
 
