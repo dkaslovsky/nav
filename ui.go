@@ -124,7 +124,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				err = m.list()
 				if err != nil {
-					m.setError(err, "failed to list entries")
+					m.setError(err, err.Error())
 					return m, nil
 				}
 
@@ -222,7 +222,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			err = m.list()
 			if err != nil {
-				m.setError(err, "failed to list entries")
+				m.setError(err, err.Error())
 				return m, nil
 			}
 

@@ -57,7 +57,7 @@ func (m *model) selectAction() (*model, tea.Cmd) {
 
 	err = m.list()
 	if err != nil {
-		m.setError(err, "failed to list entries")
+		m.setError(err, err.Error())
 		return m, nil
 	}
 
@@ -116,7 +116,7 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 	m.search = ""
 	err = m.list()
 	if err != nil {
-		m.setError(err, "failed to list entries")
+		m.setError(err, err.Error())
 		m.clearSearch()
 		return m, nil
 	}
