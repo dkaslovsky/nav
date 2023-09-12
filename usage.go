@@ -27,7 +27,7 @@ func usage() string {
 func commands() string {
 	pad := 12
 
-	usageKeyLine := func(key key.Binding, text string) string {
+	usageKeyLine := func(text string, key key.Binding) string {
 		keyStr := keyString(key)
 		return fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), text)
 	}
@@ -43,23 +43,23 @@ func commands() string {
 %s
 `
 	cmds := []string{
-		usageKeyLine(keySelect, "navigates into the directory under the cursor"),
-		usageKeyLine(keyBack, "navigates back to the previous directory"),
+		usageKeyLine("navigates into the directory under the cursor", keySelect),
+		usageKeyLine("navigates back to the previous directory", keyBack),
 		"",
-		usageKeyLine(keyReturnSelected, "returns the path to the entry under the cursor and quits"),
-		usageKeyLine(keyReturnDirectory, "returns the path to the current directory and quits"),
+		usageKeyLine("returns the path to the entry under the cursor and quits", keyReturnSelected),
+		usageKeyLine("returns the path to the current directory and quits", keyReturnDirectory),
 		"",
-		usageKeyLine(keyHelpMode, "enters help mode"),
-		usageKeyLine(keySearchMode, "enters search mode (insert in location bar)"),
-		usageKeyLine(keyDebugMode, "enters debug mode  (view error details)"),
-		usageKeyLine(keyEsc, "switches back to normal mode"),
+		usageKeyLine("enters help mode", keyHelpMode),
+		usageKeyLine("enters search mode (insert in location bar)", keySearchMode),
+		usageKeyLine("enters debug mode  (view error details)", keyDebugMode),
+		usageKeyLine("switches back to normal mode", keyEsc),
 		"",
-		usageKeyLine(keyToggleHidden, "toggles showing hidden files"),
-		usageKeyLine(keyToggleList, "toggles listing full file information (ls -l)"),
-		usageKeyLine(keyToggleFollowSymlink, "toggles following symlinks"),
+		usageKeyLine("toggles showing hidden files", keyToggleHidden),
+		usageKeyLine("toggles listing full file information (ls -l)", keyToggleList),
+		usageKeyLine("toggles following symlinks", keyToggleFollowSymlink),
 		"",
-		usageKeyLine(keyDismissError, "dismisses errors"),
-		usageKeyLine(keyQuit, "quits the application with no return"),
+		usageKeyLine("dismisses errors", keyDismissError),
+		usageKeyLine("quits the application with no return value", keyQuit),
 	}
 
 	return fmt.Sprintf(usage, strings.Join(cmds, "\n"))
