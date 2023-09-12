@@ -29,13 +29,29 @@ func commands() string {
 
 	usageKeyLine := func(text string, key key.Binding) string {
 		keyStr := keyString(key)
-		return fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), text)
+		textParts := strings.Split(text, "\n")
+		s := []string{
+			fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), textParts[0]),
+		}
+		for _, textPart := range textParts[1:] {
+			s = append(s, fmt.Sprintf("\t   %s%s", strings.Repeat(" ", pad), textPart))
+		}
+		return strings.Join(s, "\n")
 	}
+	// usageKeyLine := func(text string, key key.Binding) string {
+	// 	keyStr := keyString(key)
+	// 	textParts := strings.Split(text, "\n")
+	// 	s := []string{fmt.Sprintf("\t\"%s\":", keyStr)}
+	// 	for _, textPart := range textParts {
+	// 		s = append(s, fmt.Sprintf("\t    %s", textPart))
+	// 	}
+	// 	return strings.Join(s, "\n")
+	// }
 
 	usage := `
-	------------------------
-	| Full list of commands |
-	------------------------
+	------------
+	| Commands |
+	------------
 
 	Arrow keys are used to move the cursor.
 	Vim navigation is available using "h" (left), "j" (down) "k" (up), and "l" (right).
@@ -43,20 +59,20 @@ func commands() string {
 %s
 `
 	cmds := []string{
-		usageKeyLine("navigates into the directory under the cursor", keySelect),
+		usageKeyLine("navigates into the directory or returns the\npath to the entry under the cursor", keySelect),
 		usageKeyLine("navigates back to the previous directory", keyBack),
 		"",
 		usageKeyLine("returns the path to the entry under the cursor and quits", keyReturnSelected),
 		usageKeyLine("returns the path to the current directory and quits", keyReturnDirectory),
 		"",
-		usageKeyLine("enters help mode", keyHelpMode),
-		usageKeyLine("enters search mode (insert in location bar)", keySearchMode),
+		usageKeyLine("enters search mode (insert into the path)", keySearchMode),
 		usageKeyLine("enters debug mode  (view error details)", keyDebugMode),
+		usageKeyLine("enters help mode", keyHelpMode),
 		usageKeyLine("switches back to normal mode", keyEsc),
 		"",
 		usageKeyLine("toggles showing hidden files", keyToggleHidden),
-		usageKeyLine("toggles listing full file information (ls -l)", keyToggleList),
 		usageKeyLine("toggles following symlinks", keyToggleFollowSymlink),
+		usageKeyLine("toggles listing full file information (ls -l)", keyToggleList),
 		"",
 		usageKeyLine("dismisses errors", keyDismissError),
 		usageKeyLine("quits the application with no return value", keyQuit),
@@ -68,15 +84,23 @@ func commands() string {
 func flags() string {
 	pad := 25
 
-	usageFlagLine := func(text string, flagSet ...string) string {
-		flagStr := strings.Join(flagSet, ", ")
+	usageFlagLine := func(text string, flags ...string) string {
+		flagStr := strings.Join(flags, ", ")
 		return fmt.Sprintf("\t%s:%s%s", flagStr, strings.Repeat(" ", pad-len(flagStr)), text)
 	}
+	// usageFlagLine := func(text string, flags ...string) string {
+	// 	s := []string{fmt.Sprintf("\t%s:", strings.Join(flags, ", "))}
+	// 	textParts := strings.Split(text, "\n")
+	// 	for _, textPart := range textParts {
+	// 		s = append(s, fmt.Sprintf("\t    %s", textPart))
+	// 	}
+	// 	return strings.Join(s, "\n")
+	// }
 
 	usage := `
-	----------------------
-	| Command Line Flags |
-	----------------------
+	-------------
+	| CLI Flags |
+	-------------
 
 	The following flags are available:
 
@@ -90,9 +114,9 @@ func flags() string {
 		"",
 		usageFlagLine("return output suitable for subshell invocation", flagSubshell),
 		"",
-		usageFlagLine("toggle on showing hidden files at startup", flagHidden),
-		usageFlagLine("toggle on list mode at startup", flagList, flagListShort),
 		usageFlagLine("toggle on following symlinks at startup", flagFollowSymlinks, flagFollowSymlinksShort),
+		usageFlagLine("toggle on list mode at startup", flagList, flagListShort),
+		usageFlagLine("toggle on showing hidden files at startup", flagHidden),
 		"",
 		usageFlagLine("toggle off color output", flagNoColor),
 		usageFlagLine("toggle off trailing annotators", flagNoTrailing),
