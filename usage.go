@@ -81,11 +81,9 @@ func flags() string {
 	}
 
 	usage := `
-	-------------
-	| CLI Flags |
-	-------------
-
-	The following flags are available:
+	---------
+	| Flags |
+	---------
 
 %s
 `

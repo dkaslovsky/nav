@@ -21,27 +21,30 @@ function nv {
 	Arrow keys are used to move the cursor.
 	Vim navigation is available using "h" (left), "j" (down) "k" (up), and "l" (right).
 
-	"enter":       navigates into the directory under the cursor
+	"enter":       navigates into the directory or returns the
+	               path to the entry under the cursor
 	"backspace":   navigates back to the previous directory
 
 	"ctrl+x":      returns the path to the entry under the cursor and quits
 	"ctrl+d":      returns the path to the current directory and quits
 
-	"H":           enters help mode
-	"i":           enters search mode (insert in location bar)
+	"i":           enters search mode (insert into the path)
 	"d":           enters debug mode  (view error details)
+	"H":           enters help mode
 	"esc":         switches back to normal mode
 
 	"a":           toggles showing hidden files
-	"L":           toggles listing full file information (ls -l)
 	"f":           toggles following symlinks
+	"L":           toggles listing full file information (ls -l)
 
 	"e":           dismisses errors
-	"ctrl+c":      quits the application with no return
+	"ctrl+c":      quits the application with no return value
 
 <br/>
 
 ### Command line flags
+
+	The following flags are available:
 
 	--help, -h, -H:           display help
 	--version, -v:            display version
@@ -50,14 +53,14 @@ function nv {
 
 	--subshell:               return output suitable for subshell invocation
 
-	--hidden:                 toggle on showing hidden files at startup
-	--list, -l:               toggle on list mode at startup
 	--follow-symlinks, -f:    toggle on following symlinks at startup
+	--list, -l:               toggle on list mode at startup
+	--hidden:                 toggle on showing hidden files at startup
 
 	--no-color:               toggle off color output
 	--no-trailing:            toggle off trailing annotators
 
-	--remap-esc:              remap the escape key to the provided value
+	--remap-esc:              remap the escape key to the following value
 <br/>
 
 In the future, `nav` might support a wider range of `ls` options.
