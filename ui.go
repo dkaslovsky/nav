@@ -125,89 +125,21 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, nil
 
-			// TODO: keySelect, keyTab, and keyFileSeparator share common logic that should be encapsulated.
 			case key.Matches(msg, keySelect):
-				selected, err := m.selected()
-				if err != nil {
-					m.setError(err, "failed to select entry")
-					m.clearSearch()
-					return m, nil
-				}
-				// ** TODO: return file name, handle symlinks **
-				if !selected.hasMode(entryModeDir) {
-					// No-op for non directories
-					return m, nil
-				}
-				m.path = m.path + "/" + selected.Name()
-				// TODO: encapsulate this fix
-				if strings.HasPrefix(m.path, "//") {
-					m.path = m.path[1:]
-				}
-				m.search = ""
-				err = m.list()
-				if err != nil {
-					m.setError(err, "failed to list entries")
-					m.clearSearch()
-					return m, nil
-				}
-				return m, nil
+				return m.searchSelectAction()
 
 			case key.Matches(msg, keyTab):
 				if m.displayed != 1 {
 					return m, nil
 				}
-				selected, err := m.selected()
-				if err != nil {
-					m.setError(err, "failed to select entry")
-					m.clearSearch()
-					return m, nil
-				}
-				if !selected.hasMode(entryModeDir) {
-					// No-op for non directories
-					return m, nil
-				}
-				m.path = m.path + "/" + selected.Name()
-				// TODO: encapsulate this fix
-				if strings.HasPrefix(m.path, "//") {
-					m.path = m.path[1:]
-				}
-				m.search = ""
-				err = m.list()
-				if err != nil {
-					m.setError(err, "failed to list entries")
-					m.clearSearch()
-					return m, nil
-				}
-				return m, nil
+				return m.searchSelectAction()
 
 			case key.Matches(msg, keyFileSeparator):
 				if m.displayed != 1 {
 					m.search += keyString(keyFileSeparator)
 					return m, nil
 				}
-				selected, err := m.selected()
-				if err != nil {
-					m.setError(err, "failed to select entry")
-					m.clearSearch()
-					return m, nil
-				}
-				if !selected.hasMode(entryModeDir) {
-					// No-op for non directories
-					return m, nil
-				}
-				m.path = m.path + "/" + selected.Name()
-				// TODO: encapsulate this fix
-				if strings.HasPrefix(m.path, "//") {
-					m.path = m.path[1:]
-				}
-				m.search = ""
-				err = m.list()
-				if err != nil {
-					m.setError(err, "failed to list entries")
-					m.clearSearch()
-					return m, nil
-				}
-				return m, nil
+				return m.searchSelectAction()
 
 			default:
 				if msg.Type == tea.KeyRunes || key.Matches(msg, keySpace) {
@@ -271,62 +203,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Selectors
 
 		case key.Matches(msg, keySelect):
-			selected, err := m.selected()
-			if err != nil {
-				m.setError(err, "failed to select entry")
-				return m, nil
-			}
-
-			m.saveCursor()
-
-			if selected.hasMode(entryModeFile) {
-				m.setExit(sanitizeOutputPath(filepath.Join(m.path, selected.Name())))
-				if m.modeSubshell {
-					fmt.Print(m.exitStr)
-				}
-				return m, tea.Quit
-			}
-			if selected.hasMode(entryModeSymlink) {
-				sl, err := followSymlink(m.path, selected)
-				if err != nil {
-					m.setError(err, "failed to evaluate symlink")
-					return m, nil
-				}
-				if !sl.info.IsDir() {
-					// The symlink points to a file.
-					m.setExit(sanitizeOutputPath(sl.absPath))
-					if m.modeSubshell {
-						fmt.Print(m.exitStr)
-					}
-					return m, tea.Quit
-				}
-				m.path = sl.absPath
-			} else if selected.hasMode(entryModeDir) {
-				path, err := filepath.Abs(filepath.Join(m.path, selected.Name()))
-				if err != nil {
-					m.setError(err, "failed to evaluate path")
-					return m, nil
-				}
-				m.path = path
-			} else {
-				m.setError(
-					errors.New("selection is not a file, directory, or symlink"),
-					"unexpected file type",
-				)
-				return m, nil
-			}
-
-			err = m.list()
-			if err != nil {
-				m.setError(err, "failed to list entries")
-				return m, nil
-			}
-
-			m.clearSearch()
-			m.clearError()
-
-			// Return to ensure the cursor is not re-saved using the updated path.
-			return m, nil
+			return m.selectAction()
 
 		case key.Matches(msg, keyBack):
 			m.saveCursor()
