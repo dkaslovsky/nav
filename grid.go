@@ -125,5 +125,6 @@ func gridRowMajorFixedLayout(items []lenStringer, columns int, rows int) [][]str
 		}
 		names[row] = rowNames
 	}
+
 	return names
 }

@@ -33,6 +33,7 @@ type model struct {
 
 	modeColor         bool
 	modeDebug         bool
+	modeError         bool
 	modeExit          bool
 	modeFollowSymlink bool
 	modeHelp          bool
@@ -45,15 +46,14 @@ type model struct {
 
 func newModel() *model {
 	return &model{
-		width:  80,
-		height: 60,
-
-		esc: defaultEscRemapKey(),
-
+		width:     80,
+		height:    60,
+		esc:       defaultEscRemapKey(),
 		viewCache: make(map[string]*cacheItem),
 
 		modeColor:         true,
 		modeDebug:         false,
+		modeError:         false,
 		modeExit:          false,
 		modeFollowSymlink: false,
 		modeHelp:          false,
@@ -132,6 +132,7 @@ func (m *model) displayIndex() int {
 }
 
 func (m *model) setError(err error, status string) {
+	m.modeError = true
 	m.errorStr = status
 	m.error = err
 }
@@ -147,6 +148,7 @@ func (m *model) setExitWithCode(exitStr string, exitCode int) {
 }
 
 func (m *model) clearError() {
+	m.modeError = false
 	m.errorStr = ""
 	m.error = nil
 }

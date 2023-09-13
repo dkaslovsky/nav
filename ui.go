@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -62,6 +61,36 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+		// Error mode
+
+		if m.modeError {
+
+			// Debug mode
+
+			if m.modeDebug {
+				if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyDebugMode) {
+					m.modeDebug = false
+				}
+
+				if key.Matches(msg, keyDismissError) {
+					m.clearError()
+					m.modeDebug = false
+				}
+
+				return m, nil
+			}
+
+			if key.Matches(msg, keyDismissError) {
+				m.clearError()
+			}
+
+			if key.Matches(msg, keyDebugMode) {
+				m.modeDebug = true
+			}
+
+			return m, nil
+		}
+
 		// Help mode
 
 		if m.modeHelp {
@@ -72,29 +101,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Debug mode
-
-		if m.modeDebug {
-			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyDebugMode) {
-				m.modeDebug = false
-			}
-
-			if key.Matches(msg, keyDismissError) {
-				m.clearError()
-				m.modeDebug = false
-			}
-
-			return m, nil
-		}
-
 		// Search mode
 
 		if m.modeSearch {
 			if esc || key.Matches(msg, keyEsc) {
 				m.clearSearch()
-				if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
-					m.clearError()
-				}
 				return m, nil
 			}
 
@@ -225,22 +236,17 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			m.clearSearch()
-			m.clearError()
 
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
 		// Change modes
 
-		case key.Matches(msg, keyDebugMode):
-			m.modeDebug = true
-
 		case key.Matches(msg, keyHelpMode):
 			m.modeHelp = true
 
 		case key.Matches(msg, keySearchMode):
 			m.modeSearch = true
-			m.clearError()
 
 		// Toggles
 
@@ -252,9 +258,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyToggleList):
 			m.modeList = !m.modeList
-
-		case key.Matches(msg, keyDismissError):
-			m.clearError()
 
 		}
 	}

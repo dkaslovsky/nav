@@ -1,14 +1,13 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
 )
 
-var ErrNoSearchResults = errors.New("Search resulted in no matching entries")
+// var ErrNoSearchResults = errors.New("Search resulted in no matching entries")
 
 func (m *model) normalView() string {
 	var (
@@ -48,12 +47,7 @@ func (m *model) normalView() string {
 
 	if m.modeSearch {
 		if displayed == 0 && validEntries > 0 {
-			m.setError(ErrNoSearchResults, "no matches found")
-			return m.locationBar() + "\n\n"
-		} else {
-			if m.error != nil && errors.Is(m.error, ErrNoSearchResults) {
-				m.clearError()
-			}
+			return m.locationBar() + "\n\n\t(no matching entries)\n"
 		}
 	}
 
@@ -61,15 +55,13 @@ func (m *model) normalView() string {
 	var (
 		width     = m.width
 		height    = m.height - 2 // Account for location and status bars.
+		iNames    = make([]lenStringer, len(displayNames))
 		gridNames [][]string
 		layout    gridLayout
 	)
-
-	iNames := make([]lenStringer, len(displayNames))
 	for i, itm := range displayNames {
 		iNames[i] = lenStringer(itm)
 	}
-
 	if m.modeList {
 		gridNames, layout = gridSingleColumn(iNames, width, height)
 	} else {
@@ -124,7 +116,7 @@ func (m *model) normalView() string {
 
 func (m *model) debugView() string {
 	output := barRendererOK.Render("No errors")
-	if m.errorStr != "" && m.error != nil {
+	if m.modeError {
 		output = fmt.Sprintf(
 			"%s\n %s\n\n%s\n %v",
 			barRendererError.Render("Error Message"),
@@ -150,7 +142,13 @@ func (m *model) statusBar() string {
 		cmds []statusBarItem
 	)
 
-	if m.modeSearch {
+	if m.modeDebug {
+		mode = "DEBUG"
+		cmds = []statusBarItem{
+			statusBarItem(fmt.Sprintf(`"%s": dismiss error`, keyString(keyDismissError))),
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
+		}
+	} else if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []statusBarItem{
 			statusBarItem(fmt.Sprintf(`"%s": complete`, keyString(keyTab))),
@@ -158,11 +156,6 @@ func (m *model) statusBar() string {
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
-		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
-		}
-	} else if m.modeDebug {
-		mode = "DEBUG"
 		cmds = []statusBarItem{
 			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
 		}
@@ -217,16 +210,13 @@ func (m *model) statusBar() string {
 
 func (m *model) locationBar() string {
 	err := ""
-	if m.errorStr != "" && m.error != nil {
-		err = fmt.Sprintf("ERROR: %s\t", m.errorStr)
-		if !errors.Is(m.error, ErrNoSearchResults) {
-			err = fmt.Sprintf(
-				"\tERROR (\"%s\": dismiss, \"%s\": debug): %s",
-				keyString(keyDismissError),
-				keyString(keyDebugMode),
-				m.errorStr,
-			)
-		}
+	if m.modeError {
+		err = fmt.Sprintf(
+			"\tERROR (\"%s\": dismiss, \"%s\": debug): %s",
+			keyString(keyDismissError),
+			keyString(keyDebugMode),
+			m.errorStr,
+		)
 		return barRendererError.Render(err + "\t\t")
 	}
 

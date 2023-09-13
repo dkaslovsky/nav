@@ -62,7 +62,6 @@ func (m *model) selectAction() (*model, tea.Cmd) {
 	}
 
 	m.clearSearch()
-	m.clearError()
 
 	// Return to ensure the cursor is not re-saved using the updated path.
 	return m, nil
