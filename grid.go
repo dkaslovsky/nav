@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"strings"
 )
@@ -9,27 +10,32 @@ const columnSeparatorLen = 4
 
 var columnSeparator = strings.Repeat(" ", columnSeparatorLen)
 
-func gridSingleColumn(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
+type lenStringer interface {
+	fmt.Stringer
+	Len() int
+}
+
+func gridSingleColumn(dispNames []lenStringer, width int, _ int) ([][]string, gridLayout) {
 	tgtColumns := 1
 
-	layout := newGridLayout(dispNames, tgtColumns, width, height)
+	layout := newGridLayout(dispNames, tgtColumns, width)
 	names := grid(dispNames, layout)
 	return names, layout
 }
 
-func gridMultiColumn(dispNames []*displayName, width int, height int) ([][]string, gridLayout) {
+func gridMultiColumn(dispNames []lenStringer, width int, height int) ([][]string, gridLayout) {
 	// Target number of columns to use 1/3 of the available height.
 	tgtColumns := len(dispNames) / (height / 3)
 	if tgtColumns < 1 {
 		tgtColumns = 1
 	}
 
-	layout := newGridLayout(dispNames, tgtColumns, width, height)
+	layout := newGridLayout(dispNames, tgtColumns, width)
 	names := grid(dispNames, layout)
 	return names, layout
 }
 
-func grid(dispNames []*displayName, layout gridLayout) [][]string {
+func grid(dispNames []lenStringer, layout gridLayout) [][]string {
 	names := make([][]string, layout.columns)
 	for col := 0; col < layout.columns; col++ {
 		colNames := make([]string, layout.rows)
@@ -53,7 +59,7 @@ type gridLayout struct {
 }
 
 // newGridLayout constructs a gridLayout for given display names from a target number of columns.
-func newGridLayout(dispNames []*displayName, tgtColumns int, width int, height int) gridLayout {
+func newGridLayout(dispNames []lenStringer, tgtColumns int, width int) gridLayout {
 	layout := gridLayout{}
 
 tgtLoop:
@@ -87,4 +93,37 @@ tgtLoop:
 	}
 
 	return layout
+}
+
+func gridRowMajorFixedLayout(items []lenStringer, columns int, rows int) [][]string {
+	rowMajorIndex := func(c int, r int, columns int) int {
+		return c + (r * columns)
+	}
+
+	maxColumnLen := make([]int, columns)
+	for col := 0; col < columns; col++ {
+		for row := 0; row < rows; row++ {
+			idx := rowMajorIndex(col, row, columns)
+			if idx < len(items) {
+				curLen := items[idx].Len()
+				if curLen > maxColumnLen[col] {
+					maxColumnLen[col] = curLen
+				}
+			}
+		}
+	}
+
+	names := make([][]string, rows)
+	for row := 0; row < rows; row++ {
+		rowNames := make([]string, columns)
+		for col := 0; col < columns; col++ {
+			idx := rowMajorIndex(col, row, columns)
+			if idx < len(items) {
+				n := items[idx]
+				rowNames[col] = n.String() + strings.Repeat(" ", maxColumnLen[col]-n.Len())
+			}
+		}
+		names[row] = rowNames
+	}
+	return names
 }

@@ -64,10 +64,16 @@ func (m *model) normalView() string {
 		gridNames [][]string
 		layout    gridLayout
 	)
+
+	iNames := make([]lenStringer, len(displayNames))
+	for i, itm := range displayNames {
+		iNames[i] = lenStringer(itm)
+	}
+
 	if m.modeList {
-		gridNames, layout = gridSingleColumn(displayNames, width, height)
+		gridNames, layout = gridSingleColumn(iNames, width, height)
 	} else {
-		gridNames, layout = gridMultiColumn(displayNames, width, height)
+		gridNames, layout = gridMultiColumn(iNames, width, height)
 	}
 
 	// Retrieve cached cursor position and index mappings to set cursor position for current state.
@@ -130,60 +136,100 @@ func (m *model) debugView() string {
 	return fmt.Sprintf("%s\n\n", output)
 }
 
+// statusBarItem satisfies the lenStringer interface for constructing a grid
+type statusBarItem string
+
+func (s statusBarItem) String() string { return string(s) }
+func (s statusBarItem) Len() int       { return len(s) }
+
 func (m *model) statusBar() string {
+	const rows = 2
+
 	var (
 		mode string
-		cmds []string
+		cmds []statusBarItem
 	)
+
 	if m.modeSearch {
 		mode = "SEARCH"
-		cmds = []string{
-			fmt.Sprintf(`"%s": complete`, keyString(keyTab)),
-			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
-			fmt.Sprintf(`"%s": quit`, keyString(keyQuit)),
+		cmds = []statusBarItem{
+			statusBarItem(fmt.Sprintf(`"%s": complete`, keyString(keyTab))),
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
-		cmds = []string{
-			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
-			fmt.Sprintf(`"%s": quit`, keyString(keyQuit)),
+		cmds = []statusBarItem{
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
 		}
 	} else if m.modeDebug {
 		mode = "DEBUG"
-		cmds = []string{
-			fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc)),
-			fmt.Sprintf(`"%s": quit`, keyString(keyQuit)),
+		cmds = []statusBarItem{
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
 		}
 	} else {
 		mode = "NORMAL"
-		cmds = []string{
-			fmt.Sprintf(`"%s": search`, keyString(keySearchMode)),
-			fmt.Sprintf(`"%s": help`, keyString(keyHelpMode)),
-			fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory)),
-			fmt.Sprintf(`"%s": return sel`, keyString(keyReturnSelected)),
+		cmds = []statusBarItem{
+			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keySearchMode))),
+			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyHelpMode))),
 		}
 	}
 
-	status := strings.Join([]string{
-		"  " + name,
-		fmt.Sprintf("%s MODE", mode),
-		strings.Join(cmds, " | "),
-		"",
-	}, "\t")
-
-	err := ""
-	if m.errorStr != "" && m.error != nil {
-		if !errors.Is(m.error, ErrNoSearchResults) {
-			err = fmt.Sprintf("\tERROR (\"%s\": dismiss, \"%s\": debug): %s \t", keyString(keyDismissError), keyString(keyDebugMode), m.errorStr)
-			return barRendererError.Render(err)
-		}
-		err = fmt.Sprintf("ERROR: %s\t", m.errorStr)
+	globalCmds := []statusBarItem{
+		statusBarItem(fmt.Sprintf(`"%s": quit`, keyString(keyQuit))),
+		statusBarItem(fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory))),
+		statusBarItem(fmt.Sprintf(`"%s": return sel`, keyString(keyReturnSelected))),
 	}
 
-	return barRendererStatus.Render(status) + barRendererError.Render(err)
+	columns := max(len(cmds), len(globalCmds))
+	items := []lenStringer{}
+	for len(cmds) < columns {
+		cmds = append(cmds, statusBarItem(""))
+	}
+	for len(globalCmds) < columns {
+		globalCmds = append(globalCmds, statusBarItem(""))
+	}
+	for _, item := range cmds {
+		items = append(items, lenStringer(item))
+	}
+	for _, item := range globalCmds {
+		items = append(items, lenStringer(item))
+	}
+	gridItems := gridRowMajorFixedLayout(items, columns, rows)
+
+	nameAndMode := fmt.Sprintf(" %s   %s MODE  |", name, mode)
+	output := strings.Join([]string{
+		barRendererStatus.Render(
+			fmt.Sprintf("%s\t%s\t",
+				nameAndMode,
+				strings.Join(gridItems[0], "\t\t"),
+			),
+		),
+		barRendererStatus.Render(
+			fmt.Sprintf("%s|\t%s\t",
+				strings.Repeat(" ", len(nameAndMode)-1),
+				strings.Join(gridItems[1], "\t\t"),
+			),
+		),
+	}, "\n")
+
+	return output
 }
 
 func (m *model) locationBar() string {
+	err := ""
+	if m.errorStr != "" && m.error != nil {
+		err = fmt.Sprintf("ERROR: %s\t", m.errorStr)
+		if !errors.Is(m.error, ErrNoSearchResults) {
+			err = fmt.Sprintf(
+				"\tERROR (\"%s\": dismiss, \"%s\": debug): %s",
+				keyString(keyDismissError),
+				keyString(keyDebugMode),
+				m.errorStr,
+			)
+		}
+		return barRendererError.Render(err + "\t\t")
+	}
+
 	locationBar := barRendererLocation.Render(m.location())
 	if m.modeSearch {
 		if m.path != fileSeparator {
@@ -195,4 +241,11 @@ func (m *model) locationBar() string {
 
 func keyString(key key.Binding) string {
 	return key.Keys()[0]
+}
+
+func max(i, j int) int {
+	if i > j {
+		return i
+	}
+	return j
 }
