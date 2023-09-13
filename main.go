@@ -14,7 +14,7 @@ import (
 
 const (
 	name    = "nav"
-	version = "0.0.1"
+	version = "0.0.0"
 )
 
 const (
