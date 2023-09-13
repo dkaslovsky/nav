@@ -77,7 +77,14 @@ func flags() string {
 
 	usageFlagLine := func(text string, flags ...string) string {
 		flagStr := strings.Join(flags, ", ")
-		return fmt.Sprintf("\t%s:%s%s", flagStr, strings.Repeat(" ", pad-len(flagStr)), text)
+		textParts := strings.Split(text, "\n")
+		s := []string{
+			fmt.Sprintf("\t%s:%s%s", flagStr, strings.Repeat(" ", pad-len(flagStr)), textParts[0]),
+		}
+		for _, textPart := range textParts[1:] {
+			s = append(s, fmt.Sprintf("\t %s%s", strings.Repeat(" ", pad), textPart))
+		}
+		return strings.Join(s, "\n")
 	}
 
 	usage := `
@@ -102,7 +109,7 @@ func flags() string {
 		usageFlagLine("toggle off color output", flagNoColor),
 		usageFlagLine("toggle off trailing annotators", flagNoTrailing),
 		"",
-		usageFlagLine("remap the escape key to the following value", flagRemapEsc),
+		usageFlagLine("remap the escape key to the following value, using\nrepeated values to require multiple presses", flagRemapEsc),
 	}
 	return fmt.Sprintf(usage, strings.Join(flags, "\n"))
 }

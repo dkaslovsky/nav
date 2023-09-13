@@ -60,7 +60,8 @@ function nv {
 	--no-color:               toggle off color output
 	--no-trailing:            toggle off trailing annotators
 
-	--remap-esc:              remap the escape key to the following value
+	--remap-esc:              remap the escape key to the following value, using
+	                          repeated values to require multiple presses
 <br/>
 
 In the future, `nav` might support a wider range of `ls` options.

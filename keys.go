@@ -62,8 +62,12 @@ func (m *model) setEscRemapKey(escRemap string) error {
 	k := escRemap[0]
 	for i := 0; i < len(escRemap); i++ {
 		kr := rune(escRemap[i])
+		ks := string(escRemap[i])
 		if unicode.IsLetter(kr) || unicode.IsDigit(kr) {
 			return errors.New("remapped escape key must not be alphanumeric")
+		}
+		if ks == fileSeparator {
+			return errors.New("remapped escape key must not be the file separator character")
 		}
 		if escRemap[i] != k {
 			return errors.New("remapped escape key must not contain different characters")
