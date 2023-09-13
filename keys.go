@@ -16,7 +16,7 @@ var (
 	keySelect        = key.NewBinding(key.WithKeys("enter"))
 	keyBack          = key.NewBinding(key.WithKeys("backspace"))
 	keyTab           = key.NewBinding(key.WithKeys("tab"))
-	keyFileSeparator = key.NewBinding(key.WithKeys("/")) // TODO: this should be file separator
+	keyFileSeparator = key.NewBinding(key.WithKeys(fileSeparator))
 	keySpace         = key.NewBinding(key.WithKeys(" "))
 
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))

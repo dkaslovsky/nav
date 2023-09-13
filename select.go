@@ -98,7 +98,7 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 		}
 		m.path = sl.absPath
 	} else if selected.hasMode(entryModeDir) {
-		m.path = m.path + "/" + selected.Name()
+		m.path = m.path + fileSeparator + selected.Name()
 	} else {
 		m.setError(
 			errors.New("selection is not a file, directory, or symlink"),
