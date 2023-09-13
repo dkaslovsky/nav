@@ -7,8 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
-// var ErrNoSearchResults = errors.New("Search resulted in no matching entries")
-
 func (m *model) normalView() string {
 	var (
 		// Cache for storing the current state as it is constructed.
