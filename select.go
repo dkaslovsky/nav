@@ -39,14 +39,14 @@ func (m *model) selectAction() (*model, tea.Cmd) {
 			}
 			return m, tea.Quit
 		}
-		m.path = sl.absPath
+		m.setPath(sl.absPath)
 	} else if selected.hasMode(entryModeDir) {
 		path, err := filepath.Abs(filepath.Join(m.path, selected.Name()))
 		if err != nil {
 			m.setError(err, "failed to evaluate path")
 			return m, nil
 		}
-		m.path = path
+		m.setPath(path)
 	} else {
 		m.setError(
 			errors.New("selection is not a file, directory, or symlink"),
@@ -57,6 +57,7 @@ func (m *model) selectAction() (*model, tea.Cmd) {
 
 	err = m.list()
 	if err != nil {
+		m.restorePath()
 		m.setError(err, err.Error())
 		return m, nil
 	}
@@ -96,9 +97,9 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 			}
 			return m, tea.Quit
 		}
-		m.path = sl.absPath
+		m.setPath(sl.absPath)
 	} else if selected.hasMode(entryModeDir) {
-		m.path = m.path + fileSeparator + selected.Name()
+		m.setPath(m.path + fileSeparator + selected.Name())
 	} else {
 		m.setError(
 			errors.New("selection is not a file, directory, or symlink"),
@@ -116,6 +117,7 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 	m.search = ""
 	err = m.list()
 	if err != nil {
+		m.restorePath()
 		m.setError(err, err.Error())
 		m.clearSearch()
 		return m, nil

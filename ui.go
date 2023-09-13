@@ -129,10 +129,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.setError(err, "failed to evaluate path")
 					return m, nil
 				}
-				m.path = path
+				m.setPath(path)
 
 				err = m.list()
 				if err != nil {
+					m.restorePath()
 					m.setError(err, err.Error())
 					return m, nil
 				}
@@ -231,10 +232,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.setError(err, "failed to evaluate path")
 				return m, nil
 			}
-			m.path = path
+			m.setPath(path)
 
 			err = m.list()
 			if err != nil {
+				m.restorePath()
 				m.setError(err, err.Error())
 				return m, nil
 			}

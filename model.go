@@ -13,6 +13,7 @@ var fileSeparator = string(filepath.Separator)
 
 type model struct {
 	path      string
+	prevPath  string
 	entries   []*entry
 	displayed int
 	exitCode  int
@@ -129,6 +130,18 @@ func (m *model) displayNameOpts() []displayNameOption {
 
 func (m *model) displayIndex() int {
 	return index(m.c, m.r, m.rows)
+}
+
+func (m *model) setPath(path string) {
+	m.prevPath = m.path
+	m.path = path
+}
+
+func (m *model) restorePath() {
+	if m.prevPath != "" {
+		m.path = m.prevPath
+		m.prevPath = ""
+	}
 }
 
 func (m *model) setError(err error, status string) {
