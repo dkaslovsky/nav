@@ -153,6 +153,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.search += keyString(keyFileSeparator)
 					return m, nil
 				}
+				if selected, err := m.selected(); err == nil && selected.hasMode(entryModeFile) {
+					m.search += keyString(keyFileSeparator)
+					return m, nil
+				}
 				return m.searchSelectAction()
 
 			default:
