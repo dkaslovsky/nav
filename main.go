@@ -18,27 +18,22 @@ const (
 )
 
 const (
-	flagHelp          = "--help"
-	flagHelpShort     = "-h"
-	flagHelpShortCaps = "-H"
-	flagVersion       = "--version"
-	flagVersionShort  = "-v"
-
-	flagSearch      = "--search"
-	flagSearchShort = "-s"
-
-	flagSubshell = "--subshell"
-
+	flagHelp                = "--help"
+	flagHelpShort           = "-h"
+	flagHelpShortCaps       = "-H"
+	flagVersion             = "--version"
+	flagVersionShort        = "-v"
+	flagSearch              = "--search"
+	flagSearchShort         = "-s"
+	flagSubshell            = "--subshell"
 	flagFollowSymlinks      = "--follow-symlinks"
 	flagFollowSymlinksShort = "-f"
 	flagHidden              = "--hidden"
 	flagList                = "--list"
 	flagListShort           = "-l"
-
-	flagNoColor    = "--no-color"
-	flagNoTrailing = "--no-trailing"
-
-	flagRemapEsc = "--remap-esc"
+	flagNoColor             = "--no-color"
+	flagNoTrailing          = "--no-trailing"
+	flagRemapEsc            = "--remap-esc"
 )
 
 func main() {

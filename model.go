@@ -21,6 +21,7 @@ type model struct {
 	error     error
 	errorStr  string
 	esc       *remappedEscKey
+	search    string
 	viewCache map[string]*cacheItem
 
 	c       int // Cursor column position.
@@ -29,8 +30,6 @@ type model struct {
 	rows    int // Displayed columns.
 	width   int // Terminal width.
 	height  int // Terminal height.
-
-	search string
 
 	modeColor         bool
 	modeDebug         bool
