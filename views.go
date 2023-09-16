@@ -53,17 +53,13 @@ func (m *model) normalView() string {
 	var (
 		width     = m.width
 		height    = m.height - 2 // Account for location and status bars.
-		iNames    = make([]lenStringer, len(displayNames))
 		gridNames [][]string
 		layout    gridLayout
 	)
-	for i, itm := range displayNames {
-		iNames[i] = lenStringer(itm)
-	}
 	if m.modeList {
-		gridNames, layout = gridSingleColumn(iNames, width, height)
+		gridNames, layout = gridSingleColumn(displayNames, width, height)
 	} else {
-		gridNames, layout = gridMultiColumn(iNames, width, height)
+		gridNames, layout = gridMultiColumn(displayNames, width, height)
 	}
 
 	// Retrieve cached cursor position and index mappings to set cursor position for current state.
@@ -126,7 +122,6 @@ func (m *model) debugView() string {
 	return fmt.Sprintf("%s\n\n", output)
 }
 
-// statusBarItem satisfies the lenStringer interface for constructing a grid
 type statusBarItem string
 
 func (s statusBarItem) String() string { return string(s) }
@@ -172,20 +167,14 @@ func (m *model) statusBar() string {
 	}
 
 	columns := max(len(cmds), len(globalCmds))
-	items := []lenStringer{}
 	for len(cmds) < columns {
 		cmds = append(cmds, statusBarItem(""))
 	}
 	for len(globalCmds) < columns {
 		globalCmds = append(globalCmds, statusBarItem(""))
 	}
-	for _, item := range cmds {
-		items = append(items, lenStringer(item))
-	}
-	for _, item := range globalCmds {
-		items = append(items, lenStringer(item))
-	}
-	gridItems := gridRowMajorFixedLayout(items, columns, rows)
+	cmds = append(cmds, globalCmds...)
+	gridItems := gridRowMajorFixedLayout(cmds, columns, rows)
 
 	nameAndMode := fmt.Sprintf(" %s   %s MODE  |", name, mode)
 	output := strings.Join([]string{

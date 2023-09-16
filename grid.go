@@ -10,39 +10,37 @@ const columnSeparatorLen = 4
 
 var columnSeparator = strings.Repeat(" ", columnSeparatorLen)
 
-type lenStringer interface {
+type gridable interface {
 	fmt.Stringer
 	Len() int
 }
 
-func gridSingleColumn(dispNames []lenStringer, width int, _ int) ([][]string, gridLayout) {
-	tgtColumns := 1
-
-	layout := newGridLayout(dispNames, tgtColumns, width)
-	names := grid(dispNames, layout)
+func gridSingleColumn[T gridable](items []T, width int, _ int) ([][]string, gridLayout) {
+	layout := newGridLayout(items, 1, width)
+	names := grid(items, layout)
 	return names, layout
 }
 
-func gridMultiColumn(dispNames []lenStringer, width int, height int) ([][]string, gridLayout) {
+func gridMultiColumn[T gridable](items []T, width int, height int) ([][]string, gridLayout) {
 	// Target number of columns to use 1/3 of the available height.
-	tgtColumns := len(dispNames) / (height / 3)
+	tgtColumns := len(items) / (height / 3)
 	if tgtColumns < 1 {
 		tgtColumns = 1
 	}
 
-	layout := newGridLayout(dispNames, tgtColumns, width)
-	names := grid(dispNames, layout)
+	layout := newGridLayout(items, tgtColumns, width)
+	names := grid(items, layout)
 	return names, layout
 }
 
-func grid(dispNames []lenStringer, layout gridLayout) [][]string {
+func grid[T gridable](items []T, layout gridLayout) [][]string {
 	names := make([][]string, layout.columns)
 	for col := 0; col < layout.columns; col++ {
 		colNames := make([]string, layout.rows)
 		for row := 0; row < layout.rows; row++ {
 			idx := index(col, row, layout.rows)
-			if idx < len(dispNames) {
-				n := dispNames[idx]
+			if idx < len(items) {
+				n := items[idx]
 				colNames[row] = n.String() + strings.Repeat(" ", layout.maxColumnLen[col]-n.Len())
 			}
 		}
@@ -59,7 +57,7 @@ type gridLayout struct {
 }
 
 // newGridLayout constructs a gridLayout for given display names from a target number of columns.
-func newGridLayout(dispNames []lenStringer, tgtColumns int, width int) gridLayout {
+func newGridLayout[T gridable](items []T, tgtColumns int, width int) gridLayout {
 	layout := gridLayout{}
 
 tgtLoop:
@@ -67,15 +65,15 @@ tgtLoop:
 	// continue to decrease the target columns until a fit is found.
 	for tgt := tgtColumns; tgt >= 1; tgt-- {
 		layout.columns = tgt
-		layout.rows = int(math.Ceil(float64(len(dispNames)) / float64(tgt)))
+		layout.rows = int(math.Ceil(float64(len(items)) / float64(tgt)))
 		layout.maxColumnLen = make([]int, tgt)
 
 		for row := 0; row < layout.rows; row++ {
 			rowLen := 0
 			for col := 0; col < tgt; col++ {
 				idx := index(col, row, layout.rows)
-				if idx < len(dispNames) {
-					curLen := dispNames[idx].Len()
+				if idx < len(items) {
+					curLen := items[idx].Len()
 					rowLen += (curLen + columnSeparatorLen)
 					// Reject the tgt if it results in any row length greater than the width.
 					if rowLen > width && tgt > 1 {
@@ -95,7 +93,7 @@ tgtLoop:
 	return layout
 }
 
-func gridRowMajorFixedLayout(items []lenStringer, columns int, rows int) [][]string {
+func gridRowMajorFixedLayout[T gridable](items []T, columns int, rows int) [][]string {
 	rowMajorIndex := func(c int, r int, columns int) int {
 		return c + (r * columns)
 	}
