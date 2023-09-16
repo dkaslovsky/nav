@@ -6,8 +6,7 @@ Terminal navigator for interactive `ls` workflows.
 
 
 `nav` is a terminal filesystem explorer built for interactive ls workflows.
-
-It can be used in bash/zsh functions such as
+It can be used as a standalone TUI or in bash/zsh functions such as
 ```bash
 # interactive `ls` + `cd`
 function nv {
