@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,13 +44,13 @@ func main() {
 	// Set model options from args.
 	err = parseArgs(os.Args[1:], m)
 	if err != nil {
-		log.Fatal(err)
+		exit(err, m.exitCode)
 	}
 
 	// Populate the model.
 	err = m.list()
 	if err != nil {
-		log.Fatal(err)
+		exit(err, m.exitCode)
 	}
 
 	// Terminal coloring.
@@ -61,10 +60,10 @@ func main() {
 	// Run the app.
 	_, err = tea.NewProgram(m, tea.WithOutput(os.Stderr)).Run()
 	if err != nil {
-		log.Fatal(err)
+		exit(err, m.exitCode)
 	}
 
-	os.Exit(m.exitCode)
+	exit(nil, m.exitCode)
 }
 
 func parseArgs(args []string, m *model) error {
@@ -124,6 +123,16 @@ func parseArgs(args []string, m *model) error {
 	}
 
 	return nil
+}
+
+func exit(err error, code int) {
+	if err != nil {
+		fmt.Printf("fatal: %v", err)
+		if code == 0 {
+			os.Exit(1)
+		}
+	}
+	os.Exit(code)
 }
 
 func usageAndExit() {
