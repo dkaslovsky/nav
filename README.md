@@ -1,16 +1,24 @@
 # nav
-Terminal navigator for interactive `ls` and `cd` workflows.
+Terminal navigator for interactive `ls` workflows.
 
 <br/>
 
 
 
-`nav` is an interactive terminal filesystem explorer.
+`nav` is a terminal filesystem explorer built for interactive ls workflows.
 
-For interactive ls/cd workflows, it can be used in a bash/zsh function such as
+It can be used in bash/zsh functions such as
 ```bash
+# interactive `ls` + `cd`
 function nv {
 	cd "$(nav --subshell "$@")"
+}
+```
+or 
+```bash
+# interactive `ls` to copy selected to the clipboard
+function ncopy {
+	nav --subshell "$@" | pbcopy
 }
 ```
 
@@ -33,9 +41,9 @@ function nv {
 	"H":           enters help mode
 	"esc":         switches back to normal mode
 
-	"a":           toggles showing hidden files
-	"f":           toggles following symlinks
+	"a":           toggles showing hidden files (ls -a)
 	"L":           toggles listing full file information (ls -l)
+	"f":           toggles following symlinks
 
 	"e":           dismisses errors
 	"ctrl+c":      quits the application with no return value

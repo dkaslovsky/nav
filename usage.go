@@ -9,18 +9,13 @@ import (
 
 func usage() string {
 	usage := `
-	%s (v%s) is an interactive terminal filesystem explorer.
-
-	For interactive ls/cd workflows, it can be used in a bash/zsh function such as
-	function %s {
-		cd "$(%s %s "$@")"
-	}
+	%s (v%s) is a terminal filesystem explorer built for interactive ls workflows.
 	
 	Useful key commands are listed in the status bar.
 `
 
 	return fmt.Sprintf(usage,
-		name, version, "nv", name, flagSubshell,
+		name, version,
 	)
 }
 
@@ -61,9 +56,9 @@ func commands() string {
 		usageKeyLine("enters help mode", keyHelpMode),
 		usageKeyLine("switches back to normal mode", keyEsc),
 		"",
-		usageKeyLine("toggles showing hidden files", keyToggleHidden),
-		usageKeyLine("toggles following symlinks", keyToggleFollowSymlink),
+		usageKeyLine("toggles showing hidden files (ls -a)", keyToggleHidden),
 		usageKeyLine("toggles listing full file information (ls -l)", keyToggleList),
+		usageKeyLine("toggles following symlinks", keyToggleFollowSymlink),
 		"",
 		usageKeyLine("dismisses errors", keyDismissError),
 		usageKeyLine("quits the application with no return value", keyQuit),
