@@ -1,25 +1,115 @@
 # nav
 Terminal navigator for interactive `ls` workflows.
 
+
+![alt text](./examples/nav_example.png)
+
 <br/>
 
-
-
-`nav` is a terminal filesystem explorer built for interactive ls workflows.
+`nav` is a terminal filesystem explorer built for interactive `ls` workflows.
 It can be used as a standalone TUI or in bash/zsh functions such as
+
+<table>
+<tr>
+<td>
+
 ```bash
-# interactive `ls` + `cd`
+# interactive ls + cd
 function nv {
-	cd "$(nav --subshell "$@")"
+	cd "$(nav --pipe "$@")"
 }
 ```
-or 
+
+</td>
+<td>
+
 ```bash
-# interactive `ls` to copy selected to the clipboard
-function ncopy {
-	nav --subshell "$@" | pbcopy
+# interactive ls + clipboard
+function ncp {
+	nav --pipe "$@" | pbcopy
 }
 ```
+
+</td>
+</tr>
+</table>
+
+
+`nav` is intended to be an interactive replacement for `ls` and currently supports some of the most common `ls` options:
+<table>
+
+<tr>
+<td>
+
+long list with full details
+
+</td>
+
+<td>
+
+`ls -l`
+
+</td>
+
+<td>
+</td>
+
+<td>
+
+`nav --list` / `nav -l`
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+show hidden files
+
+</td>
+<td>
+
+`ls -a`
+
+</td>
+
+<td>
+</td>
+
+<td>
+
+`nav --hidden` / `nav -a`
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+follow symlinks
+
+</td>
+
+<td>
+</td>
+
+<td>
+</td>
+
+<td>
+
+`nav --follow` / `nav -f`
+
+</td>
+</tr>
+
+</table>
+
+These options are available as interactive toggles and can also be invoked on start with the appropriate command line flag ([see below](#full-list-of-commands)).
+
+Human readable file sizes (`ls -lh`), color output (`ls --color`), and a custom sort order are on by default and cannot currently be configured.
+
+In the future, `nav` might support a wider range of `ls` options and configuration.
 
 <br/>
 
@@ -51,18 +141,16 @@ function ncopy {
 
 ### Command line flags
 
-	The following flags are available:
-
 	--help, -h, -H:           display help
 	--version, -v:            display version
 
 	--search, -s:             start in search mode
 
-	--subshell:               return output suitable for subshell invocation
+	--pipe:                   return output suitable for pipe and subshell usage
 
-	--follow-symlinks, -f:    toggle on following symlinks at startup
+	--follow, -f:             toggle on following symlinks at startup
+	--hidden, -a:             toggle on showing hidden files at startup
 	--list, -l:               toggle on list mode at startup
-	--hidden:                 toggle on showing hidden files at startup
 
 	--no-color:               toggle off color output
 	--no-trailing:            toggle off trailing annotators
