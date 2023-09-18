@@ -159,6 +159,11 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	                          repeated values to require multiple presses
 <br/>
 
-In the future, `nav` might support a wider range of `ls` options.
+## License
+`nav` is released under the [MIT License](./LICENSE).
+Dependency licenses are available in this repository's [CREDITS](./CREDITS) file.
 
-`nav` was originally inspired by https://github.com/antonmedv/walk but has deviated significantly and has been written from the ground up to support a different set of features.
+<br/>
+
+## Acknowledgements
+`nav` was originally inspired by the excellent https://github.com/antonmedv/walk tool but has deviated significantly and has been written from the ground up to support the current feature set.
