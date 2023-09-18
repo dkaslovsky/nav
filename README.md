@@ -6,6 +6,8 @@ Terminal navigator for interactive `ls` workflows.
 
 <br/>
 
+## Overview
+
 `nav` is a terminal filesystem explorer built for interactive `ls` workflows.
 It can be used as a standalone TUI or in bash/zsh functions such as
 
