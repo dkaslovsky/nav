@@ -54,9 +54,6 @@ long list with full details
 </td>
 
 <td>
-</td>
-
-<td>
 
 `nav --list` / `nav -l`
 
@@ -76,9 +73,6 @@ show hidden files
 </td>
 
 <td>
-</td>
-
-<td>
 
 `nav --hidden` / `nav -a`
 
@@ -90,9 +84,6 @@ show hidden files
 
 follow symlinks
 
-</td>
-
-<td>
 </td>
 
 <td>
