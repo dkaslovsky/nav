@@ -24,10 +24,11 @@ const (
 	flagVersionShort        = "-v"
 	flagSearch              = "--search"
 	flagSearchShort         = "-s"
-	flagSubshell            = "--subshell"
-	flagFollowSymlinks      = "--follow-symlinks"
+	flagPipe                = "--pipe"
+	flagFollowSymlinks      = "--follow"
 	flagFollowSymlinksShort = "-f"
 	flagHidden              = "--hidden"
+	flagHiddenShort         = "-a"
 	flagList                = "--list"
 	flagListShort           = "-l"
 	flagNoColor             = "--no-color"
@@ -78,13 +79,13 @@ func parseArgs(args []string, m *model) error {
 			usageAndExit()
 		case flagVersion, flagVersionShort:
 			versionAndExit()
-		case flagHidden:
+		case flagHidden, flagHiddenShort:
 			m.modeHidden = true
 		case flagList, flagListShort:
 			m.modeList = true
 		case flagSearch, flagSearchShort:
 			m.modeSearch = true
-		case flagSubshell:
+		case flagPipe:
 			m.modeSubshell = true
 		case flagFollowSymlinks, flagFollowSymlinksShort:
 			m.modeFollowSymlink = true
