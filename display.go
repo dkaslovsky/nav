@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/dkaslovsky/nav/internal/fileinfo"
@@ -87,6 +89,9 @@ func displayNameWithFollowSymlink(path string) displayNameOption {
 			return
 		}
 		if followedName, err := filepath.EvalSymlinks(filepath.Join(path, c.name)); err == nil {
+			if userHomeDir, err := os.UserHomeDir(); err == nil {
+				followedName = strings.Replace(followedName, userHomeDir, "~", 1)
+			}
 			c.nameExtra = fmt.Sprintf(" -> %s", followedName)
 		}
 	}
