@@ -178,7 +178,7 @@ curl -o nav -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_li
 
 Windows
 ```bash
-curl.exe -o nav.exe -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_windows-amd64.exe
+curl.exe -o nav.exe -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_windows_amd64.exe
 ```
 
 
