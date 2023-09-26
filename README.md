@@ -152,6 +152,38 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	                          repeated values to require multiple presses
 <br/>
 
+## Installation
+The recommended installation method is downloading the latest released binary.
+Download the appropriate binary for your operating system and architecture from this repository's [releases](https://github.com/dkaslovsky/nav/releases/latest) page or via `curl`:
+
+macOS / amd64
+```bash
+curl -o nav -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_darwin_amd64
+```
+
+macOS / arm64
+```bash
+curl -o nav -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_darwin_arm64
+```
+
+Linux / amd64
+```bash
+curl -o nav -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_linux_amd64
+```
+
+Linux / arm64
+```bash
+curl -o nav -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_linux_arm64
+```
+
+Windows
+```bash
+curl.exe -o nav.exe -L https://github.com/dkaslovsky/nav/releases/latest/download/nav_windows-amd64.exe
+```
+
+
+<br/>
+
 ## License
 `nav` is released under the [MIT License](./LICENSE).
 Dependency licenses are available in this repository's [CREDITS](./CREDITS) file.
