@@ -11,10 +11,11 @@ import (
 	"github.com/muesli/termenv"
 )
 
-const (
-	name    = "nav"
-	version = "0.0.0"
-)
+// Name of the application.
+const name = "nav"
+
+// Version is set with ldflags.
+var version string
 
 const (
 	flagHelp                = "--help"
@@ -142,6 +143,13 @@ func usageAndExit() {
 }
 
 func versionAndExit() {
-	fmt.Printf("%s (v%s)", name, version)
+	fmt.Printf("%s (%s)", name, getVersion())
 	os.Exit(0)
+}
+
+func getVersion() string {
+	if version == "" {
+		return "development"
+	}
+	return "v" + version
 }

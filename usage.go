@@ -9,13 +9,13 @@ import (
 
 func usage() string {
 	usage := `
-	%s (v%s) is a terminal filesystem explorer built for interactive ls workflows.
+	%s (%s) is a terminal filesystem explorer built for interactive ls workflows.
 	
 	Useful key commands are listed in the status bar.
 `
 
 	return fmt.Sprintf(usage,
-		name, version,
+		name, getVersion(),
 	)
 }
 
