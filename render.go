@@ -6,6 +6,7 @@ import (
 
 var (
 	cursorRendererSelected = newCursorRenderer(lipgloss.NewStyle().Bold(true).SetString(">"))
+	cursorRendererMarked   = newCursorRenderer(lipgloss.NewStyle().SetString("x"))
 	cursorRendererNormal   = newCursorRenderer(lipgloss.NewStyle().SetString(" "))
 
 	barRendererLocation = lipgloss.NewStyle().Background(lipgloss.Color("#5C5C5C")).Foreground(lipgloss.Color("#FFFFFF"))

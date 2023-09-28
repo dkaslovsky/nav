@@ -23,6 +23,7 @@ type model struct {
 	esc       *remappedEscKey
 	search    string
 	viewCache map[string]*cacheItem
+	marks     map[int]struct{}
 
 	c       int // Cursor column position.
 	r       int // Cursor row position.
@@ -39,6 +40,7 @@ type model struct {
 	modeHelp          bool
 	modeHidden        bool
 	modeList          bool
+	modeMarks         bool
 	modeSearch        bool
 	modeSubshell      bool
 	modeTrailing      bool
@@ -50,6 +52,7 @@ func newModel() *model {
 		height:    60,
 		esc:       defaultEscRemapKey(),
 		viewCache: make(map[string]*cacheItem),
+		marks:     make(map[int]struct{}),
 
 		modeColor:         true,
 		modeDebug:         false,
@@ -59,6 +62,7 @@ func newModel() *model {
 		modeHelp:          false,
 		modeHidden:        false,
 		modeList:          false,
+		modeMarks:         false,
 		modeSearch:        false,
 		modeSubshell:      false,
 		modeTrailing:      true,

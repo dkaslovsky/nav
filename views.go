@@ -97,6 +97,12 @@ func (m *model) normalView() string {
 			if col == m.c && row == m.r {
 				gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
 			} else {
+				if m.modeMarks {
+					if _, isMarked := m.marks[index(col, row, layout.rows)]; isMarked {
+						gridOutput[row] += cursorRendererMarked.Render(gridNames[col][row])
+						continue
+					}
+				}
 				gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
 			}
 		}
