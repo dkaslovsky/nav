@@ -33,6 +33,17 @@ function ncp {
 ```
 
 </td>
+
+<td>
+
+```bash
+# interactive ls + multi cat
+function ncp {
+	nav --pipe "$@" | xargs cat
+}
+```
+
+</td>
 </tr>
 </table>
 
