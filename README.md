@@ -115,13 +115,14 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	               path to the entry under the cursor
 	"backspace":   navigates back to the previous directory
 
-	"ctrl+x":      returns the path to the entry under the cursor and quits
-	"ctrl+d":      returns the path to the current directory and quits
+	"ctrl+x":      returns the path(s) to the current entry or all marked entries
+	"ctrl+d":      returns the path to the current directory
 
 	"i":           enters search mode (insert into the path)
 	"d":           enters debug mode  (view error details)
 	"H":           enters help mode
-	"esc":         switches back to normal mode
+	"m":           marks an entry for multiselect return
+	"esc":         switches back to normal mode or clears marked entries
 
 	"a":           toggles showing hidden files (ls -a)
 	"L":           toggles listing full file information (ls -l)
