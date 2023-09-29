@@ -161,8 +161,8 @@ func (m *model) statusBar() string {
 	} else {
 		mode = "NORMAL"
 		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keySearchMode))),
-			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyHelpMode))),
+			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keyModeSearch))),
+			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyModeHelp))),
 		}
 	}
 
@@ -207,7 +207,7 @@ func (m *model) locationBar() string {
 		err = fmt.Sprintf(
 			"\tERROR (\"%s\": dismiss, \"%s\": debug): %s",
 			keyString(keyDismissError),
-			keyString(keyDebugMode),
+			keyString(keyModeDebug),
 			m.errorStr,
 		)
 		return barRendererError.Render(err + "\t\t")
