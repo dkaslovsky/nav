@@ -51,7 +51,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Remapped escape logic
 
 		esc := false
-		if m.modeSearch || m.modeDebug || m.modeHelp {
+		if m.escapableMode() {
 			if key.Matches(msg, m.esc.key) {
 				if m.esc.triggered() {
 					esc = true
@@ -68,7 +68,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Debug mode
 
 			if m.modeDebug {
-				if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyDebugMode) {
+				if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyModeDebug) {
 					m.modeDebug = false
 				}
 
@@ -84,7 +84,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.clearError()
 			}
 
-			if key.Matches(msg, keyDebugMode) {
+			if key.Matches(msg, keyModeDebug) {
 				m.modeDebug = true
 			}
 
@@ -94,11 +94,21 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyHelpMode) {
+			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyModeHelp) {
 				m.modeHelp = false
 			}
 
+			// Unconditional return to disable all other functionality.
 			return m, nil
+		}
+
+		// Marks mode
+
+		if m.modeMarks {
+			if esc || key.Matches(msg, keyEsc) {
+				m.clearMarks()
+				return m, nil
+			}
 		}
 
 		// Search mode
@@ -181,25 +191,40 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, keyReturnSelected):
-			selected, err := m.selected()
-			if err != nil {
-				m.setError(err, "failed to select entry")
-				return m, nil
-			}
+			selecteds := []*entry{}
+			paths := []string{}
 
-			var path string
-			if selected.hasMode(entryModeSymlink) {
-				sl, err := followSymlink(m.path, selected)
+			if m.modeMarks {
+				for _, marked := range m.marks {
+					marked := marked
+					selecteds = append(selecteds, marked)
+				}
+				sortEntries(selecteds)
+			} else {
+				selected, err := m.selected()
 				if err != nil {
-					m.setError(err, "failed to evaluate symlink")
+					m.setError(err, "failed to select entry")
 					return m, nil
 				}
-				path = sl.absPath
-			} else {
-				path = filepath.Join(m.path, selected.Name())
+				selecteds = append(selecteds, selected)
 			}
 
-			m.setExit(sanitizeOutputPath(path))
+			for _, selected := range selecteds {
+				var path string
+				if selected.hasMode(entryModeSymlink) {
+					sl, err := followSymlink(m.path, selected)
+					if err != nil {
+						m.setError(err, "failed to evaluate symlink")
+						return m, nil
+					}
+					path = sanitizeOutputPath(sl.absPath)
+				} else {
+					path = sanitizeOutputPath(filepath.Join(m.path, selected.Name()))
+				}
+				paths = append(paths, path)
+			}
+
+			m.setExit(strings.Join(paths, " "))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
@@ -222,6 +247,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Selectors
 
 		case key.Matches(msg, keySelect):
+			m.clearMarks()
 			return m.selectAction()
 
 		case key.Matches(msg, keyBack):
@@ -242,17 +268,30 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			m.clearSearch()
+			m.clearMarks()
 
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
+		case key.Matches(msg, keyMark):
+			err := m.toggleMark()
+			if err != nil {
+				m.setError(err, "failed to update mark")
+			}
+			return m, nil
+
+		case key.Matches(msg, keyMarkAll):
+			m.markAll()
+			return m, nil
+
 		// Change modes
 
-		case key.Matches(msg, keyHelpMode):
+		case key.Matches(msg, keyModeHelp):
 			m.modeHelp = true
 
-		case key.Matches(msg, keySearchMode):
+		case key.Matches(msg, keyModeSearch):
 			m.modeSearch = true
+			m.clearMarks()
 
 		// Toggles
 

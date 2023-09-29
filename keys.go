@@ -18,15 +18,17 @@ var (
 	keyTab           = key.NewBinding(key.WithKeys("tab"))
 	keyFileSeparator = key.NewBinding(key.WithKeys(fileSeparator))
 	keySpace         = key.NewBinding(key.WithKeys(" "))
+	keyMark          = key.NewBinding(key.WithKeys("m"))
+	keyMarkAll       = key.NewBinding(key.WithKeys("ctrl+a"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
 	keyDown  = key.NewBinding(key.WithKeys("down", "j"))
 	keyLeft  = key.NewBinding(key.WithKeys("left", "h"))
 	keyRight = key.NewBinding(key.WithKeys("right", "l"))
 
-	keyDebugMode  = key.NewBinding(key.WithKeys("d"))
-	keyHelpMode   = key.NewBinding(key.WithKeys("H"))
-	keySearchMode = key.NewBinding(key.WithKeys("i"))
+	keyModeDebug  = key.NewBinding(key.WithKeys("d"))
+	keyModeHelp   = key.NewBinding(key.WithKeys("H"))
+	keyModeSearch = key.NewBinding(key.WithKeys("i"))
 
 	keyToggleFollowSymlink = key.NewBinding(key.WithKeys("f"))
 	keyToggleHidden        = key.NewBinding(key.WithKeys("a"))

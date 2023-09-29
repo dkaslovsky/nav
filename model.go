@@ -23,6 +23,7 @@ type model struct {
 	esc       *remappedEscKey
 	search    string
 	viewCache map[string]*cacheItem
+	marks     map[int]*entry
 
 	c       int // Cursor column position.
 	r       int // Cursor row position.
@@ -39,6 +40,7 @@ type model struct {
 	modeHelp          bool
 	modeHidden        bool
 	modeList          bool
+	modeMarks         bool
 	modeSearch        bool
 	modeSubshell      bool
 	modeTrailing      bool
@@ -50,6 +52,7 @@ func newModel() *model {
 		height:    60,
 		esc:       defaultEscRemapKey(),
 		viewCache: make(map[string]*cacheItem),
+		marks:     make(map[int]*entry),
 
 		modeColor:         true,
 		modeDebug:         false,
@@ -59,10 +62,15 @@ func newModel() *model {
 		modeHelp:          false,
 		modeHidden:        false,
 		modeList:          false,
+		modeMarks:         false,
 		modeSearch:        false,
 		modeSubshell:      false,
 		modeTrailing:      true,
 	}
+}
+
+func (m *model) escapableMode() bool {
+	return m.modeSearch || m.modeDebug || m.modeHelp || m.modeMarks
 }
 
 func (m *model) list() error {
@@ -149,6 +157,12 @@ func (m *model) setError(err error, status string) {
 	m.error = err
 }
 
+func (m *model) clearError() {
+	m.modeError = false
+	m.errorStr = ""
+	m.error = nil
+}
+
 func (m *model) setExit(exitStr string) {
 	m.setExitWithCode(exitStr, 0)
 }
@@ -159,10 +173,43 @@ func (m *model) setExitWithCode(exitStr string, exitCode int) {
 	m.exitCode = exitCode
 }
 
-func (m *model) clearError() {
-	m.modeError = false
-	m.errorStr = ""
-	m.error = nil
+func (m *model) marked() bool {
+	return m.markedIndex(index(m.c, m.r, m.rows))
+}
+
+func (m *model) markedIndex(idx int) bool {
+	_, marked := m.marks[idx]
+	return marked
+}
+
+func (m *model) toggleMark() error {
+	idx := index(m.c, m.r, m.rows)
+	if m.markedIndex(idx) {
+		delete(m.marks, idx)
+		m.modeMarks = len(m.marks) != 0
+		return nil
+	}
+
+	selected, err := m.selected()
+	if err != nil {
+		return err
+	}
+	m.marks[idx] = selected
+	m.modeMarks = true
+	return nil
+}
+
+func (m *model) markAll() {
+	for i, ent := range m.entries {
+		ent := ent
+		m.marks[i] = ent
+	}
+	m.modeMarks = true
+}
+
+func (m *model) clearMarks() {
+	m.marks = make(map[int]*entry)
+	m.modeMarks = false
 }
 
 func (m *model) clearSearch() {

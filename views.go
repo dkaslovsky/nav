@@ -9,9 +9,7 @@ import (
 
 func (m *model) normalView() string {
 	var (
-		// Cache for storing the current state as it is constructed.
-		updateCache = newCacheItem()
-
+		updateCache     = newCacheItem() // Cache for storing the current state as it is constructed.
 		displayNames    = []*displayName{}
 		displayNameOpts = m.displayNameOpts()
 		displayed       = 0
@@ -75,7 +73,13 @@ func (m *model) normalView() string {
 		}
 	}
 
+	// Update the cache.
+	updateCache.setPosition(updateCursorPosition)
+	updateCache.setColumns(layout.columns)
+	updateCache.setRows(layout.rows)
+
 	// Update the model.
+	m.viewCache[m.path] = updateCache
 	m.displayed = displayed
 	m.columns = layout.columns
 	m.rows = layout.rows
@@ -84,20 +88,22 @@ func (m *model) normalView() string {
 		m.resetCursor()
 	}
 
-	// Update the cache.
-	updateCache.setPosition(updateCursorPosition)
-	updateCache.setColumns(layout.columns)
-	updateCache.setRows(layout.rows)
-	m.viewCache[m.path] = updateCache
-
 	// Render entry names in grid.
 	gridOutput := make([]string, layout.rows)
 	for row := 0; row < layout.rows; row++ {
 		for col := 0; col < layout.columns; col++ {
 			if col == m.c && row == m.r {
-				gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
+				if m.marked() {
+					gridOutput[row] += cursorRendererSelectedMarked.Render(gridNames[col][row])
+				} else {
+					gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
+				}
 			} else {
-				gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
+				if m.markedIndex(index(col, row, layout.rows)) {
+					gridOutput[row] += cursorRendererMarked.Render(gridNames[col][row])
+				} else {
+					gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
+				}
 			}
 		}
 	}
@@ -155,15 +161,20 @@ func (m *model) statusBar() string {
 	} else {
 		mode = "NORMAL"
 		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keySearchMode))),
-			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyHelpMode))),
+			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keyModeSearch))),
+			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyModeHelp))),
+			statusBarItem(fmt.Sprintf(`"%s": multiselect`, keyString(keyMark))),
 		}
 	}
 
 	globalCmds := []statusBarItem{
 		statusBarItem(fmt.Sprintf(`"%s": quit`, keyString(keyQuit))),
 		statusBarItem(fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory))),
-		statusBarItem(fmt.Sprintf(`"%s": return sel`, keyString(keyReturnSelected))),
+	}
+	if m.modeMarks {
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return marked`, keyString(keyReturnSelected))))
+	} else {
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return cursor`, keyString(keyReturnSelected))))
 	}
 
 	columns := max(len(cmds), len(globalCmds))
@@ -201,7 +212,7 @@ func (m *model) locationBar() string {
 		err = fmt.Sprintf(
 			"\tERROR (\"%s\": dismiss, \"%s\": debug): %s",
 			keyString(keyDismissError),
-			keyString(keyDebugMode),
+			keyString(keyModeDebug),
 			m.errorStr,
 		)
 		return barRendererError.Render(err + "\t\t")

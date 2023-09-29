@@ -5,8 +5,10 @@ import (
 )
 
 var (
-	cursorRendererSelected = newCursorRenderer(lipgloss.NewStyle().Bold(true).SetString(">"))
-	cursorRendererNormal   = newCursorRenderer(lipgloss.NewStyle().SetString(" "))
+	cursorRendererNormal         = newCursorRenderer(lipgloss.NewStyle().SetString(" "))
+	cursorRendererMarked         = newCursorRenderer(lipgloss.NewStyle().SetString("+"))
+	cursorRendererSelected       = newCursorRenderer(lipgloss.NewStyle().Bold(true).SetString(">"))
+	cursorRendererSelectedMarked = newCursorRenderer(lipgloss.NewStyle().Bold(true).SetString("+"))
 
 	barRendererLocation = lipgloss.NewStyle().Background(lipgloss.Color("#5C5C5C")).Foreground(lipgloss.Color("#FFFFFF"))
 	barRendererSearch   = lipgloss.NewStyle().Background(lipgloss.Color("#499F1C")).Foreground(lipgloss.Color("#FFFFFF"))
