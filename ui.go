@@ -105,15 +105,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 
-		// Marks mode
-
-		if m.modeMarks {
-			if esc || key.Matches(msg, keyEsc) {
-				m.clearMarks()
-				return m, nil
-			}
-		}
-
 		// Search mode
 
 		if m.modeSearch {
@@ -179,6 +170,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 
+			}
+		}
+
+		// Marks mode
+
+		if m.modeMarks {
+			if esc || key.Matches(msg, keyEsc) {
+				m.clearMarks()
+				return m, nil
 			}
 		}
 
@@ -277,15 +277,19 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, keyMark):
-			err := m.toggleMark()
-			if err != nil {
-				m.setError(err, "failed to update mark")
+			if m.normalMode() {
+				err := m.toggleMark()
+				if err != nil {
+					m.setError(err, "failed to update mark")
+				}
+				return m, nil
 			}
-			return m, nil
 
 		case key.Matches(msg, keyMarkAll):
-			m.markAll()
-			return m, nil
+			if m.normalMode() {
+				m.markAll()
+				return m, nil
+			}
 
 		// Change modes
 

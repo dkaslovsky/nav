@@ -73,6 +73,10 @@ func newModel() *model {
 	}
 }
 
+func (m *model) normalMode() bool {
+	return !(m.modeSearch || m.modeDebug || m.modeHelp)
+}
+
 func (m *model) escapableMode() bool {
 	return m.modeSearch || m.modeDebug || m.modeHelp || m.modeMarks
 }
