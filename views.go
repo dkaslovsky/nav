@@ -163,6 +163,7 @@ func (m *model) statusBar() string {
 		cmds = []statusBarItem{
 			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keyModeSearch))),
 			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyModeHelp))),
+			statusBarItem(fmt.Sprintf(`"%s": multiselect`, keyString(keyMark))),
 		}
 	}
 
@@ -171,7 +172,7 @@ func (m *model) statusBar() string {
 		statusBarItem(fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory))),
 	}
 	if m.modeMarks {
-		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return marks `, keyString(keyReturnSelected))))
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return marked`, keyString(keyReturnSelected))))
 	} else {
 		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return cursor`, keyString(keyReturnSelected))))
 	}

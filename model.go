@@ -199,6 +199,14 @@ func (m *model) toggleMark() error {
 	return nil
 }
 
+func (m *model) markAll() {
+	for i, ent := range m.entries {
+		ent := ent
+		m.marks[i] = ent
+	}
+	m.modeMarks = true
+}
+
 func (m *model) clearMarks() {
 	m.marks = make(map[int]*entry)
 	m.modeMarks = false

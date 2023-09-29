@@ -280,6 +280,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
+		case key.Matches(msg, keyMarkAll):
+			m.markAll()
+			return m, nil
+
 		// Change modes
 
 		case key.Matches(msg, keyModeHelp):
