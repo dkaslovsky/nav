@@ -23,7 +23,7 @@ type model struct {
 	esc       *remappedEscKey
 	search    string
 	viewCache map[string]*cacheItem
-	marks     map[int]struct{}
+	marks     map[int]*entry
 
 	c       int // Cursor column position.
 	r       int // Cursor row position.
@@ -52,7 +52,7 @@ func newModel() *model {
 		height:    60,
 		esc:       defaultEscRemapKey(),
 		viewCache: make(map[string]*cacheItem),
-		marks:     make(map[int]struct{}),
+		marks:     make(map[int]*entry),
 
 		modeColor:         true,
 		modeDebug:         false,
@@ -153,6 +153,12 @@ func (m *model) setError(err error, status string) {
 	m.error = err
 }
 
+func (m *model) clearError() {
+	m.modeError = false
+	m.errorStr = ""
+	m.error = nil
+}
+
 func (m *model) setExit(exitStr string) {
 	m.setExitWithCode(exitStr, 0)
 }
@@ -163,10 +169,43 @@ func (m *model) setExitWithCode(exitStr string, exitCode int) {
 	m.exitCode = exitCode
 }
 
-func (m *model) clearError() {
-	m.modeError = false
-	m.errorStr = ""
-	m.error = nil
+func (m *model) marked() bool {
+	return m.markedIndex(index(m.c, m.r, m.rows))
+}
+
+func (m *model) markedIndex(idx int) bool {
+	_, marked := m.marks[idx]
+	return marked
+}
+
+func (m *model) updateMark() error {
+	if m.marked() {
+		m.clearMark()
+		return nil
+	}
+	return m.setMark()
+}
+
+func (m *model) setMark() error {
+	selected, err := m.selected()
+	if err != nil {
+		return err
+	}
+	m.marks[index(m.c, m.r, m.rows)] = selected
+	m.modeMarks = true
+	return nil
+}
+
+func (m *model) clearMark() {
+	delete(m.marks, index(m.c, m.r, m.rows))
+	if len(m.marks) == 0 {
+		m.modeMarks = false
+	}
+}
+
+func (m *model) clearMarks() {
+	m.marks = make(map[int]*entry)
+	m.modeMarks = false
 }
 
 func (m *model) clearSearch() {

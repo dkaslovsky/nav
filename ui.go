@@ -102,12 +102,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		// Marks mode
-		if m.modeMarks {
-			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyModeMarks) {
-				m.modeMarks = false
-			}
 
-			return m, nil
+		if m.modeMarks {
+			if esc || key.Matches(msg, keyEsc) {
+				m.clearMarks()
+				return m, nil
+			}
 		}
 
 		// Search mode
@@ -255,6 +255,13 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
 
+		case key.Matches(msg, keyMark):
+			err := m.updateMark()
+			if err != nil {
+				m.setError(err, "failed to update mark")
+			}
+			return m, nil
+
 		// Change modes
 
 		case key.Matches(msg, keyModeHelp):
@@ -262,9 +269,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyModeSearch):
 			m.modeSearch = true
-
-		case key.Matches(msg, keyModeMarks):
-			m.modeMarks = true
 
 		// Toggles
 

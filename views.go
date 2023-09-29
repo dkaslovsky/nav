@@ -95,15 +95,17 @@ func (m *model) normalView() string {
 	for row := 0; row < layout.rows; row++ {
 		for col := 0; col < layout.columns; col++ {
 			if col == m.c && row == m.r {
-				gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
-			} else {
-				if m.modeMarks {
-					if _, isMarked := m.marks[index(col, row, layout.rows)]; isMarked {
-						gridOutput[row] += cursorRendererMarked.Render(gridNames[col][row])
-						continue
-					}
+				if m.marked() {
+					gridOutput[row] += cursorRendererSelectedMarked.Render(gridNames[col][row])
+				} else {
+					gridOutput[row] += cursorRendererSelected.Render(gridNames[col][row])
 				}
-				gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
+			} else {
+				if m.markedIndex(index(col, row, layout.rows)) {
+					gridOutput[row] += cursorRendererMarked.Render(gridNames[col][row])
+				} else {
+					gridOutput[row] += cursorRendererNormal.Render(gridNames[col][row])
+				}
 			}
 		}
 	}
@@ -169,7 +171,11 @@ func (m *model) statusBar() string {
 	globalCmds := []statusBarItem{
 		statusBarItem(fmt.Sprintf(`"%s": quit`, keyString(keyQuit))),
 		statusBarItem(fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory))),
-		statusBarItem(fmt.Sprintf(`"%s": return sel`, keyString(keyReturnSelected))),
+	}
+	if m.modeMarks {
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return marks `, keyString(keyReturnSelected))))
+	} else {
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return cursor`, keyString(keyReturnSelected))))
 	}
 
 	columns := max(len(cmds), len(globalCmds))
