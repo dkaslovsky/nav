@@ -69,6 +69,10 @@ func newModel() *model {
 	}
 }
 
+func (m *model) escapableMode() bool {
+	return m.modeSearch || m.modeDebug || m.modeHelp || m.modeMarks
+}
+
 func (m *model) list() error {
 	files, err := os.ReadDir(m.path)
 	if err != nil {

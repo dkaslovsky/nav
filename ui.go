@@ -51,7 +51,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Remapped escape logic
 
 		esc := false
-		if m.modeSearch || m.modeDebug || m.modeHelp || m.modeMarks {
+		if m.escapableMode() {
 			if key.Matches(msg, m.esc.key) {
 				if m.esc.triggered() {
 					esc = true
