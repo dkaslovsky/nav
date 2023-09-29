@@ -207,12 +207,23 @@ func (m *model) toggleMark() error {
 	return nil
 }
 
-func (m *model) markAll() {
+func (m *model) markAll() error {
+	m.marks = make(map[int]*entry)
+	cache, ok := m.viewCache[m.path]
+	if !ok {
+		return errors.New("failed to load path cache")
+	}
+	if !cache.hasIndexes() {
+		return errors.New("failed to load indexes from path cache")
+	}
 	for i, ent := range m.entries {
 		ent := ent
-		m.marks[i] = ent
+		if idx, ok := cache.lookupDisplayIndex(i); ok && idx < m.displayed {
+			m.marks[idx] = ent
+		}
 	}
-	m.modeMarks = true
+	m.modeMarks = len(m.marks) != 0
+	return nil
 }
 
 func (m *model) clearMarks() {

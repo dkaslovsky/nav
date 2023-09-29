@@ -198,9 +198,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			paths := []string{}
 
 			if m.modeMarks {
-				for _, marked := range m.marks {
-					marked := marked
-					selecteds = append(selecteds, marked)
+				for idx, marked := range m.marks {
+					if idx < m.displayed {
+						marked := marked
+						selecteds = append(selecteds, marked)
+					}
 				}
 				sortEntries(selecteds)
 			} else {
@@ -287,7 +289,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyMarkAll):
 			if m.normalMode() {
-				m.markAll()
+				err := m.markAll()
+				if err != nil {
+					m.setError(err, "failed to mark all entries")
+					return m, nil
+				}
 				return m, nil
 			}
 
