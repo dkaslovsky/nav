@@ -190,39 +190,40 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, keyReturnSelected):
-			// if m.modeMarks {
-			// 	marked := []string{}
-			// 	for _, ent := range m.marks {
-			// 		ent := ent
-			// 		marked = append(marked, ent.Name())
-			// 	}
+			selecteds := []*entry{}
+			paths := []string{}
 
-			// 	m.setExit(strings.Join(marked, " "))
-			// 	if m.modeSubshell {
-			// 		fmt.Print(m.exitStr)
-			// 	}
-			// 	return m, tea.Quit
-			// }
-
-			selected, err := m.selected()
-			if err != nil {
-				m.setError(err, "failed to select entry")
-				return m, nil
-			}
-
-			var path string
-			if selected.hasMode(entryModeSymlink) {
-				sl, err := followSymlink(m.path, selected)
+			if m.modeMarks {
+				for _, marked := range m.marks {
+					marked := marked
+					selecteds = append(selecteds, marked)
+				}
+				sortEntries(selecteds)
+			} else {
+				selected, err := m.selected()
 				if err != nil {
-					m.setError(err, "failed to evaluate symlink")
+					m.setError(err, "failed to select entry")
 					return m, nil
 				}
-				path = sl.absPath
-			} else {
-				path = filepath.Join(m.path, selected.Name())
+				selecteds = append(selecteds, selected)
 			}
 
-			m.setExit(sanitizeOutputPath(path))
+			for _, selected := range selecteds {
+				var path string
+				if selected.hasMode(entryModeSymlink) {
+					sl, err := followSymlink(m.path, selected)
+					if err != nil {
+						m.setError(err, "failed to evaluate symlink")
+						return m, nil
+					}
+					path = sanitizeOutputPath(sl.absPath)
+				} else {
+					path = sanitizeOutputPath(filepath.Join(m.path, selected.Name()))
+				}
+				paths = append(paths, path)
+			}
+
+			m.setExit(strings.Join(paths, " "))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
