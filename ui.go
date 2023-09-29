@@ -245,6 +245,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Selectors
 
 		case key.Matches(msg, keySelect):
+			m.clearMarks()
 			return m.selectAction()
 
 		case key.Matches(msg, keyBack):
@@ -265,6 +266,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			m.clearSearch()
+			m.clearMarks()
 
 			// Return to ensure the cursor is not re-saved using the updated path.
 			return m, nil
@@ -283,6 +285,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, keyModeSearch):
 			m.modeSearch = true
+			m.clearMarks()
 
 		// Toggles
 
