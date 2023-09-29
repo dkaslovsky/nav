@@ -44,6 +44,8 @@ type model struct {
 	modeSearch        bool
 	modeSubshell      bool
 	modeTrailing      bool
+
+	hideStatusBar bool
 }
 
 func newModel() *model {
@@ -66,6 +68,8 @@ func newModel() *model {
 		modeSearch:        false,
 		modeSubshell:      false,
 		modeTrailing:      true,
+
+		hideStatusBar: false,
 	}
 }
 

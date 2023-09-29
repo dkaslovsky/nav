@@ -149,6 +149,7 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	--list, -l:               toggle on list mode at startup
 
 	--no-color:               toggle off color output
+	--no-status-bar:          toggle off bottom status bar menu
 	--no-trailing:            toggle off trailing annotators
 
 	--remap-esc:              remap the escape key to the following value, using
