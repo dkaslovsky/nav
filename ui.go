@@ -98,6 +98,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.modeHelp = false
 			}
 
+			// Unconditional return to disable all other functionality.
 			return m, nil
 		}
 

@@ -9,9 +9,7 @@ import (
 
 func (m *model) normalView() string {
 	var (
-		// Cache for storing the current state as it is constructed.
-		updateCache = newCacheItem()
-
+		updateCache     = newCacheItem() // Cache for storing the current state as it is constructed.
 		displayNames    = []*displayName{}
 		displayNameOpts = m.displayNameOpts()
 		displayed       = 0
@@ -75,7 +73,13 @@ func (m *model) normalView() string {
 		}
 	}
 
+	// Update the cache.
+	updateCache.setPosition(updateCursorPosition)
+	updateCache.setColumns(layout.columns)
+	updateCache.setRows(layout.rows)
+
 	// Update the model.
+	m.viewCache[m.path] = updateCache
 	m.displayed = displayed
 	m.columns = layout.columns
 	m.rows = layout.rows
@@ -83,12 +87,6 @@ func (m *model) normalView() string {
 	if m.c >= m.columns || m.r > m.rows {
 		m.resetCursor()
 	}
-
-	// Update the cache.
-	updateCache.setPosition(updateCursorPosition)
-	updateCache.setColumns(layout.columns)
-	updateCache.setRows(layout.rows)
-	m.viewCache[m.path] = updateCache
 
 	// Render entry names in grid.
 	gridOutput := make([]string, layout.rows)

@@ -18,13 +18,12 @@ var (
 	keyTab           = key.NewBinding(key.WithKeys("tab"))
 	keyFileSeparator = key.NewBinding(key.WithKeys(fileSeparator))
 	keySpace         = key.NewBinding(key.WithKeys(" "))
+	keyMark          = key.NewBinding(key.WithKeys("m"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
 	keyDown  = key.NewBinding(key.WithKeys("down", "j"))
 	keyLeft  = key.NewBinding(key.WithKeys("left", "h"))
 	keyRight = key.NewBinding(key.WithKeys("right", "l"))
-
-	keyMark = key.NewBinding(key.WithKeys("m"))
 
 	keyModeDebug  = key.NewBinding(key.WithKeys("d"))
 	keyModeHelp   = key.NewBinding(key.WithKeys("H"))
