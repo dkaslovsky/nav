@@ -51,7 +51,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Remapped escape logic
 
 		esc := false
-		if m.modeSearch || m.modeDebug || m.modeHelp {
+		if m.modeSearch || m.modeDebug || m.modeHelp || m.modeMarks {
 			if key.Matches(msg, m.esc.key) {
 				if m.esc.triggered() {
 					esc = true
@@ -68,7 +68,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// Debug mode
 
 			if m.modeDebug {
-				if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyDebugMode) {
+				if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyModeDebug) {
 					m.modeDebug = false
 				}
 
@@ -84,7 +84,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.clearError()
 			}
 
-			if key.Matches(msg, keyDebugMode) {
+			if key.Matches(msg, keyModeDebug) {
 				m.modeDebug = true
 			}
 
@@ -94,8 +94,17 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Help mode
 
 		if m.modeHelp {
-			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyHelpMode) {
+			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyModeHelp) {
 				m.modeHelp = false
+			}
+
+			return m, nil
+		}
+
+		// Marks mode
+		if m.modeMarks {
+			if esc || key.Matches(msg, keyEsc) || key.Matches(msg, keyModeMarks) {
+				m.modeMarks = false
 			}
 
 			return m, nil
@@ -248,11 +257,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Change modes
 
-		case key.Matches(msg, keyHelpMode):
+		case key.Matches(msg, keyModeHelp):
 			m.modeHelp = true
 
-		case key.Matches(msg, keySearchMode):
+		case key.Matches(msg, keyModeSearch):
 			m.modeSearch = true
+
+		case key.Matches(msg, keyModeMarks):
+			m.modeMarks = true
 
 		// Toggles
 
