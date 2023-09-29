@@ -102,6 +102,7 @@ func flags() string {
 		usageFlagLine("toggle on list mode at startup", flagList, flagListShort),
 		"",
 		usageFlagLine("toggle off color output", flagNoColor),
+		usageFlagLine("toggle off bottom status bar menu", flagNoStatusBar),
 		usageFlagLine("toggle off trailing annotators", flagNoTrailing),
 		"",
 		usageFlagLine("remap the escape key to the following value, using\nrepeated values to require multiple presses", flagRemapEsc),

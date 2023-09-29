@@ -28,6 +28,9 @@ func (m *model) View() string {
 	} else {
 		view = m.normalView()
 	}
+	if m.hideStatusBar {
+		return view
+	}
 	return strings.Join([]string{view, m.statusBar()}, "\n")
 }
 

@@ -33,6 +33,7 @@ const (
 	flagList                = "--list"
 	flagListShort           = "-l"
 	flagNoColor             = "--no-color"
+	flagNoStatusBar         = "--no-status-bar"
 	flagNoTrailing          = "--no-trailing"
 	flagRemapEsc            = "--remap-esc"
 )
@@ -94,6 +95,8 @@ func parseArgs(args []string, m *model) error {
 			m.modeColor = false
 		case flagNoTrailing:
 			m.modeTrailing = false
+		case flagNoStatusBar:
+			m.hideStatusBar = true
 		case flagRemapEsc:
 			if i > len(args)-2 {
 				return fmt.Errorf("%s must be followed by a string value", flagRemapEsc)
