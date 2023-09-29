@@ -178,29 +178,21 @@ func (m *model) markedIndex(idx int) bool {
 	return marked
 }
 
-func (m *model) updateMark() error {
-	if m.marked() {
-		m.clearMark()
+func (m *model) toggleMark() error {
+	idx := index(m.c, m.r, m.rows)
+	if m.markedIndex(idx) {
+		delete(m.marks, idx)
+		m.modeMarks = len(m.marks) != 0
 		return nil
 	}
-	return m.setMark()
-}
 
-func (m *model) setMark() error {
 	selected, err := m.selected()
 	if err != nil {
 		return err
 	}
-	m.marks[index(m.c, m.r, m.rows)] = selected
+	m.marks[idx] = selected
 	m.modeMarks = true
 	return nil
-}
-
-func (m *model) clearMark() {
-	delete(m.marks, index(m.c, m.r, m.rows))
-	if len(m.marks) == 0 {
-		m.modeMarks = false
-	}
 }
 
 func (m *model) clearMarks() {

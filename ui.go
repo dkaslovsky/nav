@@ -190,6 +190,20 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, keyReturnSelected):
+			// if m.modeMarks {
+			// 	marked := []string{}
+			// 	for _, ent := range m.marks {
+			// 		ent := ent
+			// 		marked = append(marked, ent.Name())
+			// 	}
+
+			// 	m.setExit(strings.Join(marked, " "))
+			// 	if m.modeSubshell {
+			// 		fmt.Print(m.exitStr)
+			// 	}
+			// 	return m, tea.Quit
+			// }
+
 			selected, err := m.selected()
 			if err != nil {
 				m.setError(err, "failed to select entry")
@@ -256,7 +270,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case key.Matches(msg, keyMark):
-			err := m.updateMark()
+			err := m.toggleMark()
 			if err != nil {
 				m.setError(err, "failed to update mark")
 			}
