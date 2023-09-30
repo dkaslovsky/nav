@@ -54,7 +54,7 @@ func commands() string {
 		usageKeyLine("enters search mode (insert into the path)", keyModeSearch),
 		usageKeyLine("enters debug mode  (view error details)", keyModeDebug),
 		usageKeyLine("enters help mode", keyModeHelp),
-		usageKeyLine("switches back to normal mode or clears normal mode search filter", keyEsc),
+		usageKeyLine("switches back to normal mode or clears search filter in normal mode", keyEsc),
 		"",
 		usageKeyLine("(un)marks an entry for multiselect return", keyMark),
 		usageKeyLine("(un)marks all entries for multiselect return", keyMarkAll),
