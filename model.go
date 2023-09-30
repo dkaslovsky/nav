@@ -77,10 +77,6 @@ func (m *model) normalMode() bool {
 	return !(m.modeSearch || m.modeDebug || m.modeHelp)
 }
 
-func (m *model) escapableMode() bool {
-	return m.modeSearch || m.modeDebug || m.modeHelp || m.modeMarks
-}
-
 func (m *model) list() error {
 	files, err := os.ReadDir(m.path)
 	if err != nil {
@@ -205,6 +201,23 @@ func (m *model) toggleMark() error {
 	m.marks[idx] = selected
 	m.modeMarks = true
 	return nil
+}
+
+func (m *model) toggleMarkAll() error {
+	allMarked := true
+	for i := 0; i < m.displayed; i++ {
+		if _, marked := m.marks[i]; !marked {
+			allMarked = false
+			break
+		}
+	}
+
+	if allMarked {
+		m.clearMarks()
+		return nil
+	} else {
+		return m.markAll()
+	}
 }
 
 func (m *model) markAll() error {

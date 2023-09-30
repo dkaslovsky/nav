@@ -18,8 +18,9 @@ var (
 	keyTab           = key.NewBinding(key.WithKeys("tab"))
 	keyFileSeparator = key.NewBinding(key.WithKeys(fileSeparator))
 	keySpace         = key.NewBinding(key.WithKeys(" "))
-	keyMark          = key.NewBinding(key.WithKeys("m"))
-	keyMarkAll       = key.NewBinding(key.WithKeys("ctrl+a"))
+
+	keyMark    = key.NewBinding(key.WithKeys("ctrl+v"))
+	keyMarkAll = key.NewBinding(key.WithKeys("ctrl+a"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
 	keyDown  = key.NewBinding(key.WithKeys("down", "j"))

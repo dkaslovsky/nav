@@ -26,7 +26,7 @@ func (m *model) normalView() string {
 		validEntries++
 
 		// Filter for search.
-		if m.modeSearch && m.search != "" {
+		if m.search != "" {
 			if !strings.HasPrefix(ent.Name(), m.search) {
 				continue
 			}
@@ -41,7 +41,7 @@ func (m *model) normalView() string {
 		return m.locationBar() + "\n\n\t(no entries)\n"
 	}
 
-	if m.modeSearch {
+	if m.modeSearch || m.search != "" {
 		if displayed == 0 && validEntries > 0 {
 			return m.locationBar() + "\n\n\t(no matching entries)\n"
 		}
@@ -219,7 +219,7 @@ func (m *model) locationBar() string {
 	}
 
 	locationBar := barRendererLocation.Render(m.location())
-	if m.modeSearch {
+	if m.modeSearch || m.search != "" {
 		if m.path != fileSeparator {
 			locationBar += barRendererSearch.Render(fileSeparator + m.search)
 		}
