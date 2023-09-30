@@ -54,14 +54,12 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Remapped escape logic
 
 		esc := false
-		if m.escapableMode() {
-			if key.Matches(msg, m.esc.key) {
-				if m.esc.triggered() {
-					esc = true
-				}
-			} else {
-				m.esc.reset()
+		if key.Matches(msg, m.esc.key) {
+			if m.esc.triggered() {
+				esc = true
 			}
+		} else {
+			m.esc.reset()
 		}
 
 		// Error mode
@@ -109,13 +107,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if m.modeSearch {
 			if esc || key.Matches(msg, keyEsc) {
-				m.clearSearch()
+				// Exit search mode but keep the search filter active in normal mode.
+				m.modeSearch = false
 				return m, nil
 			}
 
 			switch {
 
-			// Do not allow remapped escape key in the search.
+			// Do not allow remapped escape key character as part of the search.
 			case key.Matches(msg, m.esc.key):
 				return m, nil
 
@@ -176,13 +175,21 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Marks mode
 
 		if m.modeMarks {
-			if esc || key.Matches(msg, keyEsc) {
-				m.clearMarks()
+			if key.Matches(msg, keyMarkAll) {
+				err := m.toggleMarkAll()
+				if err != nil {
+					m.setError(err, "failed to update marks")
+				}
 				return m, nil
 			}
 		}
 
 		switch {
+
+		// Normal mode escape
+		case esc || key.Matches(msg, keyEsc):
+			m.clearSearch()
+			return m, nil
 
 		// Return
 
@@ -198,10 +205,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			paths := []string{}
 
 			if m.modeMarks {
-				for idx, marked := range m.marks {
-					if idx < m.displayed {
-						marked := marked
-						selecteds = append(selecteds, marked)
+				for _, entryIdx := range m.marks {
+					if entryIdx < len(m.entries) {
+						selecteds = append(selecteds, m.entries[entryIdx])
 					}
 				}
 				sortEntries(selecteds)
