@@ -87,10 +87,7 @@ func (m *model) normalView() string {
 	if m.c >= m.columns || m.r > m.rows {
 		m.resetCursor()
 	}
-
-	// Update marks.
-	err := m.reloadMarks()
-	if err != nil {
+	if err := m.reloadMarks(); err != nil {
 		m.setError(err, "failed to update marks")
 	}
 
