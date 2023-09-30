@@ -205,10 +205,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			paths := []string{}
 
 			if m.modeMarks {
-				for idx, marked := range m.marks {
-					if idx < m.displayed {
-						marked := marked
-						selecteds = append(selecteds, marked)
+				for _, entryIdx := range m.marks {
+					if entryIdx < len(m.entries) {
+						selecteds = append(selecteds, m.entries[entryIdx])
 					}
 				}
 				sortEntries(selecteds)

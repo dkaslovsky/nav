@@ -30,11 +30,11 @@ func (m *model) setCursor(pos *position) {
 
 func (m *model) saveCursor() {
 	pos := &position{c: m.c, r: m.r}
-	if cache, ok := m.viewCache[m.path]; ok {
+	if cache, ok := m.pathCache[m.path]; ok {
 		cache.setPosition(pos)
 		return
 	}
-	m.viewCache[m.path] = newCacheItemWithPosition(pos)
+	m.pathCache[m.path] = newCacheItemWithPosition(pos)
 }
 
 func (m *model) moveUp() {

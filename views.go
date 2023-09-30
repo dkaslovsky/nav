@@ -62,7 +62,7 @@ func (m *model) normalView() string {
 
 	// Retrieve cached cursor position and index mappings to set cursor position for current state.
 	updateCursorPosition := &position{c: 0, r: 0}
-	if cache, found := m.viewCache[m.path]; found && cache.hasIndexes() {
+	if cache, found := m.pathCache[m.path]; found && cache.hasIndexes() {
 		// Lookup the entry index using the cached cursor (display) position.
 		if entryIdx, entryFound := cache.lookupEntryIndex(cache.cursorIndex()); entryFound {
 			// Use the entry index to get the current display index.
@@ -79,13 +79,19 @@ func (m *model) normalView() string {
 	updateCache.setRows(layout.rows)
 
 	// Update the model.
-	m.viewCache[m.path] = updateCache
+	m.pathCache[m.path] = updateCache
 	m.displayed = displayed
 	m.columns = layout.columns
 	m.rows = layout.rows
 	m.setCursor(updateCursorPosition)
 	if m.c >= m.columns || m.r > m.rows {
 		m.resetCursor()
+	}
+
+	// Update marks.
+	err := m.reloadMarks()
+	if err != nil {
+		m.setError(err, "failed to update marks")
 	}
 
 	// Render entry names in grid.

@@ -22,8 +22,8 @@ type model struct {
 	errorStr  string
 	esc       *remappedEscKey
 	search    string
-	viewCache map[string]*cacheItem
-	marks     map[int]*entry
+	pathCache map[string]*cacheItem // Map path to cached state.
+	marks     map[int]int           // Map display index to entry index for marked entries.
 
 	c       int // Cursor column position.
 	r       int // Cursor row position.
@@ -53,8 +53,8 @@ func newModel() *model {
 		width:     80,
 		height:    60,
 		esc:       defaultEscRemapKey(),
-		viewCache: make(map[string]*cacheItem),
-		marks:     make(map[int]*entry),
+		pathCache: make(map[string]*cacheItem),
+		marks:     make(map[int]int),
 
 		modeColor:         true,
 		modeDebug:         false,
@@ -97,7 +97,7 @@ func (m *model) list() error {
 }
 
 func (m *model) selected() (*entry, error) {
-	cache, ok := m.viewCache[m.path]
+	cache, ok := m.pathCache[m.path]
 	if !ok {
 		return nil, fmt.Errorf("cache item not found for %s", m.path)
 	}
@@ -178,27 +178,46 @@ func (m *model) setExitWithCode(exitStr string, exitCode int) {
 }
 
 func (m *model) marked() bool {
-	return m.markedIndex(index(m.c, m.r, m.rows))
+	return m.markedIndex(m.displayIndex())
 }
 
-func (m *model) markedIndex(idx int) bool {
-	_, marked := m.marks[idx]
+func (m *model) markedIndex(dispIdx int) bool {
+	_, marked := m.marks[dispIdx]
 	return marked
 }
 
+func (m *model) reloadMarks() error {
+	newMarks := make(map[int]int)
+	cache, ok := m.pathCache[m.path]
+	if !ok || !cache.hasIndexes() {
+		return errors.New("failed to load page cache indexes")
+	}
+	for _, entryIdx := range m.marks {
+		if newDisplayIdx, ok := cache.lookupDisplayIndex(entryIdx); ok {
+			newMarks[newDisplayIdx] = entryIdx
+		}
+	}
+	m.marks = newMarks
+	return nil
+}
+
 func (m *model) toggleMark() error {
-	idx := index(m.c, m.r, m.rows)
+	idx := m.displayIndex()
 	if m.markedIndex(idx) {
 		delete(m.marks, idx)
 		m.modeMarks = len(m.marks) != 0
 		return nil
 	}
 
-	selected, err := m.selected()
-	if err != nil {
-		return err
+	cache, ok := m.pathCache[m.path]
+	if !ok || !cache.hasIndexes() {
+		return errors.New("failed to load page cache indexes")
 	}
-	m.marks[idx] = selected
+	entryIdx, ok := cache.lookupEntryIndex(idx)
+	if !ok {
+		return errors.New("failed to find entry index")
+	}
+	m.marks[idx] = entryIdx
 	m.modeMarks = true
 	return nil
 }
@@ -221,18 +240,14 @@ func (m *model) toggleMarkAll() error {
 }
 
 func (m *model) markAll() error {
-	m.marks = make(map[int]*entry)
-	cache, ok := m.viewCache[m.path]
-	if !ok {
-		return errors.New("failed to load path cache")
+	m.marks = make(map[int]int)
+	cache, ok := m.pathCache[m.path]
+	if !ok || !cache.hasIndexes() {
+		return errors.New("failed to load page cache indexes")
 	}
-	if !cache.hasIndexes() {
-		return errors.New("failed to load indexes from path cache")
-	}
-	for i, ent := range m.entries {
-		ent := ent
-		if idx, ok := cache.lookupDisplayIndex(i); ok && idx < m.displayed {
-			m.marks[idx] = ent
+	for i := 0; i < m.displayed; i++ {
+		if entryIdx, ok := cache.lookupEntryIndex(i); ok {
+			m.marks[i] = entryIdx
 		}
 	}
 	m.modeMarks = len(m.marks) != 0
@@ -240,7 +255,7 @@ func (m *model) markAll() error {
 }
 
 func (m *model) clearMarks() {
-	m.marks = make(map[int]*entry)
+	m.marks = make(map[int]int)
 	m.modeMarks = false
 }
 
