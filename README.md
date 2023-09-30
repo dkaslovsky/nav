@@ -27,7 +27,7 @@ function nv {
 
 ```bash
 # interactive ls + clipboard
-function ncp {
+function nvcp {
 	nav --pipe "$@" | pbcopy
 }
 ```
@@ -38,7 +38,7 @@ function ncp {
 
 ```bash
 # interactive ls + multi cat
-function ncp {
+function nvcat {
 	nav --pipe "$@" | xargs cat
 }
 ```
