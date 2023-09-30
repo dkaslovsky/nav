@@ -132,10 +132,10 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	"i":           enters search mode (insert into the path)
 	"d":           enters debug mode  (view error details)
 	"H":           enters help mode
-	"esc":         switches back to normal mode or clears marked entries
+	"esc":         switches back to normal mode or clears normal mode search filter
 
-	"m":           marks an entry for multiselect return
-	"ctrl+a":      marks all entries for multiselect return
+	"ctrl+m":      (un)marks an entry for multiselect return
+	"ctrl+a":      (un)marks all entries for multiselect return
 
 	"a":           toggles showing hidden files (ls -a)
 	"L":           toggles listing full file information (ls -l)
