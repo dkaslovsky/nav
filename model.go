@@ -187,6 +187,9 @@ func (m *model) markedIndex(dispIdx int) bool {
 }
 
 func (m *model) reloadMarks() error {
+	if len(m.marks) == 0 {
+		return nil
+	}
 	newMarks := make(map[int]int)
 	cache, ok := m.pathCache[m.path]
 	if !ok || !cache.hasIndexes() {
