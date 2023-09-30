@@ -19,7 +19,7 @@ var (
 	keyFileSeparator = key.NewBinding(key.WithKeys(fileSeparator))
 	keySpace         = key.NewBinding(key.WithKeys(" "))
 
-	keyMark    = key.NewBinding(key.WithKeys("ctrl+m"))
+	keyMark    = key.NewBinding(key.WithKeys("ctrl+v"))
 	keyMarkAll = key.NewBinding(key.WithKeys("ctrl+a"))
 
 	keyUp    = key.NewBinding(key.WithKeys("up", "k"))
