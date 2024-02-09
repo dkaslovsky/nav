@@ -51,6 +51,7 @@ func (m *model) toggleMark() error {
 }
 
 func (m *model) toggleMarkAll() error {
+	// Check if all displayed entries are marked to determine toggle behavior.
 	allMarked := true
 	for i := 0; i < m.displayed; i++ {
 		if _, marked := m.marks[i]; !marked {
@@ -62,9 +63,8 @@ func (m *model) toggleMarkAll() error {
 	if allMarked {
 		m.clearMarks()
 		return nil
-	} else {
-		return m.markAll()
 	}
+	return m.markAll()
 }
 
 func (m *model) markAll() error {
