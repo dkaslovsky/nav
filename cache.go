@@ -1,11 +1,11 @@
 package main
 
 type cacheItem struct {
-	cursorPosition       *position
-	entryToDisplayIndex  map[int]int
-	displayToEntityIndex map[int]int
-	columns              int
-	rows                 int
+	cursorPosition *position
+	entryToDisplay map[int]int
+	displayToEntry map[int]int
+	columns        int
+	rows           int
 }
 
 func newCacheItem() *cacheItem {
@@ -14,9 +14,9 @@ func newCacheItem() *cacheItem {
 
 func newCacheItemWithPosition(pos *position) *cacheItem {
 	return &cacheItem{
-		cursorPosition:       pos,
-		entryToDisplayIndex:  make(map[int]int),
-		displayToEntityIndex: make(map[int]int),
+		cursorPosition: pos,
+		entryToDisplay: make(map[int]int),
+		displayToEntry: make(map[int]int),
 	}
 }
 
@@ -26,8 +26,8 @@ type indexPair struct {
 }
 
 func (ci *cacheItem) addIndexPair(pair *indexPair) {
-	ci.entryToDisplayIndex[pair.entry] = pair.display
-	ci.displayToEntityIndex[pair.display] = pair.entry
+	ci.entryToDisplay[pair.entry] = pair.display
+	ci.displayToEntry[pair.display] = pair.entry
 }
 
 func (ci *cacheItem) setPosition(pos *position) {
@@ -43,16 +43,16 @@ func (ci *cacheItem) setRows(r int) {
 }
 
 func (ci *cacheItem) hasIndexes() bool {
-	return len(ci.entryToDisplayIndex) > 0 && len(ci.displayToEntityIndex) > 0
+	return len(ci.entryToDisplay) > 0 && len(ci.displayToEntry) > 0
 }
 
 func (ci *cacheItem) lookupEntryIndex(displayIdx int) (int, bool) {
-	entryIdx, ok := ci.displayToEntityIndex[displayIdx]
+	entryIdx, ok := ci.displayToEntry[displayIdx]
 	return entryIdx, ok
 }
 
 func (ci *cacheItem) lookupDisplayIndex(entryIdx int) (int, bool) {
-	displayIdx, ok := ci.entryToDisplayIndex[entryIdx]
+	displayIdx, ok := ci.entryToDisplay[entryIdx]
 	return displayIdx, ok
 }
 
