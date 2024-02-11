@@ -46,10 +46,6 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 
-		if result := actionQuit(m, msg, esc); !result.noop {
-			return m, result.cmd
-		}
-
 		// Remapped escape logic
 		if key.Matches(msg, m.esc.key) {
 			if m.esc.triggered() {
@@ -57,6 +53,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		} else {
 			m.esc.reset()
+		}
+
+		if result := actionQuit(m, msg, esc); !result.noop {
+			return m, result.cmd
 		}
 
 		if m.modeError {
