@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/dkaslovsky/nav/internal/sanitize"
 )
 
 func (m *model) selectAction() (*model, tea.Cmd) {
@@ -19,7 +20,7 @@ func (m *model) selectAction() (*model, tea.Cmd) {
 	m.saveCursor()
 
 	if selected.hasMode(entryModeFile) {
-		m.setExit(sanitizeOutputPath(filepath.Join(m.path, selected.Name())))
+		m.setExit(sanitize.SanitizeOutputPath(filepath.Join(m.path, selected.Name())))
 		if m.modeSubshell {
 			fmt.Print(m.exitStr)
 		}
@@ -33,7 +34,7 @@ func (m *model) selectAction() (*model, tea.Cmd) {
 		}
 		if !sl.info.IsDir() {
 			// The symlink points to a file.
-			m.setExit(sanitizeOutputPath(sl.absPath))
+			m.setExit(sanitize.SanitizeOutputPath(sl.absPath))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
@@ -77,7 +78,7 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 	}
 
 	if selected.hasMode(entryModeFile) {
-		m.setExit(sanitizeOutputPath(filepath.Join(m.path, selected.Name())))
+		m.setExit(sanitize.SanitizeOutputPath(filepath.Join(m.path, selected.Name())))
 		if m.modeSubshell {
 			fmt.Print(m.exitStr)
 		}
@@ -91,7 +92,7 @@ func (m *model) searchSelectAction() (*model, tea.Cmd) {
 		}
 		if !sl.info.IsDir() {
 			// The symlink points to a file.
-			m.setExit(sanitizeOutputPath(sl.absPath))
+			m.setExit(sanitize.SanitizeOutputPath(sl.absPath))
 			if m.modeSubshell {
 				fmt.Print(m.exitStr)
 			}
