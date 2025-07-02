@@ -7,6 +7,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/dkaslovsky/nav/internal/sanitize"
 )
 
 func (m *model) Init() tea.Cmd {
@@ -257,7 +259,7 @@ func actionModeGeneral(m *model, msg tea.KeyMsg, esc bool) actionResult {
 	// Return
 
 	case key.Matches(msg, keyReturnDirectory):
-		m.setExit(sanitizeOutputPath(m.path))
+		m.setExit(sanitize.SanitizeOutputPath(m.path))
 		if m.modeSubshell {
 			fmt.Print(m.exitStr)
 		}
@@ -291,9 +293,9 @@ func actionModeGeneral(m *model, msg tea.KeyMsg, esc bool) actionResult {
 					m.setError(err, "failed to evaluate symlink")
 					return newActionResult(nil)
 				}
-				path = sanitizeOutputPath(sl.absPath)
+				path = sanitize.SanitizeOutputPath(sl.absPath)
 			} else {
-				path = sanitizeOutputPath(filepath.Join(m.path, selected.Name()))
+				path = sanitize.SanitizeOutputPath(filepath.Join(m.path, selected.Name()))
 			}
 			paths = append(paths, path)
 		}
@@ -390,8 +392,4 @@ func actionModeGeneral(m *model, msg tea.KeyMsg, esc bool) actionResult {
 	}
 
 	return newActionResultNoop()
-}
-
-func sanitizeOutputPath(s string) string {
-	return strings.Replace(s, " ", "\\ ", -1)
 }
