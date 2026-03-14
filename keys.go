@@ -29,7 +29,7 @@ var (
 
 	keyModeDebug  = key.NewBinding(key.WithKeys("d"))
 	keyModeHelp   = key.NewBinding(key.WithKeys("H"))
-	keyModeSearch = key.NewBinding(key.WithKeys("i"))
+	keyModeSearch = key.NewBinding(key.WithKeys("i", "/"))
 
 	keyToggleFollowSymlink = key.NewBinding(key.WithKeys("f"))
 	keyToggleHidden        = key.NewBinding(key.WithKeys("a"))
