@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	keyQuit            = key.NewBinding(key.WithKeys("ctrl+c"))
+	keyQuit            = key.NewBinding(key.WithKeys("ctrl+c", "q"))
 	keyReturnDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
 	keyReturnSelected  = key.NewBinding(key.WithKeys("ctrl+x"))
 
