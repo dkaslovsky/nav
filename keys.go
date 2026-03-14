@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	keyQuit            = key.NewBinding(key.WithKeys("ctrl+c"))
+	keyQuit            = key.NewBinding(key.WithKeys("ctrl+c", "q"))
 	keyReturnDirectory = key.NewBinding(key.WithKeys("ctrl+d"))
 	keyReturnSelected  = key.NewBinding(key.WithKeys("ctrl+x"))
 
@@ -29,7 +29,7 @@ var (
 
 	keyModeDebug  = key.NewBinding(key.WithKeys("d"))
 	keyModeHelp   = key.NewBinding(key.WithKeys("H"))
-	keyModeSearch = key.NewBinding(key.WithKeys("i"))
+	keyModeSearch = key.NewBinding(key.WithKeys("i", "/"))
 
 	keyToggleFollowSymlink = key.NewBinding(key.WithKeys("f"))
 	keyToggleHidden        = key.NewBinding(key.WithKeys("a"))

@@ -369,6 +369,14 @@ func actionModeGeneral(m *model, msg tea.KeyMsg, esc bool) actionResult {
 			return newActionResult(nil)
 		}
 
+	// Return current directory
+	case key.Matches(msg, keyModeDebug):
+		m.setExit(sanitize.SanitizeOutputPath(m.path))
+		if m.modeSubshell {
+			fmt.Print(m.exitStr)
+		}
+		return newActionResult(tea.Quit)
+
 	// Change modes
 
 	case key.Matches(msg, keyModeHelp):
