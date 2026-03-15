@@ -127,10 +127,10 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	"backspace":   navigates back to the previous directory
 
 	"ctrl+x":      returns the path(s) to the current entry or all marked entries
-	"ctrl+d":      returns the path to the current directory
+	"ctrl+d, d":   returns the path to the current directory
 
-	"i":           enters search mode (insert into the path)
-	"d":           enters debug mode  (view error details)
+	"i, /":        enters search mode (insert into the path)
+	"d":           enters debug mode (error details) for errors, otherwise as above
 	"H":           enters help mode
 	"esc":         switches back to normal mode or clears search filter in normal mode
 
@@ -142,7 +142,7 @@ In the future, `nav` might support a wider range of `ls` options and configurati
 	"f":           toggles following symlinks
 
 	"e":           dismisses errors
-	"ctrl+c":      quits the application with no return value
+	"ctrl+c, q":   quits the application with no return value
 
 <br/>
 

@@ -215,11 +215,11 @@ func actionModeSearch(m *model, msg tea.KeyMsg, esc bool) actionResult {
 
 	case key.Matches(msg, keyFileSeparator):
 		if m.displayed != 1 {
-			m.search += keyString(keyFileSeparator)
+			m.search += keyStringFirst(keyFileSeparator)
 			return newActionResult(nil)
 		}
 		if selected, err := m.selected(); err == nil && selected.hasMode(entryModeFile) {
-			m.search += keyString(keyFileSeparator)
+			m.search += keyStringFirst(keyFileSeparator)
 			return newActionResult(nil)
 		}
 		_, cmd := m.searchSelectAction()
@@ -370,7 +370,7 @@ func actionModeGeneral(m *model, msg tea.KeyMsg, esc bool) actionResult {
 		}
 
 	// Return current directory
-	case key.Matches(msg, keyModeDebug):
+	case key.Matches(msg, keyReturnDirectory):
 		m.setExit(sanitize.SanitizeOutputPath(m.path))
 		if m.modeSubshell {
 			fmt.Print(m.exitStr)

@@ -23,7 +23,7 @@ func commands() string {
 	pad := 12
 
 	usageKeyLine := func(text string, key key.Binding) string {
-		keyStr := keyString(key)
+		keyStr := keyStringAll(key)
 		textParts := strings.Split(text, "\n")
 		s := []string{
 			fmt.Sprintf("\t\"%s\":%s%s", keyStr, strings.Repeat(" ", pad-len(keyStr)), textParts[0]),
@@ -52,7 +52,7 @@ func commands() string {
 		usageKeyLine("returns the path to the current directory", keyReturnDirectory),
 		"",
 		usageKeyLine("enters search mode (insert into the path)", keyModeSearch),
-		usageKeyLine("enters debug mode  (view error details)", keyModeDebug),
+		usageKeyLine("enters debug mode (error details) for errors, otherwise as above", keyModeDebug),
 		usageKeyLine("enters help mode", keyModeHelp),
 		usageKeyLine("switches back to normal mode or clears search filter in normal mode", keyEsc),
 		"",

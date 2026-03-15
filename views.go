@@ -147,37 +147,37 @@ func (m *model) statusBar() string {
 	if m.modeDebug {
 		mode = "DEBUG"
 		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": dismiss error`, keyString(keyDismissError))),
-			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
+			statusBarItem(fmt.Sprintf(`"%s": dismiss error`, keyStringFirst(keyDismissError))),
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyStringFirst(keyEsc))),
 		}
 	} else if m.modeSearch {
 		mode = "SEARCH"
 		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": complete`, keyString(keyTab))),
-			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
+			statusBarItem(fmt.Sprintf(`"%s": complete`, keyStringFirst(keyTab))),
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyStringFirst(keyEsc))),
 		}
 	} else if m.modeHelp {
 		mode = "HELP"
 		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyString(keyEsc))),
+			statusBarItem(fmt.Sprintf(`"%s": normal mode`, keyStringFirst(keyEsc))),
 		}
 	} else {
 		mode = "NORMAL"
 		cmds = []statusBarItem{
-			statusBarItem(fmt.Sprintf(`"%s": search`, keyString(keyModeSearch))),
-			statusBarItem(fmt.Sprintf(`"%s": help`, keyString(keyModeHelp))),
-			statusBarItem(fmt.Sprintf(`"%s": multiselect`, keyString(keyMark))),
+			statusBarItem(fmt.Sprintf(`"%s": search`, keyStringFirst(keyModeSearch))),
+			statusBarItem(fmt.Sprintf(`"%s": help`, keyStringFirst(keyModeHelp))),
+			statusBarItem(fmt.Sprintf(`"%s": multiselect`, keyStringFirst(keyMark))),
 		}
 	}
 
 	globalCmds := []statusBarItem{
-		statusBarItem(fmt.Sprintf(`"%s": quit`, keyString(keyQuit))),
-		statusBarItem(fmt.Sprintf(`"%s": return dir`, keyString(keyReturnDirectory))),
+		statusBarItem(fmt.Sprintf(`"%s": quit`, keyStringFirst(keyQuit))),
+		statusBarItem(fmt.Sprintf(`"%s": return dir`, keyStringFirst(keyReturnDirectory))),
 	}
 	if m.modeMarks {
-		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return marked`, keyString(keyReturnSelected))))
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return marked`, keyStringFirst(keyReturnSelected))))
 	} else {
-		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return cursor`, keyString(keyReturnSelected))))
+		globalCmds = append(globalCmds, statusBarItem(fmt.Sprintf(`"%s": return cursor`, keyStringFirst(keyReturnSelected))))
 	}
 
 	columns := max(len(cmds), len(globalCmds))
@@ -214,8 +214,8 @@ func (m *model) locationBar() string {
 	if m.modeError {
 		err = fmt.Sprintf(
 			"\tERROR (\"%s\": dismiss, \"%s\": debug): %s",
-			keyString(keyDismissError),
-			keyString(keyModeDebug),
+			keyStringFirst(keyDismissError),
+			keyStringFirst(keyModeDebug),
 			m.errorStr,
 		)
 		return barRendererError.Render(err + "\t\t")
@@ -230,8 +230,16 @@ func (m *model) locationBar() string {
 	return locationBar
 }
 
-func keyString(key key.Binding) string {
+func keyStringFirst(key key.Binding) string {
 	return key.Keys()[0]
+}
+
+func keyStringAll(key key.Binding) string {
+	keys := []string{}
+	for _, k := range key.Keys() {
+		keys = append(keys, k)
+	}
+	return strings.Join(keys, ", ")
 }
 
 func max(i, j int) int {
